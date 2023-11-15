@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Jellron</title>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+
+        <link rel="stylesheet" href="css/styles.css">
+    </head>
+
+    <body>
+        <main>
+            <noscript>
+                This page requires JavaScript. Please enable it, then refresh this page.
+            </noscript>
+
+            <p>You may need to refresh this page after altering camera permissions.</p>
+
+            <form>
+                <label>
+                    Select a Video Input Device:
+                    <select name="video-input-devices" id="video-input-device-select"></select>
+                </label>
+            </form>
+
+            <ul>
+                <li>
+                    Face Mesh Detection Time (ms): <span id="face-mesh-detection-time"></span>
+                </li>
+                <li>
+                    Body Detection Time (ms): <span id="body-detection-time"></span>
+                </li>
+                <li>
+                    Mesh Draw Time (ms): <span id="mesh-draw-time"></span>
+                </li>
+            </ul>
+
+            <video autoplay playsinline>
+                This page requires a browser that supports the <em>video</em> element.
+            </video>
+
+            <canvas></canvas>
+        </main>
+    </body>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+    <script type="module">
+        import { displayVideoInput, getVideoInputDevice, populateVideoInputSelect, promptForPermissions } from "./js/device.js";
+        import {BodyDetector} from "./js/body_detector.js";
+        import {FaceDetector} from "./js/face_detector.js";
+        import {Mesh} from "./js/mesh.js";
+        import {MeshRenderer} from "./js/mesh_renderer.js";
+
+        promptForPermissions();
+
+        const canvas = document.getElementsByTagName("canvas")[0];
+        const canvasContext = canvas.getContext("2d");
+
+        const mesh = new Mesh();
+        const faceDetector = new FaceDetector();
+        const bodyDetector = new BodyDetector();
+        const meshRenderer = new MeshRenderer();
+
+        setInterval(() => {
+            document.getElementById("face-mesh-detection-time").innerText = (faceDetector.getLastRuntime()).toString();
+            document.getElementById("body-detection-time").innerText = (bodyDetector.getLastRuntime()).toString();
+            document.getElementById("mesh-draw-time").innerText = (meshRenderer.getLastRuntime()).toString();
+        }, 250);
+
+        const videoElement = document.getElementsByTagName("video")[0];
+        const deviceSelect = document.getElementById("video-input-device-select");
+        deviceSelect.onchange = async () => {
+            try {
+                await displayVideoInput(videoElement, deviceSelect.value);
+
+                const device = await getVideoInputDevice(deviceSelect.value);
+                const deviceCapabilities = device.getVideoTracks()[0].getCapabilities()
+
+                videoElement.width = deviceCapabilities.width.max;
+                videoElement.height = deviceCapabilities.height.max;
+                canvas.width = deviceCapabilities.width.max;
+                canvas.height = deviceCapabilities.height.max;
+
+                await faceDetector.start(30, videoElement, mesh);
+                await bodyDetector.start(30, videoElement, mesh);
+                meshRenderer.start(60, canvasContext, mesh);
+            } catch (error) {
+                console.error(error);
+
+                faceDetector.stop();
+                bodyDetector.stop();
+                meshRenderer.stop();
+            }
+        };
+
+        populateVideoInputSelect(deviceSelect);
+        navigator.mediaDevices.ondevicechange = () => {
+            // todo Test whether the active device stays selected and that the dropdown updates its  options.
+            populateVideoInputSelect(deviceSelect);
+        };
+    </script>
+</html>
