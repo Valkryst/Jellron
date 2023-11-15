@@ -1,65 +1,11 @@
 import {Keypoint} from "./keypoint.js";
-import {validateDefined, validateInstanceOf, validateNonEmptyString, validatePositiveNumber} from "./validation.js";
+import {validateInstanceOf, validateNonEmptyString} from "./validation.js";
 
 export class Mesh {
     /** Creates a new Mesh object. */
     constructor() {
-        this.faceKeypointSize = 2;
-        this.bodyKeypointSize = 2;
-
-        this.faceKeypointColour = "green";
-        this.postKeypointColour = "magenta";
-
         this.faceKeypoints = [];
         this.bodyKeypoints = [];
-    }
-
-    /**
-     * Draws the face Keypoints on a canvas.
-     *
-     * @param canvasContext Canvas context to draw on.
-     */
-    drawFaceKeypoints(canvasContext) {
-        validateDefined(canvasContext);
-
-        canvasContext.fillStyle = this.faceKeypointColour;
-        for (const keypoint of this.faceKeypoints) {
-            canvasContext.fillRect(keypoint.x, keypoint.y, this.faceKeypointSize, this.faceKeypointSize);
-        }
-    }
-
-    /**
-     * Draws the body Keypoints on a canvas.
-     *
-     * @param canvasContext Canvas context to draw on.
-     */
-    drawBodyKeypoints(canvasContext) {
-        validateDefined(canvasContext);
-
-        canvasContext.fillStyle = this.postKeypointColour;
-        for (const keypoint of this.bodyKeypoints) {
-            canvasContext.fillRect(keypoint.x, keypoint.y, this.bodyKeypointSize, this.bodyKeypointSize);
-        }
-    }
-
-    /**
-     * Draws a Keypoint on a canvas.
-     *
-     * @param canvasContext Canvas context to draw on.
-     * @param keypoint Keypoint to draw.
-     * @param colour Colour of the Keypoint rectangle.
-     * @param size Size of the Keypoint rectangle, in pixels.
-     */
-    drawKeypoint(canvasContext, keypoint, colour, size) {
-        validateDefined(canvasContext);
-        validateInstanceOf(keypoint, Keypoint);
-        validateNonEmptyString(colour);
-        validatePositiveNumber(size);
-
-        canvasContext.fillStyle = colour;
-
-        const halfSize = size / 2;
-        canvasContext.fillRect(keypoint.x - halfSize, keypoint.y - halfSize, size, size);
     }
 
     /**
@@ -251,6 +197,15 @@ export class Mesh {
     }
 
     /**
+     * Retrieves the body Keypoints.
+     *
+     * @returns {Keypoint[]} Body Keypoints.
+     */
+    getBodyKeypoints() {
+        return this.bodyKeypoints;
+    }
+
+    /**
      * Calculates and retrieves the position of the choker Keypoint.
      *
      * @returns {Keypoint|null} Position of the choker Keypoint, or null if the Keypoint cannot be calculated.
@@ -273,6 +228,15 @@ export class Mesh {
     }
 
     /**
+     * Retrieves the face Keypoints.
+     *
+     * @returns {Keypoint[]} Face Keypoints.
+     */
+    getFaceKeypoints() {
+        return this.faceKeypoints;
+    }
+
+    /**
      * Calculates and retrieves the position of the necklace Keypoint.
      *
      * @returns {Keypoint|null} Position of the necklace Keypoint, or null if the Keypoint cannot be calculated.
@@ -292,45 +256,5 @@ export class Mesh {
         const y = (leftShoulder.y + rightShoulder.y) / 2;
         const z = (leftShoulder.z + rightShoulder.z) / 2;
         return new Keypoint(x, y, z, 1, "necklace");
-    }
-
-    /**
-     * Sets the colour of the face Keypoints.
-     *
-     * @param {string} colour Colour of the face Keypoints.
-     */
-    setFaceKeypointColour(colour) {
-        validateNonEmptyString(colour);
-        this.faceKeypointColour = colour;
-    }
-
-    /**
-     * Sets the colour of the body Keypoints.
-     *
-     * @param colour Colour of the body Keypoints.
-     */
-    setPostKeypointColour(colour) {
-        validateNonEmptyString(colour);
-        this.postKeypointColour = colour;
-    }
-
-    /**
-     * Sets the size of the face Keypoints.
-     *
-     * @param {number} size Size of the face Keypoints.
-     */
-    setFaceKeypointSize(size) {
-        validatePositiveNumber(size);
-        this.faceKeyPointSize = size;
-    }
-
-    /**
-     * Sets the size of the body Keypoints.
-     *
-     * @param {number} size Size of the body Keypoints.
-     */
-    setPostKeypointSize(size) {
-        validatePositiveNumber(size);
-        this.postKeyPointSize = size;
     }
 }

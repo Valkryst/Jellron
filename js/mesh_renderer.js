@@ -1,8 +1,15 @@
+import {Keypoint} from "./keypoint.js";
 import {Mesh} from "./mesh.js";
-import {validateInstanceOf, validateNumber} from "./validation.js";
+import {validateInstanceOf, validateNonEmptyString, validateNumber, validatePositiveNumber} from "./validation.js";
 
 export class MeshRenderer {
     constructor() {
+        this.faceKeypointSize = 2;
+        this.bodyKeypointSize = 4;
+
+        this.faceKeypointColour = "green";
+        this.bodyKeypointColour = "magenta";
+
         this.intervalId = null;
         this.lastRuntime = 0;
     }
@@ -28,25 +35,25 @@ export class MeshRenderer {
 
             canvasContext.clearRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
 
-            mesh.drawFaceKeypoints(canvasContext);
-            mesh.drawBodyKeypoints(canvasContext);
+            this.drawFace(canvasContext, mesh);
+            this.drawBody(canvasContext, mesh);
 
             const chokerKeyPoint = mesh.getChokerKeypoint();
             if (chokerKeyPoint != null) {
-                mesh.drawKeypoint(
+                canvasContext.fillStyle = "blue";
+                this.drawPoint(
                     canvasContext,
                     chokerKeyPoint,
-                    "blue",
                     4
                 );
             }
 
             const necklaceKeypoint = mesh.getNecklaceKeypoint();
             if (necklaceKeypoint != null) {
-                mesh.drawKeypoint(
+                canvasContext.fillStyle = "red";
+                this.drawPoint(
                     canvasContext,
                     necklaceKeypoint,
-                    "red",
                     4
                 );
             }
@@ -64,11 +71,99 @@ export class MeshRenderer {
     }
 
     /**
+     * Draws the body of a Mesh on a canvas.
+     *
+     * @param canvasContext Canvas context to draw on.
+     * @param mesh Mesh whose body to draw.
+     */
+    drawBody(canvasContext, mesh) {
+        validateInstanceOf(canvasContext, CanvasRenderingContext2D);
+        validateInstanceOf(mesh, Mesh);
+
+        canvasContext.fillStyle = this.bodyKeypointColour;
+        for (const keypoint of mesh.getBodyKeypoints()) {
+            this.drawPoint(canvasContext, keypoint, this.bodyKeypointSize);
+        }
+    }
+
+    /**
+     * Draws the face of a Mesh on a canvas.
+     *
+     * @param canvasContext Canvas context to draw on.
+     * @param mesh Mesh whose face to draw.
+     */
+    drawFace(canvasContext, mesh) {
+        validateInstanceOf(canvasContext, CanvasRenderingContext2D);
+        validateInstanceOf(mesh, Mesh);
+
+        canvasContext.fillStyle = this.faceKeypointColour;
+        for (const keypoint of mesh.getFaceKeypoints()) {
+            this.drawPoint(canvasContext, keypoint, this.faceKeypointSize);
+        }
+    }
+
+    /**
+     * Draws a Keypoint on a canvas.
+     *
+     * @param canvasContext Canvas context to draw on.
+     * @param keypoint Keypoint to draw.
+     * @param size Size of the Keypoint rectangle, in pixels.
+     */
+    drawPoint(canvasContext, keypoint, size) {
+        validateInstanceOf(canvasContext, CanvasRenderingContext2D);
+        validateInstanceOf(keypoint, Keypoint);
+        validatePositiveNumber(size);
+
+        const halfSize = size / 2;
+        canvasContext.fillRect(keypoint.x - halfSize, keypoint.y - halfSize, size, size);
+    }
+
+    /**
      * Retrieves the most recent runtime of the renderer, in milliseconds.
      *
      * @returns {number} Most recent runtime of the renderer, in milliseconds.
      */
     getLastRuntime() {
         return this.lastRuntime;
+    }
+
+    /**
+     * Sets the colour of the face Keypoints.
+     *
+     * @param {string} colour Colour of the face Keypoints.
+     */
+    setFaceKeypointColour(colour) {
+        validateNonEmptyString(colour);
+        this.faceKeypointColour = colour;
+    }
+
+    /**
+     * Sets the colour of the body Keypoints.
+     *
+     * @param colour Colour of the body Keypoints.
+     */
+    setPostKeypointColour(colour) {
+        validateNonEmptyString(colour);
+        this.bodyKeypointColour = colour;
+    }
+
+    /**
+     * Sets the size of the face Keypoints.
+     *
+     * @param {number} size Size of the face Keypoints.
+     */
+    setFaceKeypointSize(size) {
+        validatePositiveNumber(size);
+        this.faceKeyPointSize = size;
+    }
+
+    /**
+     * Sets the size of the body Keypoints.
+     *
+     * @param {number} size Size of the body Keypoints.
+     */
+    setPostKeypointSize(size) {
+        validatePositiveNumber(size);
+        this.bodyKeypointSize = size;
     }
 }
