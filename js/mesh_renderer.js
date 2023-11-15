@@ -29,7 +29,7 @@ export class MeshRenderer {
         validateInstanceOf(mesh, Mesh);
 
         if (this.intervalId != null) {
-            this.stop;
+            this.stop();
         }
 
         this.intervalId = setInterval(() => {
