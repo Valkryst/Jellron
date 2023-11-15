@@ -12,6 +12,8 @@ export class MeshRenderer {
 
         this.intervalId = null;
         this.lastRuntime = 0;
+
+        this.minimumConfidence = 0.7;
     }
 
     /**
@@ -113,6 +115,10 @@ export class MeshRenderer {
         validateInstanceOf(canvasContext, CanvasRenderingContext2D);
         validateInstanceOf(keypoint, Keypoint);
         validatePositiveNumber(size);
+
+        if (keypoint.confidence < this.minimumConfidence) {
+            return;
+        }
 
         const halfSize = size / 2;
         canvasContext.fillRect(keypoint.x - halfSize, keypoint.y - halfSize, size, size);
