@@ -16,10 +16,9 @@ export class MeshRenderer {
         this.displayFace = true;
         this.displayNecklace = true;
 
+        this.defaultKeypointSize = 5;
+        this.bodyKeypointSize = this.defaultKeypointSize;
         this.faceKeypointSize = 2;
-        this.bodyKeypointSize = 4;
-
-        // todo Add default keypoint size.
 
         this.faceKeypointColour = "green";
         this.bodyKeypointColour = "magenta";
@@ -66,7 +65,7 @@ export class MeshRenderer {
                     this.drawPoint(
                         canvasContext,
                         chokerKeyPoint,
-                        4
+                        this.defaultKeypointSize
                     );
                 }
             }
@@ -78,7 +77,7 @@ export class MeshRenderer {
                     this.drawPoint(
                         canvasContext,
                         necklaceKeypoint,
-                        4
+                        this.defaultKeypointSize
                     );
                 }
             }
@@ -94,7 +93,7 @@ export class MeshRenderer {
                     this.drawPoint(
                         canvasContext,
                         keypoint,
-                        4
+                        this.defaultKeypointSize
                     );
                 }
             }
