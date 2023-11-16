@@ -20,8 +20,11 @@ export class MeshRenderer {
         this.bodyKeypointSize = this.defaultKeypointSize;
         this.faceKeypointSize = 2;
 
-        this.faceKeypointColour = "green";
         this.bodyKeypointColour = "magenta";
+        this.chokerKeypointColour = "blue";
+        this.earlobeKeypointColour = "yellow";
+        this.faceKeypointColour = "green";
+        this.necklaceKeypointColour = "red";
 
         this.intervalId = null;
         this.lastRuntime = 0;
@@ -61,7 +64,7 @@ export class MeshRenderer {
             if (this.displayChoker) {
                 const chokerKeyPoint = mesh.getChokerKeypoint();
                 if (chokerKeyPoint != null) {
-                    canvasContext.fillStyle = "blue";
+                    canvasContext.fillStyle = this.chokerKeypointColour;
                     this.drawPoint(
                         canvasContext,
                         chokerKeyPoint,
@@ -73,7 +76,7 @@ export class MeshRenderer {
             if (this.displayNecklace) {
                 const necklaceKeypoint = mesh.getNecklaceKeypoint();
                 if (necklaceKeypoint != null) {
-                    canvasContext.fillStyle = "red";
+                    canvasContext.fillStyle = this.necklaceKeypointColour;
                     this.drawPoint(
                         canvasContext,
                         necklaceKeypoint,
@@ -83,13 +86,12 @@ export class MeshRenderer {
             }
 
             if (this.displayEarlobes) {
-                const earlobeKeypoints = mesh.getEarlobeKeypoints();
-                for (const keypoint of earlobeKeypoints) {
+                canvasContext.fillStyle = this.earlobeKeypointColour;
+                for (const keypoint of mesh.getEarlobeKeypoints()) {
                     if (keypoint == null) {
                         continue;
                     }
 
-                    canvasContext.fillStyle = "yellow";
                     this.drawPoint(
                         canvasContext,
                         keypoint,
@@ -222,6 +224,26 @@ export class MeshRenderer {
     }
 
     /**
+     * Sets the colour of the choker Keypoint.
+     *
+     * @param {string} colour Colour of the choker Keypoint.
+     */
+    setChokerKeypointColour(colour) {
+        validateNonEmptyString(colour);
+        this.chokerKeypointColour = colour;
+    }
+
+    /**
+     * Sets the colour of the earlobe Keypoints.
+     *
+     * @param colour Colour of the earlobe Keypoints.
+     */
+    setEarlobeKeypointColour(colour) {
+        validateNonEmptyString(colour);
+        this.earlobeKeypointColour = colour;
+    }
+
+    /**
      * Sets the colour of the face Keypoints.
      *
      * @param {string} colour Colour of the face Keypoints.
@@ -232,11 +254,21 @@ export class MeshRenderer {
     }
 
     /**
+     * Sets the colour of the necklace Keypoint.
+     *
+     * @param {string} colour Colour of the necklace Keypoint.
+     */
+    setNecklaceKeypointColour(colour) {
+        validateNonEmptyString(colour);
+        this.necklaceKeypointColour = colour;
+    }
+
+    /**
      * Sets the colour of the body Keypoints.
      *
-     * @param colour Colour of the body Keypoints.
+     * @param {string} colour Colour of the body Keypoints.
      */
-    setPostKeypointColour(colour) {
+    setBodyKeypointColour(colour) {
         validateNonEmptyString(colour);
         this.bodyKeypointColour = colour;
     }

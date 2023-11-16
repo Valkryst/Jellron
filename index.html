@@ -45,12 +45,10 @@
                             Face Mesh Detection Time (ms):
                             <span id="face-mesh-detection-time"></span>
                         </label>
-
                         <label>
                             Body Detection Time (ms):
                             <span id="body-detection-time"></span>
                         </label>
-
                         <label>
                             Mesh Draw Time (ms):
                             <span id="mesh-draw-time"></span>
@@ -70,6 +68,10 @@
                             Show Face
                             <input type="checkbox" name="face" id="face-checkbox" checked>
                         </label>
+                        <label>
+                            Colour:
+                            <input type="color" name="face-colour" id="face-colour-input" value="#008000">
+                        </label>
                     </fieldset>
 
                     <fieldset>
@@ -80,6 +82,10 @@
                         <label>
                             Show Body
                             <input type="checkbox" name="body" id="body-checkbox" checked>
+                        </label>
+                        <label>
+                            Colour:
+                            <input type="color" name="body-colour" id="body-colour-input" value="#FF00FF">
                         </label>
                     </fieldset>
 
@@ -92,7 +98,10 @@
                             Show Necklace
                             <input type="checkbox" name="necklace" id="necklace-checkbox" checked>
                         </label>
-
+                        <label>
+                            Colour:
+                            <input type="color" name="necklace-colour" id="necklace-colour-input" value="#FF0000">
+                        </label>
                         <label>
                             xOffset:
                             <input type="number" name="necklace-x-offset" id="necklace-x-offset-input" value="0" step="1">
@@ -123,17 +132,18 @@
                             Show Choker
                             <input type="checkbox" name="choker" id="choker-checkbox" checked>
                         </label>
-
+                        <label>
+                            Colour:
+                            <input type="color" name="choker-colour" id="choker-colour-input" value="#0000FF">
+                        </label>
                         <label>
                             xOffset:
                             <input type="number" name="choker-x-offset" id="choker-x-offset-input" value="0" step="1">
                         </label>
-
                         <label>
                             yOffset:
                             <input type="number" name="choker-y-offset" id="choker-y-offset-input" value="0" step="1">
                         </label>
-
                         <label>
                             zOffset:
                             <input type="number" name="choker-z-offset" id="choker-z-offset-input" value="0" step="1">
@@ -148,6 +158,11 @@
                         <label>
                             Show Earlobes
                             <input type="checkbox" name="earlobes" id="earlobes-checkbox" checked>
+
+                            <label>
+                                Colour:
+                                <input type="color" name="earlobe-colour" id="earlobe-colour-input" value="#FFFF00">
+                            </label>
                         </label>
 
                         <fieldset>
@@ -157,12 +172,10 @@
                                 xOffset:
                                 <input type="number" name="left-earlobe-x-offset" id="left-earlobe-x-offset-input" value="0" step="1">
                             </label>
-
                             <label>
                                 yOffset:
                                 <input type="number" name="left-earlobe-y-offset" id="left-earlobe-y-offset-input" value="0" step="1">
                             </label>
-
                             <label>
                                 zOffset:
                                 <input type="number" name="left-earlobe-z-offset" id="left-earlobe-z-offset-input" value="0" step="1">
@@ -176,12 +189,10 @@
                                 xOffset:
                                 <input type="number" name="right-earlobe-x-offset" id="right-earlobe-x-offset-input" value="0" step="1">
                             </label>
-
                             <label>
                                 yOffset:
                                 <input type="number" name="right-earlobe-y-offset" id="right-earlobe-y-offset-input" value="0" step="1">
                             </label>
-
                             <label>
                                 zOffset:
                                 <input type="number" name="right-earlobe-z-offset" id="right-earlobe-z-offset-input" value="0" step="1">
@@ -276,6 +287,12 @@
             meshRenderer.setDisplayFace(element.checked);
         });
 
+        element = document.getElementById("face-colour-input");
+        element.addEventListener("change", () => {
+            const element = document.getElementById("face-colour-input");
+            meshRenderer.setFaceKeypointColour(element.value);
+        });
+
 
 
         // Register Listeners for Body Settings
@@ -283,6 +300,12 @@
         element.addEventListener("change", () => {
             const element = document.getElementById("body-checkbox");
             meshRenderer.setDisplayBody(element.checked);
+        });
+
+        element = document.getElementById("body-colour-input");
+        element.addEventListener("change", () => {
+            const element = document.getElementById("body-colour-input");
+            meshRenderer.setBodyKeypointColour(element.value);
         });
 
 
@@ -300,6 +323,12 @@
             const zOffset = getNumericInputValue("choker-z-offset-input");
             mesh.setChokerOffsets(xOffset, yOffset, zOffset);
         }
+
+        element = document.getElementById("choker-colour-input");
+        element.addEventListener("change", () => {
+            const element = document.getElementById("choker-colour-input");
+            meshRenderer.setChokerKeypointColour(element.value);
+        });
 
         element = document.getElementById("choker-x-offset-input");
         element.addEventListener("change", () => updateChokerOffsets());
@@ -326,6 +355,12 @@
             mesh.setNecklaceOffsets(xOffset, yOffset, zOffset);
         }
 
+        element = document.getElementById("necklace-colour-input");
+        element.addEventListener("change", () => {
+            const element = document.getElementById("necklace-colour-input");
+            meshRenderer.setNecklaceKeypointColour(element.value);
+        });
+
         element = document.getElementById("necklace-x-offset-input");
         element.addEventListener("change", () => updateNecklaceOffsets());
 
@@ -344,6 +379,11 @@
             meshRenderer.setDisplayEarlobes(element.checked);
         });
 
+        element = document.getElementById("earlobe-colour-input");
+        element.addEventListener("change", () => {
+            const element = document.getElementById("earlobe-colour-input");
+            meshRenderer.setEarlobeKeypointColour(element.value);
+        });
 
 
         // Register Listeners for Left Earlobe Settings
