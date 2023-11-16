@@ -54,6 +54,28 @@
                     <legend>Keypoints</legend>
 
                     <fieldset>
+                        <legend>Face</legend>
+
+                        <p>The face is displayed as a set of <em>green</em> squares.</p>
+
+                        <label>
+                            Show Face
+                            <input type="checkbox" name="face" id="face-checkbox" checked>
+                        </label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Body</legend>
+
+                        <p>The body is displayed as a set of <em>magenta</em> squares.</p>
+
+                        <label>
+                            Show Body
+                            <input type="checkbox" name="body" id="body-checkbox" checked>
+                        </label>
+                    </fieldset>
+
+                    <fieldset>
                         <legend>Necklace</legend>
 
                         <p>The necklace is displayed as a <em>red</em> square.</p>
@@ -189,8 +211,27 @@
             populateVideoInputSelect(deviceSelect);
         };
 
+
+        // Register Listeners for Face Settings
+        let element = document.getElementById("face-checkbox");
+        element.addEventListener("change", () => {
+            const element = document.getElementById("face-checkbox");
+            meshRenderer.setDisplayFace(element.checked);
+        });
+
+
+
+        // Register Listeners for Body Settings
+        element = document.getElementById("body-checkbox");
+        element.addEventListener("change", () => {
+            const element = document.getElementById("body-checkbox");
+            meshRenderer.setDisplayBody(element.checked);
+        });
+
+
+
         // Register Listeners for Choker Settings
-        let element = document.getElementById("choker-checkbox");
+        element = document.getElementById("choker-checkbox");
         element.addEventListener("change", () => {
             const element = document.getElementById("choker-checkbox");
             meshRenderer.setDisplayChoker(element.checked);
@@ -211,6 +252,8 @@
 
         element = document.getElementById("choker-z-offset-input");
         element.addEventListener("change", () => updateChokerOffsets());
+
+
 
         // Register Listeners for Necklace Settings
         element = document.getElementById("necklace-checkbox");
