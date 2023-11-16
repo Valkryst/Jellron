@@ -10,7 +10,9 @@ import {
 
 export class MeshRenderer {
     constructor() {
+        this.displayBody = true;
         this.displayChoker = true;
+        this.displayFace = true;
         this.displayNecklace = true;
 
         this.faceKeypointSize = 2;
@@ -46,8 +48,13 @@ export class MeshRenderer {
 
             canvasContext.clearRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
 
-            this.drawFace(canvasContext, mesh);
-            this.drawBody(canvasContext, mesh);
+            if (this.displayFace) {
+                this.drawFace(canvasContext, mesh);
+            }
+
+            if (this.displayBody) {
+                this.drawBody(canvasContext, mesh);
+            }
 
             if (this.displayChoker) {
                 const chokerKeyPoint = mesh.getChokerKeypoint();
@@ -147,6 +154,16 @@ export class MeshRenderer {
     }
 
     /**
+     * Sets whether the face should be displayed.
+     *
+     * @param displayBody Whether the face should be displayed.
+     */
+    setDisplayBody(displayBody) {
+        validateBoolean(displayBody);
+        this.displayBody = displayBody;
+    }
+
+    /**
      * Sets whether the choker should be displayed.
      *
      * @param displayChoker Whether the choker should be displayed.
@@ -154,6 +171,16 @@ export class MeshRenderer {
     setDisplayChoker(displayChoker) {
         validateBoolean(displayChoker);
         this.displayChoker = displayChoker;
+    }
+
+    /**
+     * Sets whether the face should be displayed.
+     *
+     * @param displayFace Whether the face should be displayed.
+     */
+    setDisplayFace(displayFace) {
+        validateBoolean(displayFace);
+        this.displayFace = displayFace;
     }
 
     /**
