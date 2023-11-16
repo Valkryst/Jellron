@@ -22,7 +22,7 @@ export class MeshRenderer {
         this.intervalId = null;
         this.lastRuntime = 0;
 
-        this.minimumConfidence = 0.7;
+        this.minimumConfidence = 0.5;
     }
 
     /**
