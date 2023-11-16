@@ -1,11 +1,14 @@
 import {Keypoint} from "./keypoint.js";
-import {validateInstanceOf, validateNonEmptyString} from "./validation.js";
+import {validateInstanceOf, validateNonEmptyString, validateNumber} from "./validation.js";
 
 export class Mesh {
     /** Creates a new Mesh object. */
     constructor() {
         this.faceKeypoints = [];
         this.bodyKeypoints = [];
+
+        this.chokerOffsets = [0, 0, 0];
+        this.necklaceOffsets = [0, 0, 0];
     }
 
     /**
@@ -221,9 +224,18 @@ export class Mesh {
             return null;
         }
 
-        const x = necklaceKeypoint.x + ((noseKeypoint.x - necklaceKeypoint.x) / 3);
-        const y = necklaceKeypoint.y + ((noseKeypoint.y - necklaceKeypoint.y) / 3);
-        const z = (noseKeypoint.z + necklaceKeypoint.z) / 2;
+        let x = necklaceKeypoint.x;
+        x += ((noseKeypoint.x - necklaceKeypoint.x) / 3);
+        x += this.chokerOffsets[0];
+
+        let y = necklaceKeypoint.y;
+        y += ((noseKeypoint.y - necklaceKeypoint.y) / 3);
+        y += this.chokerOffsets[1];
+
+        let z = necklaceKeypoint.z;
+        z += (noseKeypoint.z + necklaceKeypoint.z) / 2;
+        z += this.chokerOffsets[2];
+
         return new Keypoint(x, y, z, 1, "choker");
     }
 
@@ -252,9 +264,45 @@ export class Mesh {
             return null;
         }
 
-        const x = (leftShoulder.x + rightShoulder.x) / 2;
-        const y = (leftShoulder.y + rightShoulder.y) / 2;
-        const z = (leftShoulder.z + rightShoulder.z) / 2;
+        let x = (leftShoulder.x + rightShoulder.x) / 2;
+        x += this.necklaceOffsets[0];
+
+        let y = (leftShoulder.y + rightShoulder.y) / 2;
+        y += this.necklaceOffsets[1];
+
+        let z = (leftShoulder.z + rightShoulder.z) / 2;
+        z += this.necklaceOffsets[2];
+
         return new Keypoint(x, y, z, 1, "necklace");
+    }
+
+    /**
+     * Sets the offsets of the choker Keypoint.
+     *
+     * @param {number} xOffset Offset to apply to the X coordinate.
+     * @param {number} yOffset Offset to apply to the Y coordinate.
+     * @param {number} zOffset Offset to apply to the Z coordinate.
+     */
+    setChokerOffsets(xOffset = 0, yOffset = 0, zOffset = 0) {
+        validateNumber(xOffset);
+        validateNumber(yOffset);
+        validateNumber(zOffset);
+
+        this.chokerOffsets = [xOffset, yOffset, zOffset];
+    }
+
+    /**
+     * Sets the offsets of the necklace Keypoint.
+     *
+     * @param {number} xOffset Offset to apply to the X coordinate.
+     * @param {number} yOffset Offset to apply to the Y coordinate.
+     * @param {number} zOffset Offset to apply to the Z coordinate.
+     */
+    setNecklaceOffsets(xOffset = 0, yOffset = 0, zOffset = 0) {
+        validateNumber(xOffset);
+        validateNumber(yOffset);
+        validateNumber(zOffset);
+
+        this.necklaceOffsets = [xOffset, yOffset, zOffset];
     }
 }
