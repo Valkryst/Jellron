@@ -1,9 +1,18 @@
 import {Keypoint} from "./keypoint.js";
 import {Mesh} from "./mesh.js";
-import {validateInstanceOf, validateNonEmptyString, validateNumber, validatePositiveNumber} from "./validation.js";
+import {
+    validateBoolean,
+    validateInstanceOf,
+    validateNonEmptyString,
+    validateNumber,
+    validatePositiveNumber
+} from "./validation.js";
 
 export class MeshRenderer {
     constructor() {
+        this.displayChoker = true;
+        this.displayNecklace = true;
+
         this.faceKeypointSize = 2;
         this.bodyKeypointSize = 4;
 
@@ -40,24 +49,28 @@ export class MeshRenderer {
             this.drawFace(canvasContext, mesh);
             this.drawBody(canvasContext, mesh);
 
-            const chokerKeyPoint = mesh.getChokerKeypoint();
-            if (chokerKeyPoint != null) {
-                canvasContext.fillStyle = "blue";
-                this.drawPoint(
-                    canvasContext,
-                    chokerKeyPoint,
-                    4
-                );
+            if (this.displayChoker) {
+                const chokerKeyPoint = mesh.getChokerKeypoint();
+                if (chokerKeyPoint != null) {
+                    canvasContext.fillStyle = "blue";
+                    this.drawPoint(
+                        canvasContext,
+                        chokerKeyPoint,
+                        4
+                    );
+                }
             }
 
-            const necklaceKeypoint = mesh.getNecklaceKeypoint();
-            if (necklaceKeypoint != null) {
-                canvasContext.fillStyle = "red";
-                this.drawPoint(
-                    canvasContext,
-                    necklaceKeypoint,
-                    4
-                );
+            if (this.displayNecklace) {
+                const necklaceKeypoint = mesh.getNecklaceKeypoint();
+                if (necklaceKeypoint != null) {
+                    canvasContext.fillStyle = "red";
+                    this.drawPoint(
+                        canvasContext,
+                        necklaceKeypoint,
+                        4
+                    );
+                }
             }
 
             this.lastRuntime = performance.now() - currentTime;
@@ -131,6 +144,26 @@ export class MeshRenderer {
      */
     getLastRuntime() {
         return this.lastRuntime;
+    }
+
+    /**
+     * Sets whether the choker should be displayed.
+     *
+     * @param displayChoker Whether the choker should be displayed.
+     */
+    setDisplayChoker(displayChoker) {
+        validateBoolean(displayChoker);
+        this.displayChoker = displayChoker;
+    }
+
+    /**
+     * Sets whether the necklace should be displayed.
+     *
+     * @param displayNecklace Whether the necklace should be displayed.
+     */
+    setDisplayNecklace(displayNecklace) {
+        validateBoolean(displayNecklace)
+        this.displayNecklace = displayNecklace;
     }
 
     /**

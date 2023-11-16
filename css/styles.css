@@ -11,3 +11,12 @@ html {
         }
     }
 }
+
+fieldset {
+    display: grid;
+    grid-template-columns: 100%;
+}
+
+#webcam-settings, #keypoint-settings {
+    grid-template-columns: 1fr 1fr;
+}

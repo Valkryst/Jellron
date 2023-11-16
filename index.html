@@ -18,23 +18,99 @@
             <p>You may need to refresh this page after altering camera permissions.</p>
 
             <form>
-                <label>
-                    Select a Video Input Device:
-                    <select name="video-input-devices" id="video-input-device-select"></select>
-                </label>
-            </form>
+                <fieldset id="webcam-settings">
+                    <legend>Webcam</legend>
 
-            <ul>
-                <li>
-                    Face Mesh Detection Time (ms): <span id="face-mesh-detection-time"></span>
-                </li>
-                <li>
-                    Body Detection Time (ms): <span id="body-detection-time"></span>
-                </li>
-                <li>
-                    Mesh Draw Time (ms): <span id="mesh-draw-time"></span>
-                </li>
-            </ul>
+                    <fieldset>
+                        <legend>Settings</legend>
+
+                        <label>
+                            Select a Video Input Device:
+                            <select name="video-input-devices" id="video-input-device-select"></select>
+                        </label>
+                    </fieldset>
+
+                    <fieldset id="webcam-stats">
+                        <legend>Stats</legend>
+
+                        <label>
+                            Face Mesh Detection Time (ms):
+                            <span id="face-mesh-detection-time"></span>
+                        </label>
+
+                        <label>
+                            Body Detection Time (ms):
+                            <span id="body-detection-time"></span>
+                        </label>
+
+                        <label>
+                            Mesh Draw Time (ms):
+                            <span id="mesh-draw-time"></span>
+                        </label>
+                    </fieldset>
+                </fieldset>
+
+                <fieldset id="keypoint-settings">
+                    <legend>Keypoints</legend>
+
+                    <fieldset>
+                        <legend>Necklace</legend>
+
+                        <p>The necklace is displayed as a <em>red</em> square.</p>
+
+                        <label>
+                            Show Necklace
+                            <input type="checkbox" name="necklace" id="necklace-checkbox" checked>
+                        </label>
+
+                        <label>
+                            xOffset:
+                            <input type="number" name="necklace-x-offset" id="necklace-x-offset-input" value="0" step="1">
+                        </label>
+
+                        <label>
+                            yOffset:
+                            <input type="number" name="necklace-y-offset" id="necklace-y-offset-input" value="0" step="1">
+                        </label>
+
+                        <label>
+                            zOffset:
+                            <input type="number" name="necklace-z-offset" id="necklace-z-offset-input" value="0" step="1">
+                        </label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Choker</legend>
+
+                        <p>The choker is displayed as a <em>blue</em> square.</p>
+
+                        <p>
+                            The choker's position is relative to the necklace's position. Any changes to the necklace's
+                            position will also affect the choker's position.
+                        </p>
+
+                        <label>
+                            Show Choker
+                            <input type="checkbox" name="choker" id="choker-checkbox" checked>
+                        </label>
+
+                        <label>
+                            xOffset:
+                            <input type="number" name="choker-x-offset" id="choker-x-offset-input" value="0" step="1">
+                        </label>
+
+                        <label>
+                            yOffset:
+                            <input type="number" name="choker-y-offset" id="choker-y-offset-input" value="0" step="1">
+                        </label>
+
+                        <label>
+                            zOffset:
+                            <input type="number" name="choker-z-offset" id="choker-z-offset-input" value="0" step="1">
+                        </label>
+                    </fieldset>
+                </fieldset>
+            </form>
 
             <video autoplay playsinline>
                 This page requires a browser that supports the <em>video</em> element.
@@ -55,6 +131,15 @@
         import {FaceDetector} from "./js/face_detector.js";
         import {Mesh} from "./js/mesh.js";
         import {MeshRenderer} from "./js/mesh_renderer.js";
+
+        function getNumericInputValue(elementId) {
+            const inputElement = document.getElementById(elementId);
+            if (inputElement === null) {
+                throw new Error(`Could not locate element using the ID "${elementId}".`);
+            }
+
+            return parseInt(inputElement.value);
+        }
 
         promptForPermissions();
 
@@ -103,5 +188,52 @@
             // todo Test whether the active device stays selected and that the dropdown updates its  options.
             populateVideoInputSelect(deviceSelect);
         };
+
+        // Register Listeners for Choker Settings
+        let element = document.getElementById("choker-checkbox");
+        element.addEventListener("change", () => {
+            const element = document.getElementById("choker-checkbox");
+            meshRenderer.setDisplayChoker(element.checked);
+        });
+
+        function updateChokerOffsets() {
+            const xOffset = getNumericInputValue("choker-x-offset-input");
+            const yOffset = getNumericInputValue("choker-y-offset-input");
+            const zOffset = getNumericInputValue("choker-z-offset-input");
+            mesh.setChokerOffsets(xOffset, yOffset, zOffset);
+        }
+
+        element = document.getElementById("choker-x-offset-input");
+        element.addEventListener("change", () => updateChokerOffsets());
+
+        element = document.getElementById("choker-y-offset-input");
+        element.addEventListener("change", () => updateChokerOffsets());
+
+        element = document.getElementById("choker-z-offset-input");
+        element.addEventListener("change", () => updateChokerOffsets());
+
+        // Register Listeners for Necklace Settings
+        element = document.getElementById("necklace-checkbox");
+        element.addEventListener("change", () => {
+            const element = document.getElementById("necklace-checkbox");
+            meshRenderer.setDisplayNecklace(element.checked);
+        });
+
+        function updateNecklaceOffsets() {
+            const xOffset = getNumericInputValue("necklace-x-offset-input");
+            const yOffset = getNumericInputValue("necklace-y-offset-input");
+            const zOffset = getNumericInputValue("necklace-z-offset-input");
+            mesh.setNecklaceOffsets(xOffset, yOffset, zOffset);
+        }
+
+        element = document.getElementById("necklace-x-offset-input");
+        element.addEventListener("change", () => updateNecklaceOffsets());
+
+        element = document.getElementById("necklace-y-offset-input");
+        element.addEventListener("change", () => updateNecklaceOffsets());
+
+        element = document.getElementById("necklace-z-offset-input");
+        element.addEventListener("change", () => updateNecklaceOffsets());
+
     </script>
 </html>
