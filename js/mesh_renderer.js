@@ -12,11 +12,14 @@ export class MeshRenderer {
     constructor() {
         this.displayBody = true;
         this.displayChoker = true;
+        this.displayEarlobes = true;
         this.displayFace = true;
         this.displayNecklace = true;
 
         this.faceKeypointSize = 2;
         this.bodyKeypointSize = 4;
+
+        // todo Add default keypoint size.
 
         this.faceKeypointColour = "green";
         this.bodyKeypointColour = "magenta";
@@ -75,6 +78,22 @@ export class MeshRenderer {
                     this.drawPoint(
                         canvasContext,
                         necklaceKeypoint,
+                        4
+                    );
+                }
+            }
+
+            if (this.displayEarlobes) {
+                const earlobeKeypoints = mesh.getEarlobeKeypoints();
+                for (const keypoint of earlobeKeypoints) {
+                    if (keypoint == null) {
+                        continue;
+                    }
+
+                    canvasContext.fillStyle = "yellow";
+                    this.drawPoint(
+                        canvasContext,
+                        keypoint,
                         4
                     );
                 }
@@ -171,6 +190,16 @@ export class MeshRenderer {
     setDisplayChoker(displayChoker) {
         validateBoolean(displayChoker);
         this.displayChoker = displayChoker;
+    }
+
+    /**
+     * Sets whether the earlobes should be displayed.
+     *
+     * @param displayEarlobes Whether the earlobes should be displayed.
+     */
+    setDisplayEarlobes(displayEarlobes) {
+        validateBoolean(displayEarlobes);
+        this.displayEarlobes = displayEarlobes;
     }
 
     /**

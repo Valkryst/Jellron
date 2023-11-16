@@ -131,6 +131,55 @@
                             <input type="number" name="choker-z-offset" id="choker-z-offset-input" value="0" step="1">
                         </label>
                     </fieldset>
+
+                    <fieldset>
+                        <legend>Earlobes</legend>
+
+                        <p>The earlobes are displayed as <em>yellow</em> squares.</p>
+
+                        <label>
+                            Show Earlobes
+                            <input type="checkbox" name="earlobes" id="earlobes-checkbox" checked>
+                        </label>
+
+                        <fieldset>
+                            <legend>Left</legend>
+
+                            <label>
+                                xOffset:
+                                <input type="number" name="left-earlobe-x-offset" id="left-earlobe-x-offset-input" value="0" step="1">
+                            </label>
+
+                            <label>
+                                yOffset:
+                                <input type="number" name="left-earlobe-y-offset" id="left-earlobe-y-offset-input" value="0" step="1">
+                            </label>
+
+                            <label>
+                                zOffset:
+                                <input type="number" name="left-earlobe-z-offset" id="left-earlobe-z-offset-input" value="0" step="1">
+                            </label>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>Right</legend>
+
+                            <label>
+                                xOffset:
+                                <input type="number" name="right-earlobe-x-offset" id="right-earlobe-x-offset-input" value="0" step="1">
+                            </label>
+
+                            <label>
+                                yOffset:
+                                <input type="number" name="right-earlobe-y-offset" id="right-earlobe-y-offset-input" value="0" step="1">
+                            </label>
+
+                            <label>
+                                zOffset:
+                                <input type="number" name="right-earlobe-z-offset" id="right-earlobe-z-offset-input" value="0" step="1">
+                            </label>
+                        </fieldset>
+                    </fieldset>
                 </fieldset>
             </form>
 
@@ -278,5 +327,51 @@
         element = document.getElementById("necklace-z-offset-input");
         element.addEventListener("change", () => updateNecklaceOffsets());
 
+
+
+        // Register Listeners for Earlobe Settings
+        element = document.getElementById("earlobes-checkbox");
+        element.addEventListener("change", () => {
+            const element = document.getElementById("earlobes-checkbox");
+            meshRenderer.setDisplayEarlobes(element.checked);
+        });
+
+
+
+        // Register Listeners for Left Earlobe Settings
+        function updateLeftEarlobeOffsets() {
+            const xOffset = getNumericInputValue("left-earlobe-x-offset-input");
+            const yOffset = getNumericInputValue("left-earlobe-y-offset-input");
+            const zOffset = getNumericInputValue("left-earlobe-z-offset-input");
+            mesh.setLeftEarlobeOffsets(xOffset, yOffset, zOffset);
+        }
+
+        element = document.getElementById("left-earlobe-x-offset-input");
+        element.addEventListener("change", () => updateLeftEarlobeOffsets());
+
+        element = document.getElementById("left-earlobe-y-offset-input");
+        element.addEventListener("change", () => updateLeftEarlobeOffsets());
+
+        element = document.getElementById("left-earlobe-z-offset-input");
+        element.addEventListener("change", () => updateLeftEarlobeOffsets());
+
+
+
+        // Register Listeners for Right Earlobe Settings
+        function updateRightEarlobeOffsets() {
+            const xOffset = getNumericInputValue("right-earlobe-x-offset-input");
+            const yOffset = getNumericInputValue("right-earlobe-y-offset-input");
+            const zOffset = getNumericInputValue("right-earlobe-z-offset-input");
+            mesh.setRightEarlobeOffsets(xOffset, yOffset, zOffset);
+        }
+
+        element = document.getElementById("right-earlobe-x-offset-input");
+        element.addEventListener("change", () => updateRightEarlobeOffsets());
+
+        element = document.getElementById("right-earlobe-y-offset-input");
+        element.addEventListener("change", () => updateRightEarlobeOffsets());
+
+        element = document.getElementById("right-earlobe-z-offset-input");
+        element.addEventListener("change", () => updateRightEarlobeOffsets());
     </script>
 </html>

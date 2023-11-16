@@ -8,7 +8,9 @@ export class Mesh {
         this.bodyKeypoints = [];
 
         this.chokerOffsets = [0, 0, 0];
+        this.leftEarlobeOffsets = [0, 0, 0];
         this.necklaceOffsets = [0, 0, 0];
+        this.rightEarlobeOffsets = [0, 0, 0];
     }
 
     /**
@@ -44,24 +46,60 @@ export class Mesh {
                     rawFace.keypoints[i].y,
                     rawFace.keypoints[i].z,
                     1,
-                    rawFace.keypoints[i].name
+                    this.renameFaceKeypoint(i, rawFace.keypoints[i].name)
                 );
             }
         } else {
             this.clearFaceKeypoints();
 
-            for (const rawKeypoint of rawFace.keypoints) {
+            for (let i = 0 ; i < rawFace.keypoints.length; i++) {
+                const rawKeypoint = rawFace.keypoints[i];
                 this.addFaceKeypoint(
                     new Keypoint(
                         rawKeypoint.x,
                         rawKeypoint.y,
                         rawKeypoint.z,
                         1,
-                        rawKeypoint.name
+                        this.renameFaceKeypoint(i, rawKeypoint.name)
                     )
                 );
             }
         }
+    }
+
+    /**
+     * Renames a face Keypoint, if necessary.
+     *
+     * Some calculations require specific points which have generic names. To get around this, we rename
+     * these points to something more specific.
+     *
+     * The array of points is, as far as I can tell, always in the same order. This means that we can
+     * reference the following mesh diagram to find specific points and rename them.
+     *
+     * https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/mesh_map.jpg
+     *
+     * @param index Index of the Keypoint, in the array of raw face Keypoints.
+     * @param name Current name of the Keypoint.
+     *
+     * @returns {string} Keypoint name.
+     */
+    renameFaceKeypoint(index, name) {
+        switch (index) {
+            case 164: {
+                name = "midpoint_between_nose_and_mouth";
+                break;
+            }
+            case 234: {
+                name = "right_edge_face";
+                break;
+            }
+            case 454: {
+                name = "left_edge_face";
+                break;
+            }
+        }
+
+        return name;
     }
 
     /**
@@ -240,6 +278,119 @@ export class Mesh {
     }
 
     /**
+     * Calculates and retrieves the positions of the earlobe Keypoints.
+     *
+     * T
+     *
+     * @returns {Keypoint[]} Earlobe Keypoints. Element [0] is the left earlobe, and [1] is the right earlobe. The both Keypoints will be null if either one cannot be calculated.
+     */
+    getEarlobeKeypoints() {
+        let earlobes = [null, null];
+
+        const leftEar = this.getKeypointByLabel("left_ear");
+        if (leftEar == null) {
+            return earlobes;
+        }
+
+        const rightEar = this.getKeypointByLabel("right_ear");
+        if (rightEar == null) {
+            return earlobes;
+        }
+
+        const leftEye = this.getKeypointByLabel("left_eye");
+        if (leftEye == null) {
+            return earlobes;
+        }
+
+        const rightEye = this.getKeypointByLabel("right_eye");
+        if (rightEye == null) {
+            return earlobes;
+        }
+
+        const midPointBetweenNoseAndMouth = this.getKeypointByLabel("midpoint_between_nose_and_mouth");
+        if (midPointBetweenNoseAndMouth == null) {
+            return earlobes;
+        }
+
+        const leftEdgeFace = this.getKeypointByLabel("left_edge_face");
+        if (leftEdgeFace == null) {
+            return earlobes;
+        }
+
+        const rightEdgeFace = this.getKeypointByLabel("right_edge_face");
+        if (rightEdgeFace == null) {
+            return earlobes;
+        }
+
+        /*
+         * Determine which algorithm to use, based on head rotation.
+         *
+         * None
+         *      Use the original algorithm.
+         *
+         *      todo Test whether clamping to the edge of the face produces better results.
+         *
+         * Left/Right
+         *      Use the original algorithm, but hide earlobes depending on head rotation.
+         *
+         *      The magic number, used in the two comparisons, was arbitrarily chosen, but seems to work well.
+         *
+         * Up/Down
+         *     todo Implement.
+         */
+        const isRotatedLeft = (rightEdgeFace.z - leftEdgeFace.z) > 20;
+        const isRotatedRight = (leftEdgeFace.z - rightEdgeFace.z) > 20;
+
+        /*
+         * We assume that the Y-Axis of each earlobe is the same as the midpoint between the nose and mouth.
+         *
+         * The Y-Axis coordinates are affected by head tilt, which can be determined either by the difference between
+         * the Y-Axis coordinates of the ears or eyes. Generally, Keypoints closer to the middle of the face are more
+         * accurate, so we use the difference between the Y-Axis coordinates of the eyes.
+         */
+        const leftEarlobeY = midPointBetweenNoseAndMouth.y + (leftEye.y - rightEye.y);
+        const rightEarlobeY = midPointBetweenNoseAndMouth.y + (rightEye.y - leftEye.y);
+
+        /*
+         * As the ear Keypoints are not as reliable as Keypoints closer to the middle of the face, we adjust the X-Axis
+         * coordinates of the earlobes to be closer to edges of the face.
+         */
+        const leftEarlobeX = leftEar.x + ((leftEdgeFace.x - leftEar.x) / 2);
+        const rightEarlobeX = rightEar.x - ((rightEar.x - rightEdgeFace.x) / 2);
+
+        /*
+         * We assume that the X-Axis coordinate of the earlobe is the same as the X-Axis coordinate of the ear.
+         *
+         * We assume that head rotation is accounted for by the ear Keypoints, as their coordinates are updated by the
+         * model.
+         */
+        const leftEarlobeKeypoint = new Keypoint(
+            leftEarlobeX + this.leftEarlobeOffsets[0],
+            leftEarlobeY + this.leftEarlobeOffsets[1],
+            leftEar.z + this.leftEarlobeOffsets[2],
+            1,
+            "left_earlobe"
+        );
+
+        const rightEarlobeKeypoint = new Keypoint(
+            rightEarlobeX + this.rightEarlobeOffsets[0],
+            rightEarlobeY + this.rightEarlobeOffsets[1],
+            rightEar.z + this.rightEarlobeOffsets[2],
+            1,
+            "right_earlobe"
+        );
+
+        if (!isRotatedLeft && !isRotatedRight) {
+            return [leftEarlobeKeypoint, rightEarlobeKeypoint];
+        } else {
+            return [
+                isRotatedLeft ? leftEarlobeKeypoint : null,
+                isRotatedRight ? rightEarlobeKeypoint : null
+            ];
+        }
+    }
+
+    /**
      * Retrieves the face Keypoints.
      *
      * @returns {Keypoint[]} Face Keypoints.
@@ -292,6 +443,21 @@ export class Mesh {
     }
 
     /**
+     * Sets the offsets of the left earlobe Keypoint.
+     *
+     * @param {number} xOffset Offset to apply to the X coordinate.
+     * @param {number} yOffset Offset to apply to the Y coordinate.
+     * @param {number} zOffset Offset to apply to the Z coordinate.
+     */
+    setLeftEarlobeOffsets(xOffset = 0, yOffset = 0, zOffset = 0) {
+        validateNumber(xOffset);
+        validateNumber(yOffset);
+        validateNumber(zOffset);
+
+        this.leftEarlobeOffsets = [xOffset, yOffset, zOffset];
+    }
+
+    /**
      * Sets the offsets of the necklace Keypoint.
      *
      * @param {number} xOffset Offset to apply to the X coordinate.
@@ -304,5 +470,20 @@ export class Mesh {
         validateNumber(zOffset);
 
         this.necklaceOffsets = [xOffset, yOffset, zOffset];
+    }
+
+    /**
+     * Sets the offsets of the right earlobe Keypoint.
+     *
+     * @param {number} xOffset Offset to apply to the X coordinate.
+     * @param {number} yOffset Offset to apply to the Y coordinate.
+     * @param {number} zOffset Offset to apply to the Z coordinate.
+     */
+    setRightEarlobeOffsets(xOffset = 0, yOffset = 0, zOffset = 0) {
+        validateNumber(xOffset);
+        validateNumber(yOffset);
+        validateNumber(zOffset);
+
+        this.rightEarlobeOffsets = [xOffset, yOffset, zOffset];
     }
 }
