@@ -83,3 +83,16 @@ export function validateInstanceOf(object, expectedType) {
         throw new Error(`Parameter "object" must be an instance of ${expectedType.name}. ${object}`);
     }
 }
+
+/**
+ * Determines whether a given object is a primitive boolean or a Boolean object.
+ *
+ * @param {object} object Object to check.
+ * @throws {Error} Thrown if the object is not a primitive boolean or a Boolean object.
+ */
+export function validateBoolean(object) {
+    validateDefined(object)
+    if (typeof object !== 'boolean' && !(object instanceof Boolean)) {
+        throw new Error('Parameter "object" must be a primitive boolean or a Boolean object. ' + object);
+    }
+}
