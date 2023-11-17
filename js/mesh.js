@@ -288,8 +288,6 @@ export class Mesh {
     /**
      * Calculates and retrieves the positions of the earlobe Keypoints.
      *
-     * T
-     *
      * @returns {Keypoint[]} Earlobe Keypoints. Element [0] is the left earlobe, and [1] is the right earlobe. The both Keypoints will be null if either one cannot be calculated.
      */
     getEarlobeKeypoints() {
