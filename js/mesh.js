@@ -384,8 +384,8 @@ export class Mesh {
          * As the ear Keypoints are not as reliable as Keypoints closer to the middle of the face, we adjust the X-Axis
          * coordinates of the earlobes to be closer to edges of the face.
          */
-        const leftEarlobeX = leftEar.x + ((leftEdgeFace.x - leftEar.x) / 2);
-        const rightEarlobeX = rightEar.x - ((rightEar.x - rightEdgeFace.x) / 2);
+        const leftEarlobeX = leftEar.x + ((leftEdgeFace.x - leftEar.x) / 3);
+        const rightEarlobeX = rightEar.x - ((rightEar.x - rightEdgeFace.x) / 3);
 
         /*
          * We assume that the X-Axis coordinate of the earlobe is the same as the X-Axis coordinate of the ear.
