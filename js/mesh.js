@@ -85,6 +85,14 @@ export class Mesh {
      */
     renameFaceKeypoint(index, name) {
         switch (index) {
+            case 10: {
+                name = "top_edge_face";
+                break;
+            }
+            case 152: {
+                name = "bottom_edge_face";
+                break;
+            }
             case 164: {
                 name = "midpoint_between_nose_and_mouth";
                 break;
@@ -322,6 +330,16 @@ export class Mesh {
             return earlobes;
         }
 
+        const topEdgeFace = this.getKeypointByLabel("top_edge_face");
+        if (topEdgeFace == null) {
+            return earlobes;
+        }
+
+        const bottomEdgeFace = this.getKeypointByLabel("bottom_edge_face");
+        if (bottomEdgeFace == null) {
+            return earlobes;
+        }
+
         /*
          * Determine which algorithm to use, based on head rotation.
          *
@@ -331,15 +349,21 @@ export class Mesh {
          *      todo Test whether clamping to the edge of the face produces better results.
          *
          * Left/Right
-         *      Use the original algorithm, but hide earlobes depending on head rotation.
+         *      Use the original algorithm, but hide earlobes depending on head rotation
          *
-         *      The magic number, used in the two comparisons, was arbitrarily chosen, but seems to work well.
+         *      The magic numbers, used in the two comparisons, were arbitrarily chosen, but seem to work.
          *
          * Up/Down
-         *     todo Implement.
+         *     Use the original algorithm, but add an offset to the earlobe Y-Axis coordinates depending on head
+         *     rotation.
+         *
+         *     The magic numbers, used in the two comparisons, were arbitrarily chosen, but seem to work.
          */
         const isRotatedLeft = (rightEdgeFace.z - leftEdgeFace.z) > 20;
         const isRotatedRight = (leftEdgeFace.z - rightEdgeFace.z) > 20;
+
+        const isRotatedUp = topEdgeFace.z > 8;
+        const isRotatedDown = bottomEdgeFace.z > 8;
 
         /*
          * We assume that the Y-Axis of each earlobe is the same as the midpoint between the nose and mouth.
@@ -348,8 +372,15 @@ export class Mesh {
          * the Y-Axis coordinates of the ears or eyes. Generally, Keypoints closer to the middle of the face are more
          * accurate, so we use the difference between the Y-Axis coordinates of the eyes.
          */
-        const leftEarlobeY = midPointBetweenNoseAndMouth.y + (leftEye.y - rightEye.y);
-        const rightEarlobeY = midPointBetweenNoseAndMouth.y + (rightEye.y - leftEye.y);
+        let leftEarlobeY = midPointBetweenNoseAndMouth.y + (leftEye.y - rightEye.y);
+        let rightEarlobeY = midPointBetweenNoseAndMouth.y + (rightEye.y - leftEye.y);
+
+        // If the head is tilted up or down, we need to apply an offset to negate the tilt.
+        leftEarlobeY += isRotatedUp ? topEdgeFace.z: 0;
+        leftEarlobeY += isRotatedDown ? -bottomEdgeFace.z : 0;
+
+        rightEarlobeY += isRotatedUp ? topEdgeFace.z : 0;
+        rightEarlobeY += isRotatedDown ? -bottomEdgeFace.z : 0;
 
         /*
          * As the ear Keypoints are not as reliable as Keypoints closer to the middle of the face, we adjust the X-Axis
