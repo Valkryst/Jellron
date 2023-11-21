@@ -24,23 +24,84 @@ export class Keypoint {
      * @param label Label of the Keypoint.
      */
     update(x, y, z, confidence, label) {
-        validateNumber(x);
-        validateNumber(y);
-
-        if (z != null) {
-            validateNumber(z);
-        }
-
         validateNumber(confidence);
 
         if (label != null) {
             validateNonEmptyString(label);
         }
 
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.setPosition(x, y, z);
         this.confidence = confidence;
         this.label = label;
+    }
+
+    /**
+     * Retrieve the Keypoint's position on the x-axis.
+     *
+     * @returns {number} Keypoint's position on the x-axis.
+     */
+    getX() {
+        return this.x;
+    }
+
+    /**
+     * Retrieve the Keypoint's position on the y-axis.
+     *
+     * @returns {number} Keypoint's position on the y-axis.
+     */
+    getY() {
+        return this.y;
+    }
+
+    /**
+     * Retrieve the Keypoint's position on the x-axis.
+     *
+     * @returns {number} Keypoint's position on the x-axis.
+     */
+    getZ() {
+        return this.z;
+    }
+
+    /**
+     * Set the Keypoint's position on all axes.
+     *
+     * @param {number} x New position of the Keypoint on the x-axis.
+     * @param {number} y New position of the Keypoint on the y-axis.
+     * @param {number} z New position of the Keypoint on the z-axis.
+     */
+    setPosition(x, y, z) {
+        this.setX(x);
+        this.setY(y);
+        this.setZ(z);
+    }
+
+    /**
+     * Set the Keypoint's position on the x-axis.
+     *
+     * @param {number} x New position of the Keypoint on the x-axis.
+     */
+    setX(x) {
+        validateNumber(x);
+        this.x = x;
+    }
+
+    /**
+     * Set the Keypoint's position on the y-axis.
+     *
+     * @param {number} y New position of the Keypoint on the y-axis.
+     */
+    setY(y) {
+        validateNumber(y);
+        this.y = y;
+    }
+
+    /**
+     * Set the Keypoint's position on the z-axis.
+     *
+     * @param {number} z New position of the Keypoint on the z-axis.
+     */
+    setZ(z) {
+        validateNumber(z);
+        this.z = z;
     }
 }
