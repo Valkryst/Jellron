@@ -231,7 +231,7 @@
                 canvas.height = deviceCapabilities.height.max;
 
                 await faceDetector.start(30, videoElement, mesh);
-                await bodyDetector.start(30, videoElement, mesh);
+                await bodyDetector.start(15, videoElement, mesh);
                 meshRenderer.start(60, canvasContext, mesh);
             } catch (error) {
                 console.error(error);
