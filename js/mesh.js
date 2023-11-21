@@ -2,6 +2,21 @@ import {Keypoint} from "./keypoint.js";
 import {validateInstanceOf, validateNonEmptyString, validateNumber} from "./validation.js";
 
 export class Mesh {
+    /** @type {string} Default colour to use when displaying body Keypoints. */
+    static defaultBodyKeypointColour = "magenta";
+
+    /** @type {string} Default colour to use when displaying choker Keypoints. */
+    static defaultChokerKeypointColour = "blue";
+
+    /** @type {string} Default colour to use when displaying earlobe Keypoints. */
+    static defaultEarlobeKeypointColour = "yellow";
+
+    /** @type {string} Default colour to use when displaying face Keypoints. */
+    static defaultFaceKeypointColour = "green";
+
+    /** @type {string} Default colour to use when displaying necklace Keypoints. */
+    static defaultNecklaceKeypointColour = "red";
+
     /** Creates a new Mesh object. */
     constructor() {
         this.faceKeypoints = [];
@@ -42,7 +57,10 @@ export class Mesh {
         if (this.faceKeypoints.length === 0) {
             // As far as I can tell, the array of face Keypoints is always the same length, so we can initialise it here.
             for (let i = 0 ; i < rawFace.keypoints.length; i++) {
-                this.faceKeypoints.push(new Keypoint(0, 0, 0, 0, ""));
+                const keypoint = new Keypoint(0, 0, 0, 0, "");
+                keypoint.setColour(Mesh.defaultFaceKeypointColour);
+                keypoint.setSize(3);
+                this.faceKeypoints.push(keypoint);
             }
         }
 
@@ -127,7 +145,9 @@ export class Mesh {
         if (this.bodyKeypoints.length === 0) {
             // As far as I can tell, the array of body Keypoints is always the same length, so we can initialise it here.
             for (let i = 0 ; i < rawBody.keypoints.length; i++) {
-                this.bodyKeypoints.push(new Keypoint(0, 0, 0, 0, ""));
+                const keypoint = new Keypoint(0, 0, 0, 0, "");
+                keypoint.setColour(Mesh.defaultBodyKeypointColour);
+                this.bodyKeypoints.push(keypoint);
             }
         }
 
@@ -268,7 +288,9 @@ export class Mesh {
         z += (noseKeypoint.z + necklaceKeypoint.z) / 2;
         z += this.chokerOffsets[2];
 
-        return new Keypoint(x, y, z, 1, "choker");
+        const keypoint = new Keypoint(x, y, z, 1, "choker");
+        keypoint.setColour(Mesh.defaultChokerKeypointColour);
+        return keypoint;
     }
 
     /**
@@ -386,6 +408,7 @@ export class Mesh {
             1,
             "left_earlobe"
         );
+        leftEarlobeKeypoint.setColour(Mesh.defaultEarlobeKeypointColour);
 
         const rightEarlobeKeypoint = new Keypoint(
             rightEarlobeX + this.rightEarlobeOffsets[0],
@@ -394,6 +417,7 @@ export class Mesh {
             1,
             "right_earlobe"
         );
+        rightEarlobeKeypoint.setColour(Mesh.defaultEarlobeKeypointColour);
 
         if (!isRotatedLeft && !isRotatedRight) {
             return [leftEarlobeKeypoint, rightEarlobeKeypoint];
@@ -439,7 +463,9 @@ export class Mesh {
         let z = (leftShoulder.z + rightShoulder.z) / 2;
         z += this.necklaceOffsets[2];
 
-        return new Keypoint(x, y, z, 1, "necklace");
+        const keypoint = new Keypoint(x, y, z, 1, "necklace");
+        keypoint.setColour(Mesh.defaultNecklaceKeypointColour);
+        return keypoint;
     }
 
     /**
