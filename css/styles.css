@@ -17,6 +17,10 @@ fieldset {
     grid-template-columns: 100%;
 }
 
+table, th, td {
+    border: 1px solid;
+}
+
 #webcam-settings, #keypoint-settings {
     grid-template-columns: 1fr 1fr;
 }
