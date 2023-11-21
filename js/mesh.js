@@ -41,13 +41,11 @@ export class Mesh {
 
         if (this.faceKeypoints.length === rawFace.keypoints.length) {
             for (let i = 0; i < this.faceKeypoints.length; i++) {
-                this.faceKeypoints[i].update(
-                    rawFace.keypoints[i].x,
-                    rawFace.keypoints[i].y,
-                    rawFace.keypoints[i].z,
-                    1,
-                    this.renameFaceKeypoint(i, rawFace.keypoints[i].name)
-                );
+                const rawKeypoint = rawFace.keypoints[i];
+                const keypoint = this.faceKeypoints[i];
+                keypoint.setConfidence(1);
+                keypoint.setLabel(this.renameFaceKeypoint(i, rawKeypoint.name));
+                keypoint.setPosition(rawKeypoint.x, rawKeypoint.y, rawKeypoint.z);
             }
         } else {
             this.clearFaceKeypoints();
@@ -134,13 +132,11 @@ export class Mesh {
         if (this.bodyKeypoints.length === rawBody.keypoints.length) {
             for (let i = 0; i < this.bodyKeypoints.length; i++) {
                 const rawKeypoint = rawBody.keypoints[i];
-                this.bodyKeypoints[i].update(
-                    rawKeypoint.x,
-                    rawKeypoint.y,
-                    0,
-                    rawKeypoint.score,
-                    rawKeypoint.name
-                );
+
+                const keypoint = this.bodyKeypoints[i];
+                keypoint.setConfidence(rawKeypoint.score);
+                keypoint.setLabel(rawKeypoint.name);
+                keypoint.setPosition(rawKeypoint.x, rawKeypoint.y, 0);
             }
         } else {
             this.clearBodyKeypoints();

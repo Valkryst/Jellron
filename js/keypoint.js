@@ -1,4 +1,4 @@
-import {validateNonEmptyString, validateNumber, validateString} from "./validation.js";
+import {validateNumber, validateString} from "./validation.js";
 
 export class Keypoint {
     /**
@@ -11,21 +11,6 @@ export class Keypoint {
      * @param label Label of the Keypoint.
      */
     constructor(x, y, z, confidence, label) {
-        this.update(x, y, z, confidence, label);
-    }
-
-    /**
-     * Updates the Keypoint.
-     *
-     * @param x Position of the Keypoint on the x-axis.
-     * @param y Position of the Keypoint on the y-axis.
-     * @param z Position of the Keypoint on the z-axis.
-     * @param confidence How confident we are that the Keypoint is accurate.
-     * @param label Label of the Keypoint.
-     */
-    update(x, y, z, confidence, label) {
-        validateNumber(confidence);
-
         this.setPosition(x, y, z);
         this.setConfidence(confidence);
         this.setLabel(label);
