@@ -2,7 +2,7 @@ import {validateNonEmptyString, validateNumber, validateString} from "./validati
 
 export class Keypoint {
     /** @type {string} Default colour to use when displaying Keypoints. */
-    static defaultColour = "#FF00FF"
+    static defaultColour = "#FFFFFF"
 
     /** @type {number} Default size to use when displaying Keypoints. */
     static defaultSize = 5;

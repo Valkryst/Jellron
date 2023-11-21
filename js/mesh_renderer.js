@@ -16,16 +16,6 @@ export class MeshRenderer {
         this.displayFace = true;
         this.displayNecklace = true;
 
-        this.defaultKeypointSize = 5;
-        this.bodyKeypointSize = this.defaultKeypointSize;
-        this.faceKeypointSize = 2;
-
-        this.bodyKeypointColour = "magenta";
-        this.chokerKeypointColour = "blue";
-        this.earlobeKeypointColour = "yellow";
-        this.faceKeypointColour = "green";
-        this.necklaceKeypointColour = "red";
-
         this.intervalId = null;
         this.lastRuntime = 0;
 
@@ -64,39 +54,24 @@ export class MeshRenderer {
             if (this.displayChoker) {
                 const chokerKeyPoint = mesh.getChokerKeypoint();
                 if (chokerKeyPoint != null) {
-                    canvasContext.fillStyle = this.chokerKeypointColour;
-                    this.drawPoint(
-                        canvasContext,
-                        chokerKeyPoint,
-                        this.defaultKeypointSize
-                    );
+                    this.drawPoint(canvasContext, chokerKeyPoint);
                 }
             }
 
             if (this.displayNecklace) {
                 const necklaceKeypoint = mesh.getNecklaceKeypoint();
                 if (necklaceKeypoint != null) {
-                    canvasContext.fillStyle = this.necklaceKeypointColour;
-                    this.drawPoint(
-                        canvasContext,
-                        necklaceKeypoint,
-                        this.defaultKeypointSize
-                    );
+                    this.drawPoint(canvasContext, necklaceKeypoint);
                 }
             }
 
             if (this.displayEarlobes) {
-                canvasContext.fillStyle = this.earlobeKeypointColour;
                 for (const keypoint of mesh.getEarlobeKeypoints()) {
                     if (keypoint == null) {
                         continue;
                     }
 
-                    this.drawPoint(
-                        canvasContext,
-                        keypoint,
-                        this.defaultKeypointSize
-                    );
+                    this.drawPoint(canvasContext, keypoint);
                 }
             }
 
@@ -122,9 +97,8 @@ export class MeshRenderer {
         validateInstanceOf(canvasContext, CanvasRenderingContext2D);
         validateInstanceOf(mesh, Mesh);
 
-        canvasContext.fillStyle = this.bodyKeypointColour;
         for (const keypoint of mesh.getBodyKeypoints()) {
-            this.drawPoint(canvasContext, keypoint, this.bodyKeypointSize);
+            this.drawPoint(canvasContext, keypoint);
         }
     }
 
@@ -138,9 +112,8 @@ export class MeshRenderer {
         validateInstanceOf(canvasContext, CanvasRenderingContext2D);
         validateInstanceOf(mesh, Mesh);
 
-        canvasContext.fillStyle = this.faceKeypointColour;
         for (const keypoint of mesh.getFaceKeypoints()) {
-            this.drawPoint(canvasContext, keypoint, this.faceKeypointSize);
+            this.drawPoint(canvasContext, keypoint);
         }
     }
 
@@ -149,17 +122,18 @@ export class MeshRenderer {
      *
      * @param canvasContext Canvas context to draw on.
      * @param keypoint Keypoint to draw.
-     * @param size Size of the Keypoint rectangle, in pixels.
      */
-    drawPoint(canvasContext, keypoint, size) {
+    drawPoint(canvasContext, keypoint) {
         validateInstanceOf(canvasContext, CanvasRenderingContext2D);
         validateInstanceOf(keypoint, Keypoint);
-        validatePositiveNumber(size);
 
         if (keypoint.confidence < this.minimumConfidence) {
             return;
         }
 
+        canvasContext.fillStyle = keypoint.getColour();
+
+        const size = keypoint.getSize()
         const halfSize = size / 2;
         canvasContext.fillRect(keypoint.x - halfSize, keypoint.y - halfSize, size, size);
     }
