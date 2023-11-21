@@ -210,13 +210,13 @@ export class Mesh {
         }
 
         for (const keypoint of this.faceKeypoints) {
-            if (keypoint.label === label) {
+            if (keypoint.getLabel() === label) {
                 return keypoint;
             }
         }
 
         for (const keypoint of this.bodyKeypoints) {
-            if (keypoint.label === label) {
+            if (keypoint.getLabel() === label) {
                 return keypoint;
             }
         }
@@ -236,14 +236,14 @@ export class Mesh {
 
         const labels = [];
         for (const keypoint of this.faceKeypoints) {
-            if (keypoint.label != null) {
-                labels.push(keypoint.label);
+            if (keypoint.getLabel() != null) {
+                labels.push(keypoint.getLabel());
             }
         }
 
         for (const keypoint of this.bodyKeypoints) {
-            if (keypoint.label != null) {
-                labels.push(keypoint.label);
+            if (keypoint.getLabel() != null) {
+                labels.push(keypoint.getLabel());
             }
         }
 
