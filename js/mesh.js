@@ -39,29 +39,24 @@ export class Mesh {
             return;
         }
 
-        if (this.faceKeypoints.length === rawFace.keypoints.length) {
-            for (let i = 0; i < this.faceKeypoints.length; i++) {
-                const rawKeypoint = rawFace.keypoints[i];
-                const keypoint = this.faceKeypoints[i];
-                keypoint.setConfidence(1);
-                keypoint.setLabel(this.renameFaceKeypoint(i, rawKeypoint.name));
-                keypoint.setPosition(rawKeypoint.x, rawKeypoint.y, rawKeypoint.z);
-            }
-        } else {
-            this.clearFaceKeypoints();
-
+        if (this.faceKeypoints.length === 0) {
+            // As far as I can tell, the array of face Keypoints is always the same length, so we can initialise it here.
             for (let i = 0 ; i < rawFace.keypoints.length; i++) {
-                const rawKeypoint = rawFace.keypoints[i];
-                this.addFaceKeypoint(
-                    new Keypoint(
-                        rawKeypoint.x,
-                        rawKeypoint.y,
-                        rawKeypoint.z,
-                        1,
-                        this.renameFaceKeypoint(i, rawKeypoint.name)
-                    )
-                );
+                this.faceKeypoints.push(new Keypoint(0, 0, 0, 0, ""));
             }
+        }
+
+        for (let i = 0 ; i < rawFace.keypoints.length; i++) {
+            const rawKeypoint = rawFace.keypoints[i];
+
+            const keypoint = this.faceKeypoints[i];
+            keypoint.setConfidence(1); // The model does not provide a confidence score for face Keypoints, so we assume that it is always 1.
+            keypoint.setLabel(this.renameFaceKeypoint(i, rawKeypoint.name));
+            keypoint.setPosition(
+                rawKeypoint.x,
+                rawKeypoint.y,
+                rawKeypoint.z
+            );
         }
     }
 
@@ -129,29 +124,24 @@ export class Mesh {
             return;
         }
 
-        if (this.bodyKeypoints.length === rawBody.keypoints.length) {
-            for (let i = 0; i < this.bodyKeypoints.length; i++) {
-                const rawKeypoint = rawBody.keypoints[i];
-
-                const keypoint = this.bodyKeypoints[i];
-                keypoint.setConfidence(rawKeypoint.score);
-                keypoint.setLabel(rawKeypoint.name);
-                keypoint.setPosition(rawKeypoint.x, rawKeypoint.y, 0);
+        if (this.bodyKeypoints.length === 0) {
+            // As far as I can tell, the array of body Keypoints is always the same length, so we can initialise it here.
+            for (let i = 0 ; i < rawBody.keypoints.length; i++) {
+                this.bodyKeypoints.push(new Keypoint(0, 0, 0, 0, ""));
             }
-        } else {
-            this.clearBodyKeypoints();
+        }
 
-            for (const rawKeypoint of rawBody.keypoints) {
-                this.addBodyKeypoint(
-                    new Keypoint(
-                        rawKeypoint.x,
-                        rawKeypoint.y,
-                        0,
-                        rawKeypoint.score,
-                        rawKeypoint.name
-                    )
-                );
-            }
+        for (let i = 0 ; i < rawBody.keypoints.length; i++) {
+            const rawKeypoint = rawBody.keypoints[i];
+
+            const keypoint = this.bodyKeypoints[i];
+            keypoint.setConfidence(rawKeypoint.score);
+            keypoint.setLabel(rawKeypoint.name);
+            keypoint.setPosition(
+                rawKeypoint.x,
+                rawKeypoint.y,
+                0 // The model does not provide a Z coordinate for body Keypoints, so we assume that it is always 0.
+            );
         }
     }
 
