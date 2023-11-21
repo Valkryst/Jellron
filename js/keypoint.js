@@ -1,4 +1,4 @@
-import {validateNonEmptyString, validateNumber} from "./validation.js";
+import {validateNonEmptyString, validateNumber, validateString} from "./validation.js";
 
 export class Keypoint {
     /**
@@ -26,13 +26,18 @@ export class Keypoint {
     update(x, y, z, confidence, label) {
         validateNumber(confidence);
 
-        if (label != null) {
-            validateNonEmptyString(label);
-        }
-
         this.setPosition(x, y, z);
         this.confidence = confidence;
-        this.label = label;
+        this.setLabel(label);
+    }
+
+    /**
+     * Retrieve the Keypoint's label.
+     *
+     * @returns {string}
+     */
+    getLabel() {
+        return this.label;
     }
 
     /**
@@ -60,6 +65,21 @@ export class Keypoint {
      */
     getZ() {
         return this.z;
+    }
+
+    /**
+     * Set the Keypoint's label.
+     *
+     * @param label New label of the Keypoint.
+     */
+    setLabel(label) {
+        if (label == null) {
+            this.label = label;
+            return;
+        }
+
+        validateString(label);
+        this.label = label;
     }
 
     /**
