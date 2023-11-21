@@ -276,16 +276,16 @@ export class Mesh {
             return null;
         }
 
-        let x = necklaceKeypoint.x;
-        x += ((noseKeypoint.x - necklaceKeypoint.x) / 3);
+        let x = necklaceKeypoint.getX();
+        x += ((noseKeypoint.getX() - necklaceKeypoint.getX()) / 3);
         x += this.chokerOffsets[0];
 
-        let y = necklaceKeypoint.y;
-        y += ((noseKeypoint.y - necklaceKeypoint.y) / 3);
+        let y = necklaceKeypoint.getY();
+        y += ((noseKeypoint.getY() - necklaceKeypoint.getY()) / 3);
         y += this.chokerOffsets[1];
 
-        let z = necklaceKeypoint.z;
-        z += (noseKeypoint.z + necklaceKeypoint.z) / 2;
+        let z = necklaceKeypoint.getZ();
+        z += (noseKeypoint.getZ() + necklaceKeypoint.getZ()) / 2;
         z += this.chokerOffsets[2];
 
         const keypoint = new Keypoint(x, y, z, 1, "choker");

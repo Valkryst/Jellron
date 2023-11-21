@@ -135,7 +135,7 @@ export class MeshRenderer {
 
         const size = keypoint.getSize()
         const halfSize = size / 2;
-        canvasContext.fillRect(keypoint.x - halfSize, keypoint.y - halfSize, size, size);
+        canvasContext.fillRect(keypoint.getX() - halfSize, keypoint.getY() - halfSize, size, size);
     }
 
     /**
