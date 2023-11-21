@@ -137,7 +137,7 @@ export class Mesh {
                 this.bodyKeypoints[i].update(
                     rawKeypoint.x,
                     rawKeypoint.y,
-                    null,
+                    0,
                     rawKeypoint.score,
                     rawKeypoint.name
                 );
@@ -150,7 +150,7 @@ export class Mesh {
                     new Keypoint(
                         rawKeypoint.x,
                         rawKeypoint.y,
-                        null,
+                        0,
                         rawKeypoint.score,
                         rawKeypoint.name
                     )
