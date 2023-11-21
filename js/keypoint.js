@@ -27,8 +27,17 @@ export class Keypoint {
         validateNumber(confidence);
 
         this.setPosition(x, y, z);
-        this.confidence = confidence;
+        this.setConfidence(confidence);
         this.setLabel(label);
+    }
+
+    /**
+     * Retrieve the Keypoint's confidence.
+     *
+     * @returns {number} Keypoint's confidence.
+     */
+    getConfidence() {
+        return this.confidence;
     }
 
     /**
@@ -65,6 +74,16 @@ export class Keypoint {
      */
     getZ() {
         return this.z;
+    }
+
+    /**
+     * Set the Keypoint's confidence.
+     *
+     * @param confidence New confidence of the Keypoint.
+     */
+    setConfidence(confidence) {
+        validateNumber(confidence);
+        this.confidence = confidence;
     }
 
     /**
