@@ -127,7 +127,7 @@ export class MeshRenderer {
         validateInstanceOf(canvasContext, CanvasRenderingContext2D);
         validateInstanceOf(keypoint, Keypoint);
 
-        if (keypoint.confidence < this.minimumConfidence) {
+        if (keypoint.getConfidence() < this.minimumConfidence) {
             return;
         }
 
