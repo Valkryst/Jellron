@@ -1,6 +1,12 @@
-import {validateNumber, validateString} from "./validation.js";
+import {validateNonEmptyString, validateNumber, validateString} from "./validation.js";
 
 export class Keypoint {
+    /** @type {string} Default colour to use when displaying Keypoints. */
+    static defaultColour = "#FF00FF"
+
+    /** @type {number} Default size to use when displaying Keypoints. */
+    static defaultSize = 5;
+
     /**
      * Creates a new Keypoint object.
      *
@@ -11,9 +17,20 @@ export class Keypoint {
      * @param label Label of the Keypoint.
      */
     constructor(x, y, z, confidence, label) {
-        this.setPosition(x, y, z);
+        this.setColour(Keypoint.defaultColour)
         this.setConfidence(confidence);
         this.setLabel(label);
+        this.setPosition(x, y, z);
+        this.setSize(Keypoint.defaultSize);
+    }
+
+    /**
+     * Retrieve the Keypoint's colour.
+     *
+     * @returns {string} Keypoint's colour.
+     */
+    getColour() {
+        return this.colour;
     }
 
     /**
@@ -32,6 +49,15 @@ export class Keypoint {
      */
     getLabel() {
         return this.label;
+    }
+
+    /**
+     * Retrieve the Keypoint's size.
+     *
+     * @returns {number} Keypoint's size.
+     */
+    getSize() {
+        return this.size;
     }
 
     /**
@@ -59,6 +85,16 @@ export class Keypoint {
      */
     getZ() {
         return this.z;
+    }
+
+    /**
+     * Set the Keypoint's colour.
+     *
+     * @param colour New colour of the Keypoint.
+     */
+    setColour(colour) {
+        validateNonEmptyString(colour);
+        this.colour = colour;
     }
 
     /**
@@ -97,6 +133,16 @@ export class Keypoint {
         this.setX(x);
         this.setY(y);
         this.setZ(z);
+    }
+
+    /**
+     * Set the Keypoint's size.
+     *
+     * @param size New size of the Keypoint.
+     */
+    setSize(size) {
+        validateNumber(size);
+        this.size = size;
     }
 
     /**
