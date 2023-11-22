@@ -17,7 +17,11 @@ export class BodyDetector {
             return BodyDetector.instance;
         }
 
-        this.detector = null;
+        poseDetection.createDetector(
+            poseDetection.SupportedModels.MoveNet,
+            { runtime: "tfjs"}
+        ).then(detector => this.detector = detector);
+
         this.intervalId = null;
         this.lastRuntime = 0;
 
@@ -36,10 +40,7 @@ export class BodyDetector {
         validateInstanceOf(videoElement, HTMLVideoElement);
 
         if (this.detector == null) {
-            this.detector = await poseDetection.createDetector(
-                poseDetection.SupportedModels.MoveNet,
-                { runtime: "tfjs"}
-            );
+            throw new Error("Detector not initialized.");
         }
 
         if (this.intervalId != null) {

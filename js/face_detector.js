@@ -17,7 +17,11 @@ export class FaceDetector {
             return FaceDetector.instance;
         }
 
-        this.detector = null
+        faceLandmarksDetection.createDetector(
+            faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
+            { runtime: "tfjs" }
+        ).then(detector => this.detector = detector);
+
         this.intervalId = null;
         this.lastRuntime = 0;
 
@@ -36,10 +40,7 @@ export class FaceDetector {
         validateInstanceOf(videoElement, HTMLVideoElement)
 
         if (this.detector == null) {
-            this.detector = await faceLandmarksDetection.createDetector(
-                faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
-                { runtime: "tfjs" }
-            )
+            throw new Error("Detector not initialized.");
         }
 
         if (this.intervalId != null) {
