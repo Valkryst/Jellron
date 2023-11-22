@@ -12,9 +12,7 @@ export class StatRecorder {
         this.maximumEntries = maximumEntries;
         this.entries = [];
 
-        this.average = null;
-        this.maximum = null;
-        this.minimum = null;
+        this.resetMemoizedValues();
     }
 
     /**
@@ -31,7 +29,11 @@ export class StatRecorder {
             this.entries.shift();
         }
 
-        // Reset stored values as they are no longer valid.
+        this.resetMemoizedValues();
+    }
+
+    /** Resets the memoized values. */
+    resetMemoizedValues() {
         this.average = null;
         this.maximum = null;
         this.minimum = null;
