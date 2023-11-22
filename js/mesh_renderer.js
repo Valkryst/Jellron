@@ -13,6 +13,7 @@ export class MeshRenderer {
         this.displayChoker = true;
         this.displayEarlobes = true;
         this.displayFace = true;
+        this.displayHands = true;
         this.displayNecklace = true;
 
         this.intervalId = null;
@@ -43,6 +44,18 @@ export class MeshRenderer {
         this.intervalId = setInterval(() => {
             const currentTime = performance.now();
 
+            for (const keypoint of mesh.getBodyKeypoints()) {
+                if (keypoint == null) {
+                    continue;
+                }
+
+                if (this.displayBody) {
+                    this.placePoint(scene, keypoint);
+                } else {
+                    scene.remove(keypoint.getMesh());
+                }
+            }
+
             for (const keypoint of mesh.getFaceKeypoints()) {
                 if (keypoint == null) {
                     continue;
@@ -55,12 +68,12 @@ export class MeshRenderer {
                 }
             }
 
-            for (const keypoint of mesh.getBodyKeypoints()) {
+            for (const keypoint of mesh.getHandKeypoints()) {
                 if (keypoint == null) {
                     continue;
                 }
 
-                if (this.displayBody) {
+                if (this.displayHands) {
                     this.placePoint(scene, keypoint);
                 } else {
                     scene.remove(keypoint.getMesh());
@@ -176,7 +189,7 @@ export class MeshRenderer {
     /**
      * Sets whether the face should be displayed.
      *
-     * @param displayBody Whether the face should be displayed.
+     * @param {boolean} displayBody Whether the face should be displayed.
      */
     setDisplayBody(displayBody) {
         validateBoolean(displayBody);
@@ -186,7 +199,7 @@ export class MeshRenderer {
     /**
      * Sets whether the choker should be displayed.
      *
-     * @param displayChoker Whether the choker should be displayed.
+     * @param {boolean} displayChoker Whether the choker should be displayed.
      */
     setDisplayChoker(displayChoker) {
         validateBoolean(displayChoker);
@@ -196,7 +209,7 @@ export class MeshRenderer {
     /**
      * Sets whether the earlobes should be displayed.
      *
-     * @param displayEarlobes Whether the earlobes should be displayed.
+     * @param {boolean} displayEarlobes Whether the earlobes should be displayed.
      */
     setDisplayEarlobes(displayEarlobes) {
         validateBoolean(displayEarlobes);
@@ -206,7 +219,7 @@ export class MeshRenderer {
     /**
      * Sets whether the face should be displayed.
      *
-     * @param displayFace Whether the face should be displayed.
+     * @param {boolean} displayFace Whether the face should be displayed.
      */
     setDisplayFace(displayFace) {
         validateBoolean(displayFace);
@@ -214,9 +227,19 @@ export class MeshRenderer {
     }
 
     /**
+     * Sets whether the hands should be displayed.
+     *
+     * @param {boolean} displayHands Whether the hands should be displayed.
+     */
+    setDisplayHands(displayHands) {
+        validateBoolean(displayHands);
+        this.displayHands = displayHands;
+    }
+
+    /**
      * Sets whether the necklace should be displayed.
      *
-     * @param displayNecklace Whether the necklace should be displayed.
+     * @param {boolean} displayNecklace Whether the necklace should be displayed.
      */
     setDisplayNecklace(displayNecklace) {
         validateBoolean(displayNecklace)

@@ -14,6 +14,9 @@ export class Mesh {
     /** @type {string} Default colour to use when displaying face Keypoints. */
     static defaultFaceKeypointColour = "green";
 
+    /** @type {string} Default colour to use when displaying hand Keypoints. */
+    static defaultHandKeypointColour = "orange";
+
     /** @type {string} Default colour to use when displaying necklace Keypoints. */
     static defaultNecklaceKeypointColour = "red";
 
@@ -26,6 +29,7 @@ export class Mesh {
             new Keypoint(0, 0, 0, 0, "right_earlobe")
         ]
         this.faceKeypoints = [];
+        this.handKeypoints = [];
         this.necklaceKeypoint = new Keypoint(0, 0, 0, 0, "necklace");
 
         this.chokerOffsets = [0, 0, 0];
@@ -168,6 +172,57 @@ export class Mesh {
                 rawKeypoint.y,
                 0 // The model does not provide a Z coordinate for body Keypoints, so we assume that it is always 0.
             );
+        }
+    }
+
+    /**
+     *
+     * @param {Object[{
+     *     score: number,
+     *     handedness: string,
+     *     keypoints: [{
+     *          x: number,
+     *          y: number,
+     *          name: string
+     *     }],
+     *     keypoints3D: [{
+     *          x: number,
+     *          y: number,
+     *          z: number,
+     *          name: string
+     *     }]
+     * }]} rawHands
+     */
+    updateHandKeypoints(rawHands) {
+        // todo Check what happens when one or both hands aren't visible.
+        if (rawHands == null || rawHands.length === 0) {
+            return;
+        }
+
+        if (this.handKeypoints.length === 0) {
+            // As far as I can tell, the array of hand Keypoints is always the same length, so we can initialise it here.
+            for (const rawHand of rawHands) {
+                for (let i = 0; i < rawHand.keypoints.length; i++) {
+                    const keypoint = new Keypoint(0, 0, 0, 0, "");
+                    keypoint.setColour(Mesh.defaultHandKeypointColour);
+                    this.handKeypoints.push(keypoint);
+                }
+            }
+        }
+
+        for (const rawHand of rawHands) {
+            for (let i = 0; i < rawHand.keypoints.length; i++) {
+                const rawKeypoint = rawHand.keypoints[i];
+
+                const keypoint = this.handKeypoints[i];
+                keypoint.setConfidence(rawHand.score);
+                keypoint.setLabel(`${rawHand.handedness.toLowerCase()}_${rawKeypoint.name}`);
+                keypoint.setPosition(
+                    rawKeypoint.x,
+                    rawKeypoint.y,
+                    0 // The model does not provide a Z coordinate for hand Keypoints, so we assume that it is always 0.
+                );
+            }
         }
     }
 
@@ -420,6 +475,15 @@ export class Mesh {
      */
     getFaceKeypoints() {
         return this.faceKeypoints;
+    }
+
+    /**
+     * Retrieves the hand Keypoints.
+     *
+     * @returns {Keypoint[]} Hand Keypoints.
+     */
+    getHandKeypoints() {
+        return this.handKeypoints;
     }
 
     /**

@@ -42,6 +42,10 @@
                             Face Detector Ready:
                             <span id="face-detector-ready">False</span>
                         </label>
+                        <label>
+                            Hand Detector Ready:
+                            <span id="hand-detector-ready">False</span>
+                        </label>
                     </fieldset>
 
                     <fieldset id="webcam-stats">
@@ -62,16 +66,22 @@
                             </thead>
                             <tbody>
                             <tr>
+                                <td>Body Detection Time</td>
+                                <td id="body-detection-time-min"></td>
+                                <td id="body-detection-time-avg"></td>
+                                <td id="body-detection-time-max"></td>
+                            </tr>
+                            <tr>
                                 <td>Face Mesh Detection Time</td>
                                 <td id="face-mesh-detection-time-min"></td>
                                 <td id="face-mesh-detection-time-avg"></td>
                                 <td id="face-mesh-detection-time-max"></td>
                             </tr>
                             <tr>
-                                <td>Body Detection Time</td>
-                                <td id="body-detection-time-min"></td>
-                                <td id="body-detection-time-avg"></td>
-                                <td id="body-detection-time-max"></td>
+                                <td>Hand Detection Time</td>
+                                <td id="hand-detection-time-min"></td>
+                                <td id="hand-detection-time-avg"></td>
+                                <td id="hand-detection-time-max"></td>
                             </tr>
                             <tr>
                                 <td>Mesh Draw Time</td>
@@ -88,6 +98,15 @@
                     <legend>Keypoints</legend>
 
                     <fieldset>
+                        <legend>Body</legend>
+
+                        <label>
+                            Show Body
+                            <input type="checkbox" name="body" id="body-checkbox" checked>
+                        </label>
+                    </fieldset>
+
+                    <fieldset>
                         <legend>Face</legend>
 
                         <label>
@@ -97,11 +116,11 @@
                     </fieldset>
 
                     <fieldset>
-                        <legend>Body</legend>
+                        <legend>Hands</legend>
 
                         <label>
-                            Show Body
-                            <input type="checkbox" name="body" id="body-checkbox" checked>
+                            Show Hands
+                            <input type="checkbox" name="hands" id="hands-checkbox" checked>
                         </label>
                     </fieldset>
 
@@ -212,6 +231,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl/dist/tf-backend-webgl.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection/dist/face-landmarks-detection.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection/dist/pose-detection.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection/dist/hand-pose-detection.min.js"></script>
     <script type="importmap">
         {
           "imports": {
@@ -225,6 +245,7 @@
         import {Camera} from "./js/camera.js";
         import {BodyDetector} from "./js/body_detector.js";
         import {FaceDetector} from "./js/face_detector.js";
+        import {HandDetector} from "./js/hand_detector.js";
         import {Mesh} from "./js/mesh.js";
         import {MeshRenderer} from "./js/mesh_renderer.js";
         import {StatRecorder} from "./js/stat_recorder.js";
@@ -249,24 +270,31 @@
         const mesh = new Mesh();
         const faceDetector = new FaceDetector();
         const bodyDetector = new BodyDetector();
+        const handDetector = new HandDetector();
         const meshRenderer = new MeshRenderer();
 
         const faceDetectorStats = new StatRecorder(30);
         const bodyDetectorStats = new StatRecorder(30);
+        const handDetectorStats = new StatRecorder(30);
         const meshRendererStats = new StatRecorder(30);
 
         const statsInterval = setInterval(() => {
             faceDetectorStats.record(faceDetector.getLastRuntime());
             bodyDetectorStats.record(bodyDetector.getLastRuntime());
+            handDetectorStats.record(handDetector.getLastRuntime());
             meshRendererStats.record(meshRenderer.getLastRuntime());
+
+            document.getElementById("body-detection-time-min").innerText = bodyDetectorStats.getMinimum().toString();
+            document.getElementById("body-detection-time-avg").innerText = bodyDetectorStats.getAverage().toString();
+            document.getElementById("body-detection-time-max").innerText = bodyDetectorStats.getMaximum().toString();
 
             document.getElementById("face-mesh-detection-time-min").innerText = faceDetectorStats.getMinimum().toString();
             document.getElementById("face-mesh-detection-time-avg").innerText = faceDetectorStats.getAverage().toString();
             document.getElementById("face-mesh-detection-time-max").innerText = faceDetectorStats.getMaximum().toString();
 
-            document.getElementById("body-detection-time-min").innerText = bodyDetectorStats.getMinimum().toString();
-            document.getElementById("body-detection-time-avg").innerText = bodyDetectorStats.getAverage().toString();
-            document.getElementById("body-detection-time-max").innerText = bodyDetectorStats.getMaximum().toString();
+            document.getElementById("hand-detection-time-min").innerText = handDetectorStats.getMinimum().toString();
+            document.getElementById("hand-detection-time-avg").innerText = handDetectorStats.getAverage().toString();
+            document.getElementById("hand-detection-time-max").innerText = handDetectorStats.getMaximum().toString();
 
             document.getElementById("mesh-draw-time-min").innerText = meshRendererStats.getMinimum().toString();
             document.getElementById("mesh-draw-time-avg").innerText = meshRendererStats.getAverage().toString();
@@ -275,8 +303,9 @@
             if (faceDetectorStats.getAverage() > 500 || bodyDetectorStats.getAverage() > 500) {
                 console.error("Average detection time is too high. Stopping demo. Refresh the page to try again.");
 
-                faceDetector.stop();
                 bodyDetector.stop();
+                faceDetector.stop();
+                handDetector.stop();
                 meshRenderer.stop();
 
                 clearInterval(statsInterval);
@@ -287,8 +316,9 @@
             if (faceDetector.isReady() && bodyDetector.isReady()) {
                 clearInterval(warmupInterval);
 
-                document.getElementById("face-detector-ready").innerText = "True";
                 document.getElementById("body-detector-ready").innerText = "True";
+                document.getElementById("face-detector-ready").innerText = "True";
+                document.getElementById("hand-detector-ready").innerText = "True";
                 document.getElementById("video-input-device-select").disabled = false;
             }
         }, 100);
@@ -304,21 +334,32 @@
 
                 glContext.setSize(await camera.getWidth(), await camera.getHeight());
 
-                await faceDetector.start(30, videoElement, mesh);
                 await bodyDetector.start(15, videoElement, mesh);
+                await faceDetector.start(30, videoElement, mesh);
+                await handDetector.start(10, videoElement, mesh);
                 meshRenderer.start(60, glContext, mesh);
             } catch (error) {
                 console.error(error);
 
-                faceDetector.stop();
                 bodyDetector.stop();
+                faceDetector.stop();
+                handDetector.stop();
                 meshRenderer.stop();
             }
         };
 
 
+
+        // Register Listeners for Body Settings
+        let element = document.getElementById("body-checkbox");
+        element.addEventListener("change", () => {
+            const element = document.getElementById("body-checkbox");
+            meshRenderer.setDisplayBody(element.checked);
+        });
+
+
         // Register Listeners for Face Settings
-        let element = document.getElementById("face-checkbox");
+        element = document.getElementById("face-checkbox");
         element.addEventListener("change", () => {
             const element = document.getElementById("face-checkbox");
             meshRenderer.setDisplayFace(element.checked);
@@ -326,11 +367,11 @@
 
 
 
-        // Register Listeners for Body Settings
-        element = document.getElementById("body-checkbox");
+        // Register Listeners for Hand Settings
+        element = document.getElementById("hands-checkbox");
         element.addEventListener("change", () => {
-            const element = document.getElementById("body-checkbox");
-            meshRenderer.setDisplayBody(element.checked);
+            const element = document.getElementById("hands-checkbox");
+            meshRenderer.setDisplayHands(element.checked);
         });
 
 
