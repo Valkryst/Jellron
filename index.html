@@ -220,6 +220,7 @@
         import {Mesh} from "./js/mesh.js";
         import {MeshRenderer} from "./js/mesh_renderer.js";
         import {StatRecorder} from "./js/stat_recorder.js";
+        import {WebGLRenderer} from "three";
 
         function getNumericInputValue(elementId) {
             const inputElement = document.getElementById(elementId);
@@ -231,7 +232,11 @@
         }
 
         const canvas = document.getElementsByTagName("canvas")[0];
-        const canvasContext = canvas.getContext("2d");
+        const glContext = new WebGLRenderer({
+            alpha: true,
+            canvas: canvas
+        });
+        glContext.autoClear = true;
 
         const mesh = new Mesh();
         const faceDetector = new FaceDetector();
@@ -279,12 +284,11 @@
                 videoElement.height = await camera.getHeight();
                 videoElement.width = await camera.getWidth();
 
-                canvas.height = await camera.getHeight();
-                canvas.width = await camera.getWidth();
+                glContext.setSize(await camera.getWidth(), await camera.getHeight());
 
                 await faceDetector.start(30, videoElement, mesh);
                 await bodyDetector.start(15, videoElement, mesh);
-                meshRenderer.start(60, canvasContext, mesh);
+                meshRenderer.start(60, glContext, mesh);
             } catch (error) {
                 console.error(error);
 

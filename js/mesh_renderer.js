@@ -1,11 +1,10 @@
 import {Keypoint} from "./keypoint.js";
 import {Mesh} from "./mesh.js";
+import {OrthographicCamera, Scene, WebGLRenderer} from "three";
 import {
     validateBoolean,
     validateInstanceOf,
-    validateNonEmptyString,
     validateNumber,
-    validatePositiveNumber
 } from "./validation.js";
 
 export class MeshRenderer {
@@ -25,43 +24,44 @@ export class MeshRenderer {
     /**
      * Starts the renderer.
      *
-     * @param drawsPerSecond Desired number of draws per second.
-     * @param canvasContext Canvas context to draw on.
-     * @param mesh Mesh to draw.
+     * @param {number} drawsPerSecond Desired number of draws per second.
+     * @param {WebGLRenderer} glContext Canvas context to draw on.
+     * @param {Mesh} mesh Mesh to draw.
      */
-    start(drawsPerSecond, canvasContext, mesh) {
+    start(drawsPerSecond, glContext, mesh) {
         validateNumber(drawsPerSecond);
-        validateInstanceOf(canvasContext, CanvasRenderingContext2D);
+        validateInstanceOf(glContext, WebGLRenderer);
         validateInstanceOf(mesh, Mesh);
 
         if (this.intervalId != null) {
             this.stop();
         }
 
+        const camera = this.createCamera(glContext);
+        const scene = new Scene();
+
         this.intervalId = setInterval(() => {
             const currentTime = performance.now();
 
-            canvasContext.clearRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
-
             if (this.displayFace) {
-                this.drawFace(canvasContext, mesh);
+                this.drawFace(scene, mesh);
             }
 
             if (this.displayBody) {
-                this.drawBody(canvasContext, mesh);
+                this.drawBody(scene, mesh);
             }
 
             if (this.displayChoker) {
                 const chokerKeyPoint = mesh.getChokerKeypoint();
                 if (chokerKeyPoint != null) {
-                    this.drawPoint(canvasContext, chokerKeyPoint);
+                    this.placePoint(scene, chokerKeyPoint);
                 }
             }
 
             if (this.displayNecklace) {
                 const necklaceKeypoint = mesh.getNecklaceKeypoint();
                 if (necklaceKeypoint != null) {
-                    this.drawPoint(canvasContext, necklaceKeypoint);
+                    this.placePoint(scene, necklaceKeypoint);
                 }
             }
 
@@ -71,9 +71,11 @@ export class MeshRenderer {
                         continue;
                     }
 
-                    this.drawPoint(canvasContext, keypoint);
+                    this.placePoint(scene, keypoint);
                 }
             }
+
+            glContext.render(scene, camera);
 
             this.lastRuntime = performance.now() - currentTime;
         }, 1000 / drawsPerSecond);
@@ -88,54 +90,86 @@ export class MeshRenderer {
     }
 
     /**
+     * Constructs a camera to use when rendering a Scene.
+     *
+     * @param {WebGLRenderer} glContext Context to draw on.
+     *
+     * @returns {OrthographicCamera} The constructed camera.
+     */
+    createCamera(glContext) {
+        const canvas = glContext.domElement;
+
+        const halfCanvasWidth = canvas.width / 2;
+        const halfCanvasHeight = canvas.height / 2;
+
+        const camera = new OrthographicCamera(
+            -halfCanvasWidth,
+            halfCanvasWidth,
+            halfCanvasHeight,
+            -halfCanvasHeight,
+            1,
+            1000
+        );
+
+        /*
+         * As the camera's origin is in the bottom-right corner of the canvas, and all the Keypoints' origins are in
+         * the top-left corner of the canvas, we need to offset the camera's position to render the Keypoints in the
+         * correct location.
+         */
+        camera.position.x += halfCanvasWidth;
+        camera.position.y -= halfCanvasHeight;
+
+        // Move the camera backwards, so that all the Keypoints are visible.
+        camera.position.z += 100;
+
+        return camera;
+    }
+
+    /**
      * Draws the body of a Mesh on a canvas.
      *
-     * @param canvasContext Canvas context to draw on.
+     * @param {Scene} scene Scene to place the keypoint in.
      * @param mesh Mesh whose body to draw.
      */
-    drawBody(canvasContext, mesh) {
-        validateInstanceOf(canvasContext, CanvasRenderingContext2D);
+    drawBody(scene, mesh) {
+        validateInstanceOf(scene, Scene);
         validateInstanceOf(mesh, Mesh);
 
         for (const keypoint of mesh.getBodyKeypoints()) {
-            this.drawPoint(canvasContext, keypoint);
+            this.placePoint(scene, keypoint);
         }
     }
 
     /**
      * Draws the face of a Mesh on a canvas.
      *
-     * @param canvasContext Canvas context to draw on.
+     * @param {Scene} scene Scene to place the keypoint in.
      * @param mesh Mesh whose face to draw.
      */
-    drawFace(canvasContext, mesh) {
-        validateInstanceOf(canvasContext, CanvasRenderingContext2D);
+    drawFace(scene, mesh) {
+        validateInstanceOf(scene, Scene);
         validateInstanceOf(mesh, Mesh);
 
         for (const keypoint of mesh.getFaceKeypoints()) {
-            this.drawPoint(canvasContext, keypoint);
+            this.placePoint(scene, keypoint);
         }
     }
 
     /**
-     * Draws a Keypoint on a canvas.
+     * Places a Keypoint within a Scene.
      *
-     * @param canvasContext Canvas context to draw on.
-     * @param keypoint Keypoint to draw.
+     * @param {Scene} scene Scene to place the keypoint in.
+     * @param {Keypoint} keypoint Keypoint to draw.
      */
-    drawPoint(canvasContext, keypoint) {
-        validateInstanceOf(canvasContext, CanvasRenderingContext2D);
+    placePoint(scene, keypoint) {
+        validateInstanceOf(scene, Scene);
         validateInstanceOf(keypoint, Keypoint);
 
         if (keypoint.getConfidence() < this.minimumConfidence) {
-            return;
+            scene.remove(keypoint.getMesh());
+        } else {
+            scene.add(keypoint.getMesh());
         }
-
-        canvasContext.fillStyle = keypoint.getColour();
-
-        const size = keypoint.getSize()
-        const halfSize = size / 2;
-        canvasContext.fillRect(keypoint.getX() - halfSize, keypoint.getY() - halfSize, size, size);
     }
 
     /**
