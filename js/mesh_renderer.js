@@ -43,35 +43,57 @@ export class MeshRenderer {
         this.intervalId = setInterval(() => {
             const currentTime = performance.now();
 
-            if (this.displayFace) {
-                this.drawFace(scene, mesh);
-            }
-
-            if (this.displayBody) {
-                this.drawBody(scene, mesh);
-            }
-
-            if (this.displayChoker) {
-                const chokerKeyPoint = mesh.getChokerKeypoint();
-                if (chokerKeyPoint != null) {
-                    this.placePoint(scene, chokerKeyPoint);
+            for (const keypoint of mesh.getFaceKeypoints()) {
+                if (keypoint == null) {
+                    continue;
                 }
-            }
 
-            if (this.displayNecklace) {
-                const necklaceKeypoint = mesh.getNecklaceKeypoint();
-                if (necklaceKeypoint != null) {
-                    this.placePoint(scene, necklaceKeypoint);
-                }
-            }
-
-            if (this.displayEarlobes) {
-                for (const keypoint of mesh.getEarlobeKeypoints()) {
-                    if (keypoint == null) {
-                        continue;
-                    }
-
+                if (this.displayFace) {
                     this.placePoint(scene, keypoint);
+                } else {
+                    scene.remove(keypoint.getMesh());
+                }
+            }
+
+            for (const keypoint of mesh.getBodyKeypoints()) {
+                if (keypoint == null) {
+                    continue;
+                }
+
+                if (this.displayBody) {
+                    this.placePoint(scene, keypoint);
+                } else {
+                    scene.remove(keypoint.getMesh());
+                }
+            }
+
+            const chokerKeyPoint = mesh.getChokerKeypoint();
+            if (chokerKeyPoint != null) {
+                if (this.displayChoker) {
+                    this.placePoint(scene, chokerKeyPoint);
+                } else {
+                    scene.remove(chokerKeyPoint.getMesh());
+                }
+            }
+
+            const necklaceKeypoint = mesh.getNecklaceKeypoint();
+            if (necklaceKeypoint != null) {
+                if (this.displayNecklace) {
+                    this.placePoint(scene, necklaceKeypoint);
+                } else {
+                    scene.remove(necklaceKeypoint.getMesh());
+                }
+            }
+
+            for (const keypoint of mesh.getEarlobeKeypoints()) {
+                if (keypoint == null) {
+                    continue;
+                }
+
+                if (this.displayEarlobes) {
+                    this.placePoint(scene, keypoint);
+                } else {
+                    scene.remove(keypoint.getMesh());
                 }
             }
 
