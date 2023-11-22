@@ -1,69 +1,148 @@
-import { validateInstanceOf, validateNonEmptyString} from "./validation.js";
+import {validateInstanceOf, validateNonEmptyString, validateString} from "./validation.js";
 
 export class Camera {
     /**
-     * Attempts to display the video input feed from the specified video input device in the specified video element.
+     * Creates a new Camera object.
      *
-     * See https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia for a list of all exceptions.
-     *
-     * @param video The video element to display the video input feed.
-     * @param deviceId ID of the video input device to use.
-     * @returns {Promise<void>}
+     * @param {string} deviceId ID of the video input device to use.
      */
-    static async displayVideoInput(video, deviceId) {
-        validateInstanceOf(video, HTMLVideoElement);
-        video.srcObject = await Camera.getVideoInputDevice(deviceId);
+    constructor(deviceId) {
+        this.deviceId = deviceId;
     }
 
     /**
-     * Populates a select element with available video input devices.
+     * Creates or updates a select element, so that it lists available video input devices.
      *
-     * @param videoSelect The select element to populate.
+     * The select element will be configured to automatically update as the set of available devices changes and when
+     * the camera permissions are changed.
      *
-     * @returns {Promise<void>} A promise that resolves when the select element has been populated.
+     * @param {HTMLSelectElement|null} select The select element to populate. If unspecified, a new select element will be created.
+     *
+     * @returns {Promise<HTMLSelectElement>} A promise that resolves to a select element.
      */
-    static async populateVideoInputSelect(videoSelect) {
-        videoSelect.innerHTML = "";
+    static async createOrUpdateSelectElement(select) {
+        try {
+            validateInstanceOf(select, HTMLSelectElement);
+        } catch(e) {
+            select = document.createElement("select");
+        }
 
-        const option = document.createElement("option");
-        option.value = "";
-        option.text = "Select a Device";
-        videoSelect.appendChild(option);
+        select.innerHTML = "";
+        select.appendChild(Camera.createOptionElement("Select a Device", ""));
 
-        validateInstanceOf(videoSelect, HTMLSelectElement);
+        // Prompt the user for permission to use the webcam.
+        await navigator.mediaDevices.getUserMedia({ video: true });
 
+        // Populate the select element with available video input devices.
         for (const device of (await Camera.getVideoInputDevices())) {
             if (device.label === "") {
                 continue;
             }
 
-            const option = document.createElement("option");
-            option.text = device.label;
-            option.value = device.deviceId;
-            videoSelect.appendChild(option);
+            if (Array.from(select.options).some(option => option.value === device.deviceId)) {
+                continue;
+            }
+
+            select.appendChild(Camera.createOptionElement(device.label, device.deviceId));
         }
+
+        // Automatically update the select element when the camera permissions are changed.
+        const cameraPermissionStatus = await navigator.permissions.query({ name: "camera" });
+        cameraPermissionStatus.onchange = async () => await Camera.createOrUpdateSelectElement(select);
+
+        // Automatically update the select element when the set of available devices changes.
+        // todo Test this.
+        navigator.mediaDevices.ondevicechange = async () => {
+            const originalValue = select.value;
+            const originalOnChange = select.onchange;
+
+            select.onchange = null;
+            await Camera.createOrUpdateSelectElement(select);
+
+            if (Array.from(select.options).some(option => option.value === originalValue)) {
+                select.value = originalValue;
+            }
+
+            select.onchange = originalOnChange;
+        };
+
+        return select;
     }
 
     /**
-     * Prompts the user for permission to use the webcam.
+     * Creates an option element with the specified text and value.
      *
-     * @returns {Promise<void>} A promise that resolves when the user grants permission to use the webcam.
+     * @param {string} text Text to display in the option element.
+     * @param {string} value Value held by the option element.
+     *
+     * @returns {HTMLOptionElement} Created option element.
      */
-    static async promptForPermissions() {
-        await navigator.mediaDevices.getUserMedia({ video: true });
+    static createOptionElement(text, value) {
+        validateNonEmptyString(text);
+        validateString(value);
+
+        const option = document.createElement("option");
+        option.text = text;
+        option.value = value;
+        return option;
     }
 
     /**
-     * Attempts to retrieve the video input device with the specified ID.
+     * Creates or updates a video element, so that it displays the video input feed from the device associated with
+     * this Camera object.
+     *
+     * @param {HTMLVideoElement|null} video The video element to display the video input feed. If unspecified, a new video element will be created.
+     *
+     * @throws {Error} If there is an issue retrieving the video input device.
+     *
+     * @returns {Promise<HTMLVideoElement>} A promise that resolves to a video element.
+     */
+    async createOrUpdateVideoElement(video) {
+        try {
+            validateInstanceOf(video, HTMLVideoElement);
+        } catch(e) {
+            video = document.createElement("video");
+        }
+
+        video.autoplay = true;
+        video.muted = true;
+        video.playsinline = true;
+        video.srcObject = await this.getVideoInputDevice();
+
+        return video;
+    }
+
+    /**
+     * Retrieves the height, in pixels, of the video stream associated with the video input device of this Camera object.
+     *
+     * @returns {Promise<number>} A promise that resolves to the height.
+     */
+    async getHeight() {
+        if (this.height == null) {
+            const device = await this.getVideoInputDevice();
+            const videoTracks = device.getVideoTracks();
+            const capabilities = videoTracks[0].getCapabilities();
+            this.height = capabilities.height.max;
+        }
+
+        return this.height;
+    }
+
+    /**
+     * Attempts to retrieve the video input device associated with this Camera object.
      *
      * See https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia for a list of all exceptions.
      *
-     * @param deviceId ID of the video input device to use.
+     * @throws {Error} If there is an issue retrieving the video input device.
+     *
      * @returns {Promise<MediaStream>} A promise that resolves to the video input device with the specified ID.
      */
-    static async getVideoInputDevice(deviceId) {
-        validateNonEmptyString(deviceId);
-        return await navigator.mediaDevices.getUserMedia({video: {deviceId: {exact: deviceId}}});
+     async getVideoInputDevice() {
+         if (this.device == null) {
+             this.device = await navigator.mediaDevices.getUserMedia({video: {deviceId: {exact: this.deviceId}}});
+         }
+
+         return this.device;
     }
 
     /**
@@ -71,10 +150,26 @@ export class Camera {
      *
      * @returns {Promise<MediaDeviceInfo[]>} A promise that resolves to a list of available video input devices.
      *
-     * @throws {DOMException} If the user denies permission to use the webcam.
+     * @throws {Error} If there is an issue retrieving the list of video input devices.
      */
     static async getVideoInputDevices() {
         const devices = await navigator.mediaDevices.enumerateDevices();
         return devices.filter(device => device.kind === "videoinput");
+    }
+
+    /**
+     * Retrieves the width, in pixels, of the video stream associated with the video input device of this Camera object.
+     *
+     * @returns {Promise<number>} A promise that resolves to the width.
+     */
+    async getWidth() {
+        if (this.width == null) {
+            const device = await this.getVideoInputDevice();
+            const videoTracks = device.getVideoTracks();
+            const capabilities = videoTracks[0].getCapabilities();
+            this.width = capabilities.width.max;
+        }
+
+        return this.width;
     }
 }

@@ -224,8 +224,6 @@
             return parseInt(inputElement.value);
         }
 
-        Camera.promptForPermissions();
-
         const canvas = document.getElementsByTagName("canvas")[0];
         const canvasContext = canvas.getContext("2d");
 
@@ -266,19 +264,17 @@
             }
         }, 100);
 
-        const videoElement = document.getElementsByTagName("video")[0];
-        const deviceSelect = document.getElementById("video-input-device-select");
+        const deviceSelect = await Camera.createOrUpdateSelectElement(document.getElementById("video-input-device-select"));
         deviceSelect.onchange = async () => {
             try {
-                await Camera.displayVideoInput(videoElement, deviceSelect.value);
+                const camera = await new Camera(deviceSelect.value);
+                const videoElement = await camera.createOrUpdateVideoElement(document.getElementsByTagName("video")[0]);
 
-                const device = await Camera.getVideoInputDevice(deviceSelect.value);
-                const deviceCapabilities = device.getVideoTracks()[0].getCapabilities()
+                videoElement.height = await camera.getHeight();
+                videoElement.width = await camera.getWidth();
 
-                videoElement.width = deviceCapabilities.width.max;
-                videoElement.height = deviceCapabilities.height.max;
-                canvas.width = deviceCapabilities.width.max;
-                canvas.height = deviceCapabilities.height.max;
+                canvas.height = await camera.getHeight();
+                canvas.width = await camera.getWidth();
 
                 await faceDetector.start(30, videoElement, mesh);
                 await bodyDetector.start(15, videoElement, mesh);
@@ -290,12 +286,6 @@
                 bodyDetector.stop();
                 meshRenderer.stop();
             }
-        };
-
-        Camera.populateVideoInputSelect(deviceSelect);
-        navigator.mediaDevices.ondevicechange = () => {
-            // todo Test whether the active device stays selected and that the dropdown updates its  options.
-            Camera.populateVideoInputSelect(deviceSelect);
         };
 
 
