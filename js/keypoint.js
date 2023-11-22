@@ -159,6 +159,7 @@ export class Keypoint {
     setSize(size) {
         validateNumber(size);
         this.size = size;
+        this.mesh.geometry = new PlaneGeometry(size, size);
     }
 
     /**
