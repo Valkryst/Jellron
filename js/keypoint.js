@@ -1,3 +1,4 @@
+import {Mesh, MeshBasicMaterial, PlaneGeometry, Scene} from "three";
 import {validateNonEmptyString, validateNumber, validateString} from "./validation.js";
 
 export class Keypoint {
@@ -17,6 +18,11 @@ export class Keypoint {
      * @param label Label of the Keypoint.
      */
     constructor(x, y, z, confidence, label) {
+        this.mesh = new Mesh(
+            new PlaneGeometry(Keypoint.defaultSize, Keypoint.defaultSize),
+            new MeshBasicMaterial({ color: Keypoint.defaultColour })
+        );
+
         this.setColour(Keypoint.defaultColour)
         this.setConfidence(confidence);
         this.setLabel(label);
@@ -95,6 +101,7 @@ export class Keypoint {
     setColour(colour) {
         validateNonEmptyString(colour);
         this.colour = colour;
+        this.mesh.material.color.set(colour);
     }
 
     /**
@@ -153,6 +160,7 @@ export class Keypoint {
     setX(x) {
         validateNumber(x);
         this.x = x;
+        this.mesh.position.x = x;
     }
 
     /**
@@ -163,6 +171,9 @@ export class Keypoint {
     setY(y) {
         validateNumber(y);
         this.y = y;
+
+        // We invert the Y-Axis, because Three.js uses a different coordinate system than our TensorFlow models.
+        this.mesh.position.y = -y;
     }
 
     /**
@@ -173,5 +184,8 @@ export class Keypoint {
     setZ(z) {
         validateNumber(z);
         this.z = z;
+
+        // We invert the Z-Axis, because Three.js uses a different coordinate system than our TensorFlow models.
+        this.mesh.position.z = -z;
     }
 }
