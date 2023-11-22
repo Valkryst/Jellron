@@ -58,6 +58,15 @@ export class Keypoint {
     }
 
     /**
+     * Retrieve the Keypoint's mesh.
+     *
+     * @returns {Mesh} Keypoint's mesh.
+     */
+    getMesh() {
+        return this.mesh;
+    }
+
+    /**
      * Retrieve the Keypoint's size.
      *
      * @returns {number} Keypoint's size.
