@@ -300,14 +300,24 @@
             document.getElementById("mesh-draw-time-avg").innerText = meshRendererStats.getAverage().toString();
             document.getElementById("mesh-draw-time-max").innerText = meshRendererStats.getMaximum().toString();
 
-            if (faceDetectorStats.getAverage() > 500 || bodyDetectorStats.getAverage() > 500) {
-                console.error("Average detection time is too high. Stopping demo. Refresh the page to try again.");
-
-                bodyDetector.stop();
+            if (faceDetectorStats.getAverage() > 500) {
+                console.error("Average face detection time is too high. Stopping face detection.");
                 faceDetector.stop();
-                handDetector.stop();
-                meshRenderer.stop();
+            }
 
+            if (bodyDetectorStats.getAverage() > 500) {
+                console.error("Average body detection time is too high. Stopping face detection.");
+                bodyDetector.stop();
+            }
+
+            if (handDetectorStats.getAverage() > 500) {
+                console.error("Average hand detection time is too high. Stopping face detection.");
+                handDetector.stop();
+            }
+
+            if (!bodyDetector.isRunning() && !faceDetector.isRunning() && !handDetector.isRunning()) {
+                console.error("All detectors have stopped. Stopping mesh renderer and stats recorder.");
+                meshRenderer.stop();
                 clearInterval(statsInterval);
             }
         }, 100);

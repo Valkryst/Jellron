@@ -76,6 +76,15 @@ export class FaceDetector {
     }
 
     /**
+     * Determines whether the detector is currently running.
+     *
+     * @returns {boolean} Whether the detector is currently running.
+     */
+    isRunning() {
+        return this.intervalId != null;
+    }
+
+    /**
      * Retrieves the most recent runtime of the detector, in milliseconds.
      *
      * @returns {number} Most recent runtime of the detector, in milliseconds.
