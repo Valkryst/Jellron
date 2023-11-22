@@ -148,36 +148,6 @@ export class MeshRenderer {
     }
 
     /**
-     * Draws the body of a Mesh on a canvas.
-     *
-     * @param {Scene} scene Scene to place the keypoint in.
-     * @param mesh Mesh whose body to draw.
-     */
-    drawBody(scene, mesh) {
-        validateInstanceOf(scene, Scene);
-        validateInstanceOf(mesh, Mesh);
-
-        for (const keypoint of mesh.getBodyKeypoints()) {
-            this.placePoint(scene, keypoint);
-        }
-    }
-
-    /**
-     * Draws the face of a Mesh on a canvas.
-     *
-     * @param {Scene} scene Scene to place the keypoint in.
-     * @param mesh Mesh whose face to draw.
-     */
-    drawFace(scene, mesh) {
-        validateInstanceOf(scene, Scene);
-        validateInstanceOf(mesh, Mesh);
-
-        for (const keypoint of mesh.getFaceKeypoints()) {
-            this.placePoint(scene, keypoint);
-        }
-    }
-
-    /**
      * Places a Keypoint within a Scene.
      *
      * @param {Scene} scene Scene to place the keypoint in.
