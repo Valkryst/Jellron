@@ -323,7 +323,7 @@
         }, 100);
 
         const warmupInterval = setInterval(() => {
-            if (faceDetector.isReady() && bodyDetector.isReady()) {
+            if (bodyDetector.isReady() && faceDetector.isReady() && handDetector.isReady()) {
                 clearInterval(warmupInterval);
 
                 document.getElementById("body-detector-ready").innerText = "True";
