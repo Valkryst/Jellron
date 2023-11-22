@@ -32,7 +32,15 @@
 
                         <label>
                             Select a Video Input Device:
-                            <select name="video-input-devices" id="video-input-device-select"></select>
+                            <select disabled name="video-input-devices" id="video-input-device-select"></select>
+                        </label>
+                        <label>
+                            Body Detector Ready:
+                            <span id="body-detector-ready">False</span>
+                        </label>
+                        <label>
+                            Face Detector Ready:
+                            <span id="face-detector-ready">False</span>
                         </label>
                     </fieldset>
 
@@ -272,6 +280,16 @@
                 meshRenderer.stop();
 
                 clearInterval(statsInterval);
+            }
+        }, 100);
+
+        const warmupInterval = setInterval(() => {
+            if (faceDetector.isReady() && bodyDetector.isReady()) {
+                clearInterval(warmupInterval);
+
+                document.getElementById("face-detector-ready").innerText = "True";
+                document.getElementById("body-detector-ready").innerText = "True";
+                document.getElementById("video-input-device-select").disabled = false;
             }
         }, 100);
 

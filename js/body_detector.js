@@ -67,6 +67,15 @@ export class BodyDetector {
     }
 
     /**
+     * Determines whether the detector is ready to be used.
+     *
+     * @returns {boolean} Whether the detector is ready to be used.
+     */
+    isReady() {
+        return this.detector != null;
+    }
+
+    /**
      * Retrieves the most recent runtime of the detector, in milliseconds.
      *
      * @returns {number} Most recent runtime of the detector, in milliseconds.
