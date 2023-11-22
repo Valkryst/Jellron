@@ -165,36 +165,6 @@ export class Mesh {
         }
     }
 
-    /**
-     * Adds a keypoint to the set of face Keypoints.
-     *
-     * @param {Keypoint} keypoint Keypoint object.
-     */
-    addFaceKeypoint(keypoint) {
-        validateInstanceOf(keypoint, Keypoint);
-        this.faceKeypoints.push(keypoint);
-    }
-
-    /**
-     * Adds a keypoint to the set of body Keypoints.
-     *
-     * @param {Keypoint} keypoint Keypoint object.
-     */
-    addBodyKeypoint(keypoint) {
-        validateInstanceOf(keypoint, Keypoint);
-        this.bodyKeypoints.push(keypoint);
-    }
-
-    /** Clears the set of face Keypoints. */
-    clearFaceKeypoints() {
-        this.faceKeypoints = [];
-    }
-
-    /** Clears the set of body Keypoints. */
-    clearBodyKeypoints() {
-        this.bodyKeypoints = [];
-    }
-
     // todo Multiple points can have the same label, deal with this.
     /**
      * Attempts to retrieve a Keypoint by its label.
