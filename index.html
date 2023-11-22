@@ -208,7 +208,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection/dist/pose-detection.min.js"></script>
 
     <script type="module">
-        import { displayVideoInput, getVideoInputDevice, populateVideoInputSelect, promptForPermissions } from "./js/camera.js";
+        import {Camera} from "./js/camera.js";
         import {BodyDetector} from "./js/body_detector.js";
         import {FaceDetector} from "./js/face_detector.js";
         import {Mesh} from "./js/mesh.js";
@@ -224,7 +224,7 @@
             return parseInt(inputElement.value);
         }
 
-        promptForPermissions();
+        Camera.promptForPermissions();
 
         const canvas = document.getElementsByTagName("canvas")[0];
         const canvasContext = canvas.getContext("2d");
@@ -270,9 +270,9 @@
         const deviceSelect = document.getElementById("video-input-device-select");
         deviceSelect.onchange = async () => {
             try {
-                await displayVideoInput(videoElement, deviceSelect.value);
+                await Camera.displayVideoInput(videoElement, deviceSelect.value);
 
-                const device = await getVideoInputDevice(deviceSelect.value);
+                const device = await Camera.getVideoInputDevice(deviceSelect.value);
                 const deviceCapabilities = device.getVideoTracks()[0].getCapabilities()
 
                 videoElement.width = deviceCapabilities.width.max;
@@ -292,10 +292,10 @@
             }
         };
 
-        populateVideoInputSelect(deviceSelect);
+        Camera.populateVideoInputSelect(deviceSelect);
         navigator.mediaDevices.ondevicechange = () => {
             // todo Test whether the active device stays selected and that the dropdown updates its  options.
-            populateVideoInputSelect(deviceSelect);
+            Camera.populateVideoInputSelect(deviceSelect);
         };
 
 
