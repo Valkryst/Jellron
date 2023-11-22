@@ -19,8 +19,14 @@ export class Mesh {
 
     /** Creates a new Mesh object. */
     constructor() {
-        this.faceKeypoints = [];
         this.bodyKeypoints = [];
+        this.chokerKeypoint = new Keypoint(0, 0, 0, 0, "choker");
+        this.earlobeKeypoints = [
+            new Keypoint(0, 0, 0, 0, "left_earlobe"),
+            new Keypoint(0, 0, 0, 0, "right_earlobe")
+        ]
+        this.faceKeypoints = [];
+        this.necklaceKeypoint = new Keypoint(0, 0, 0, 0, "necklace");
 
         this.chokerOffsets = [0, 0, 0];
         this.leftEarlobeOffsets = [0, 0, 0];
@@ -175,6 +181,14 @@ export class Mesh {
     getKeypointByLabel(label) {
         validateNonEmptyString(label);
 
+        if (label === "choker") {
+            return this.getChokerKeypoint();
+        }
+
+        if (label === "left_earlobe" || label === "right_earlobe") {
+            return this.getEarlobeKeypoints()[label === "left_earlobe" ? 0 : 1];
+        }
+
         if (label === "necklace") {
             return this.getNecklaceKeypoint();
         }
@@ -205,6 +219,11 @@ export class Mesh {
         }
 
         const labels = [];
+        labels.push(this.chokerKeypoint.getLabel());
+        labels.push(this.earlobeKeypoints[0].getLabel());
+        labels.push(this.earlobeKeypoints[1].getLabel());
+        labels.push(this.necklaceKeypoint.getLabel());
+
         for (const keypoint of this.faceKeypoints) {
             if (keypoint.getLabel() != null) {
                 labels.push(keypoint.getLabel());
@@ -236,14 +255,16 @@ export class Mesh {
      * @returns {Keypoint|null} Position of the choker Keypoint, or null if the Keypoint cannot be calculated.
      */
     getChokerKeypoint() {
+        this.chokerKeypoint.setConfidence(0);
+
         const noseKeypoint = this.getKeypointByLabel("nose");
         if (noseKeypoint == null) {
-            return null;
+            return this.chokerKeypoint;
         }
 
         const necklaceKeypoint = this.getKeypointByLabel("necklace");
         if (necklaceKeypoint == null) {
-            return null;
+            return this.chokerKeypoint;
         }
 
         let x = necklaceKeypoint.getX();
@@ -258,9 +279,10 @@ export class Mesh {
         z += (noseKeypoint.getZ() + necklaceKeypoint.getZ()) / 2;
         z += this.chokerOffsets[2];
 
-        const keypoint = new Keypoint(x, y, z, 1, "choker");
-        keypoint.setColour(Mesh.defaultChokerKeypointColour);
-        return keypoint;
+        this.chokerKeypoint.setConfidence(1);
+        this.chokerKeypoint.setPosition(x, y, z);
+        this.chokerKeypoint.setColour(Mesh.defaultChokerKeypointColour);
+        return this.chokerKeypoint;
     }
 
     /**
@@ -269,51 +291,52 @@ export class Mesh {
      * @returns {Keypoint[]} Earlobe Keypoints. Element [0] is the left earlobe, and [1] is the right earlobe. The both Keypoints will be null if either one cannot be calculated.
      */
     getEarlobeKeypoints() {
-        let earlobes = [null, null];
+        this.earlobeKeypoints[0].setConfidence(0);
+        this.earlobeKeypoints[1].setConfidence(0);
 
         const leftEar = this.getKeypointByLabel("left_ear");
         if (leftEar == null) {
-            return earlobes;
+            return this.earlobeKeypoints;
         }
 
         const rightEar = this.getKeypointByLabel("right_ear");
         if (rightEar == null) {
-            return earlobes;
+            return this.earlobeKeypoints;
         }
 
         const leftEye = this.getKeypointByLabel("left_eye");
         if (leftEye == null) {
-            return earlobes;
+            return this.earlobeKeypoints;
         }
 
         const rightEye = this.getKeypointByLabel("right_eye");
         if (rightEye == null) {
-            return earlobes;
+            return this.earlobeKeypoints;
         }
 
         const midPointBetweenNoseAndMouth = this.getKeypointByLabel("midpoint_between_nose_and_mouth");
         if (midPointBetweenNoseAndMouth == null) {
-            return earlobes;
+            return this.earlobeKeypoints;
         }
 
         const leftEdgeFace = this.getKeypointByLabel("left_edge_face");
         if (leftEdgeFace == null) {
-            return earlobes;
+            return this.earlobeKeypoints;
         }
 
         const rightEdgeFace = this.getKeypointByLabel("right_edge_face");
         if (rightEdgeFace == null) {
-            return earlobes;
+            return this.earlobeKeypoints;
         }
 
         const topEdgeFace = this.getKeypointByLabel("top_edge_face");
         if (topEdgeFace == null) {
-            return earlobes;
+            return this.earlobeKeypoints;
         }
 
         const bottomEdgeFace = this.getKeypointByLabel("bottom_edge_face");
         if (bottomEdgeFace == null) {
-            return earlobes;
+            return this.earlobeKeypoints;
         }
 
         /*
@@ -371,32 +394,23 @@ export class Mesh {
          * We assume that head rotation is accounted for by the ear Keypoints, as their coordinates are updated by the
          * model.
          */
-        const leftEarlobeKeypoint = new Keypoint(
+        this.earlobeKeypoints[0].setConfidence(isRotatedLeft ? 1 : 0);
+        this.earlobeKeypoints[0].setPosition(
             leftEarlobeX + this.leftEarlobeOffsets[0],
             leftEarlobeY + this.leftEarlobeOffsets[1],
-            leftEar.z + this.leftEarlobeOffsets[2],
-            1,
-            "left_earlobe"
+            leftEar.z + this.leftEarlobeOffsets[2]
         );
-        leftEarlobeKeypoint.setColour(Mesh.defaultEarlobeKeypointColour);
+        this.earlobeKeypoints[0].setColour(Mesh.defaultEarlobeKeypointColour);
 
-        const rightEarlobeKeypoint = new Keypoint(
+        this.earlobeKeypoints[1].setConfidence(isRotatedRight ? 1 : 0);
+        this.earlobeKeypoints[1].setPosition(
             rightEarlobeX + this.rightEarlobeOffsets[0],
             rightEarlobeY + this.rightEarlobeOffsets[1],
-            rightEar.z + this.rightEarlobeOffsets[2],
-            1,
-            "right_earlobe"
+            rightEar.z + this.rightEarlobeOffsets[2]
         );
-        rightEarlobeKeypoint.setColour(Mesh.defaultEarlobeKeypointColour);
+        this.earlobeKeypoints[1].setColour(Mesh.defaultEarlobeKeypointColour);
 
-        if (!isRotatedLeft && !isRotatedRight) {
-            return [leftEarlobeKeypoint, rightEarlobeKeypoint];
-        } else {
-            return [
-                isRotatedLeft ? leftEarlobeKeypoint : null,
-                isRotatedRight ? rightEarlobeKeypoint : null
-            ];
-        }
+        return this.earlobeKeypoints;
     }
 
     /**
@@ -414,14 +428,16 @@ export class Mesh {
      * @returns {Keypoint|null} Position of the necklace Keypoint, or null if the Keypoint cannot be calculated.
      */
     getNecklaceKeypoint() {
+        this.necklaceKeypoint.setConfidence(0);
+
         const leftShoulder = this.getKeypointByLabel("left_shoulder");
         if (leftShoulder == null) {
-            return null;
+            return this.necklaceKeypoint;
         }
 
         const rightShoulder = this.getKeypointByLabel("right_shoulder");
         if (rightShoulder == null) {
-            return null;
+            return this.necklaceKeypoint;
         }
 
         let x = (leftShoulder.x + rightShoulder.x) / 2;
@@ -433,9 +449,10 @@ export class Mesh {
         let z = (leftShoulder.z + rightShoulder.z) / 2;
         z += this.necklaceOffsets[2];
 
-        const keypoint = new Keypoint(x, y, z, 1, "necklace");
-        keypoint.setColour(Mesh.defaultNecklaceKeypointColour);
-        return keypoint;
+        this.necklaceKeypoint.setConfidence(1);
+        this.necklaceKeypoint.setPosition(x, y, z);
+        this.necklaceKeypoint.setColour(Mesh.defaultNecklaceKeypointColour);
+        return this.necklaceKeypoint;
     }
 
     /**
