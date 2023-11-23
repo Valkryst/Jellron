@@ -49,6 +49,15 @@ export class Keypoint {
     }
 
     /**
+     * Retrieve the Keypoint's height.
+     *
+     * @returns {number} Keypoint's height.
+     */
+    getHeight() {
+        return this.height;
+    }
+
+    /**
      * Retrieve the Keypoint's label.
      *
      * @returns {string}
