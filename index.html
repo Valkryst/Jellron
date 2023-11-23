@@ -279,6 +279,10 @@
         const meshRendererStats = new StatRecorder(30);
 
         const statsInterval = setInterval(() => {
+            if (!bodyDetector.isRunning() && !faceDetector.isRunning() && !handDetector.isRunning()) {
+                return;
+            }
+
             faceDetectorStats.record(faceDetector.getLastRuntime());
             bodyDetectorStats.record(bodyDetector.getLastRuntime());
             handDetectorStats.record(handDetector.getLastRuntime());
