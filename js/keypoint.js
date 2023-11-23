@@ -1,11 +1,11 @@
-import {Mesh, MeshBasicMaterial, PlaneGeometry, Scene} from "three";
+import {Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
 import {validateNonEmptyString, validateNumber, validateString} from "./validation.js";
 
 export class Keypoint {
     /** @type {string} Default colour to use when displaying Keypoints. */
     static defaultColour = "#FFFFFF"
 
-    /** @type {number} Default size to use when displaying Keypoints. */
+    /** @type {number} Default width and height to use when displaying Keypoints. */
     static defaultSize = 5;
 
     /**
@@ -103,6 +103,29 @@ export class Keypoint {
     }
 
     /**
+     * Display a 2D asset on the Keypoint.
+     *
+     * @param url URL of the asset to display.
+     */
+    display2DAsset(url) {
+        validateNonEmptyString(url);
+
+        const loader = new TextureLoader();
+        loader.load(
+            url,
+            (texture) => {
+                this.mesh.geometry = new PlaneGeometry(texture.image.width, texture.image.height);
+                this.mesh.material = new MeshBasicMaterial({ map: texture, transparent: true });
+            },
+            null,
+            (error) => {
+                // todo Check if it'll throw an error without this, that would be preferable.
+                console.log(error);
+            }
+        );
+    }
+
+    /**
      * Set the Keypoint's colour.
      *
      * @param colour New colour of the Keypoint.
@@ -121,6 +144,17 @@ export class Keypoint {
     setConfidence(confidence) {
         validateNumber(confidence);
         this.confidence = confidence;
+    }
+
+    /**
+     * Set the Keypoint's height.
+     *
+     * @param height New height of the Keypoint.
+     */
+    setHeight(height) {
+        validateNumber(height);
+        this.height = height;
+        this.mesh.geometry = new PlaneGeometry(this.width, height);
     }
 
     /**
@@ -152,14 +186,25 @@ export class Keypoint {
     }
 
     /**
-     * Set the Keypoint's size.
+     * Set the Keypoint's width and height.
      *
-     * @param size New size of the Keypoint.
+     * @param size New width and height of the Keypoint.
      */
     setSize(size) {
         validateNumber(size);
-        this.size = size;
-        this.mesh.geometry = new PlaneGeometry(size, size);
+        this.setHeight(size);
+        this.setWidth(size);
+    }
+
+    /**
+     * Set the Keypoint's width.
+     *
+     * @param width New width of the Keypoint.
+     */
+    setWidth(width) {
+        validateNumber(width);
+        this.width = width;
+        this.mesh.geometry = new PlaneGeometry(width, this.height);
     }
 
     /**
