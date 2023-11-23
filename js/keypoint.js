@@ -142,12 +142,17 @@ export class Keypoint {
     /**
      * Set the Keypoint's colour.
      *
+     * If the Keypoint is displaying a 2D asset, this will not change the colour of the asset.
+     *
      * @param colour New colour of the Keypoint.
      */
     setColour(colour) {
         validateNonEmptyString(colour);
         this.colour = colour;
-        this.mesh.material.color.set(colour);
+
+        if (this.mesh.material.map == null) {
+            this.mesh.material.color.set(colour);
+        }
     }
 
     /**
