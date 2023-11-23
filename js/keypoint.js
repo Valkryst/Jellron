@@ -133,8 +133,7 @@ export class Keypoint {
             },
             null,
             (error) => {
-                // todo Check if it'll throw an error without this, that would be preferable.
-                console.log(error);
+                console.error("Error loading texture from URL: " + url, error);
             }
         );
     }
