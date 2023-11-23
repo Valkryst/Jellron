@@ -76,6 +76,15 @@ export class Keypoint {
     }
 
     /**
+     * Retrieve the Keypoint's height.
+     *
+     * @returns {number} Keypoint's height.
+     */
+    getWidth() {
+        return this.width;
+    }
+
+    /**
      * Retrieve the Keypoint's position on the x-axis.
      *
      * @returns {number} Keypoint's position on the x-axis.
