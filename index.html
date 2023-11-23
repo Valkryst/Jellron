@@ -332,6 +332,8 @@
                 await handDetector.start(10, videoElement, mesh);
                 meshRenderer.start(60, glContext, mesh);
 
+                meshRenderer.display2DEarring(mesh, "./assets/earring.png", true);
+                meshRenderer.display2DEarring(mesh, "./assets/earring.png", false);
                 meshRenderer.display2DNecklace(mesh, "./assets/necklace.png");
             } catch (error) {
                 console.error(error);
