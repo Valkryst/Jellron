@@ -67,15 +67,6 @@ export class Keypoint {
     }
 
     /**
-     * Retrieve the Keypoint's size.
-     *
-     * @returns {number} Keypoint's size.
-     */
-    getSize() {
-        return this.size;
-    }
-
-    /**
      * Retrieve the Keypoint's height.
      *
      * @returns {number} Keypoint's height.
