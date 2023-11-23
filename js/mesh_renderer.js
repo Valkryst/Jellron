@@ -3,8 +3,8 @@ import {Mesh} from "./mesh.js";
 import {OrthographicCamera, Scene, WebGLRenderer} from "three";
 import {
     validateBoolean,
-    validateInstanceOf,
-    validateNumber,
+    validateInstanceOf, validateNonEmptyString,
+    validateNumber
 } from "./validation.js";
 
 export class MeshRenderer {
@@ -158,6 +158,60 @@ export class MeshRenderer {
         camera.position.z += 100;
 
         return camera;
+    }
+
+    /**
+     * Displays a 2D necklace on the necklace Keypoint.
+     *
+     * @param {Mesh} mesh Mesh to display the necklace on.
+     * @param {string} url URL of the necklace to display.
+     */
+    display2DNecklace(mesh, url) {
+        validateInstanceOf(mesh, Mesh);
+        validateNonEmptyString(url);
+
+        const necklaceKeypoint = mesh.getNecklaceKeypoint();
+        necklaceKeypoint.display2DAsset(url, () => {
+            // todo Ensure this cannot continue running forever. It should stop and print an error if it runs for too long.
+            const interval = setInterval(() => {
+                const shoulderLeftKeypoint = mesh.getKeypointByLabel('left_shoulder');
+                if (shoulderLeftKeypoint == null) {
+                    return;
+                }
+
+                const shoulderRightKeypoint = mesh.getKeypointByLabel('right_shoulder');
+                if (shoulderRightKeypoint == null) {
+                    return;
+                }
+
+                const distance = this.distanceBetweenKeypoints(shoulderLeftKeypoint, shoulderRightKeypoint);
+                const aspectRatio = necklaceKeypoint.getWidth() / necklaceKeypoint.getHeight();
+
+                const scale = 0.5;
+                necklaceKeypoint.setHeight(distance * scale);
+                necklaceKeypoint.setWidth(distance * aspectRatio * scale);
+
+                clearInterval(interval);
+            }, 100);
+        });
+    }
+
+    /**
+     * Calculates the distance between two Keypoints.
+     *
+     * @param {Keypoint} keypoint1 First Keypoint.
+     * @param {Keypoint} keypoint2 Second Keypoint.
+     *
+     * @returns {number} Distance between the Keypoints.
+     */
+    distanceBetweenKeypoints(keypoint1, keypoint2) {
+        validateInstanceOf(keypoint1, Keypoint);
+        validateInstanceOf(keypoint2, Keypoint);
+
+        return Math.sqrt(
+            Math.pow(keypoint1.getX() - keypoint2.getX(), 2) +
+            Math.pow(keypoint1.getY() - keypoint2.getY(), 2)
+        );
     }
 
     /**
