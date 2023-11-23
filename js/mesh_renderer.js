@@ -164,7 +164,7 @@ export class MeshRenderer {
      * Displays a 2D necklace on the necklace Keypoint.
      *
      * @param {Mesh} mesh Mesh to display the necklace on.
-     * @param {string} url URL of the necklace to display.
+     * @param {string} url URL of the necklace image to display.
      */
     display2DNecklace(mesh, url) {
         validateInstanceOf(mesh, Mesh);
@@ -187,12 +187,48 @@ export class MeshRenderer {
                 const distance = this.distanceBetweenKeypoints(shoulderLeftKeypoint, shoulderRightKeypoint);
                 const aspectRatio = necklaceKeypoint.getWidth() / necklaceKeypoint.getHeight();
 
-                const scale = 0.5;
+                const scale = 0.5; // todo This is a magic number. We should find a better way to calculate this.
                 necklaceKeypoint.setHeight(distance * scale);
                 necklaceKeypoint.setWidth(distance * aspectRatio * scale);
 
                 clearInterval(interval);
             }, 100);
+        });
+    }
+
+    /**
+     * Displays a 2D earring on an earlobe Keypoint.
+     *
+     * @param mesh Mesh to display the earring on.
+     * @param url URL of the earring image to display.
+     * @param isLeft Whether the earring is for the left ear. If false, it is for the right ear.
+     */
+    display2DEarring(mesh, url, isLeft) {
+        validateInstanceOf(mesh, Mesh);
+        validateNonEmptyString(url);
+        validateBoolean(isLeft);
+
+        const earlobeKeypoint = mesh.getEarlobeKeypoints()[isLeft ? 0 : 1];
+        earlobeKeypoint.display2DAsset(url, () => {
+           // todo Ensure this cannot continue running forever. It should stop and print an error if it runs for too long.
+           const interval = setInterval(() => {
+               const noseKeypoint = mesh.getKeypointByLabel('nose');
+                if (noseKeypoint == null) {
+                     return;
+                }
+
+                let distance = this.distanceBetweenKeypoints(earlobeKeypoint, noseKeypoint);
+                distance /= 4; // todo This is a magic number. We should find a better way to calculate this.
+
+                const aspectRatio = earlobeKeypoint.getWidth() / earlobeKeypoint.getHeight();
+
+                const scale = 0.5; // todo This is a magic number. We should find a better way to calculate this.
+
+                earlobeKeypoint.setHeight(distance * scale);
+                earlobeKeypoint.setWidth(distance * aspectRatio * scale);
+
+               clearInterval(interval);
+           }, 100);
         });
     }
 
