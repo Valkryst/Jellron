@@ -352,6 +352,8 @@
                 await faceDetector.start(30, videoElement, mesh);
                 await handDetector.start(10, videoElement, mesh);
                 meshRenderer.start(60, glContext, mesh);
+
+                meshRenderer.display2DNecklace(mesh, "./assets/necklace.png");
             } catch (error) {
                 console.error(error);
 
