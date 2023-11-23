@@ -106,8 +106,9 @@ export class Keypoint {
      * Display a 2D asset on the Keypoint.
      *
      * @param url URL of the asset to display.
+     * @param afterLoadCallback Callback to execute after the asset has been loaded.
      */
-    display2DAsset(url) {
+    display2DAsset(url, afterLoadCallback = null) {
         validateNonEmptyString(url);
 
         const loader = new TextureLoader();
@@ -116,6 +117,10 @@ export class Keypoint {
             (texture) => {
                 this.mesh.geometry = new PlaneGeometry(texture.image.width, texture.image.height);
                 this.mesh.material = new MeshBasicMaterial({ map: texture, transparent: true });
+
+                if (afterLoadCallback != null) {
+                    afterLoadCallback();
+                }
             },
             null,
             (error) => {
