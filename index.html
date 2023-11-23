@@ -278,7 +278,7 @@
         const handDetectorStats = new StatRecorder(30);
         const meshRendererStats = new StatRecorder(30);
 
-        const statsInterval = setInterval(() => {
+        setInterval(() => {
             if (!bodyDetector.isRunning() && !faceDetector.isRunning() && !handDetector.isRunning()) {
                 return;
             }
@@ -303,27 +303,6 @@
             document.getElementById("mesh-draw-time-min").innerText = meshRendererStats.getMinimum().toString();
             document.getElementById("mesh-draw-time-avg").innerText = meshRendererStats.getAverage().toString();
             document.getElementById("mesh-draw-time-max").innerText = meshRendererStats.getMaximum().toString();
-
-            if (faceDetectorStats.getAverage() > 500) {
-                console.error("Average face detection time is too high. Stopping face detection.");
-                faceDetector.stop();
-            }
-
-            if (bodyDetectorStats.getAverage() > 500) {
-                console.error("Average body detection time is too high. Stopping face detection.");
-                bodyDetector.stop();
-            }
-
-            if (handDetectorStats.getAverage() > 500) {
-                console.error("Average hand detection time is too high. Stopping face detection.");
-                handDetector.stop();
-            }
-
-            if (!bodyDetector.isRunning() && !faceDetector.isRunning() && !handDetector.isRunning()) {
-                console.error("All detectors have stopped. Stopping mesh renderer and stats recorder.");
-                meshRenderer.stop();
-                clearInterval(statsInterval);
-            }
         }, 100);
 
         const warmupInterval = setInterval(() => {
