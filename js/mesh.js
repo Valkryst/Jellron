@@ -1,5 +1,5 @@
 import {Keypoint} from "./keypoint.js";
-import {validateInstanceOf, validateNonEmptyString, validateNumber} from "./validation.js";
+import {validateNonEmptyString, validateNumber} from "./validation.js";
 
 export class Mesh {
     /** @type {string} Default colour to use when displaying body Keypoints. */
@@ -32,7 +32,10 @@ export class Mesh {
         this.handKeypoints = [];
         this.necklaceKeypoint = new Keypoint(0, 0, 0, 0, "necklace");
 
+        this.scale = [1, 1, 1];
+
         this.chokerOffsets = [0, 0, 0];
+        this.globalOffsets = [0, 0, 0];
         this.leftEarlobeOffsets = [0, 0, 0];
         this.necklaceOffsets = [0, 0, 0];
         this.rightEarlobeOffsets = [0, 0, 0];
@@ -75,60 +78,11 @@ export class Mesh {
         }
 
         for (let i = 0 ; i < rawFace.keypoints.length; i++) {
-            const rawKeypoint = rawFace.keypoints[i];
-
             const keypoint = this.faceKeypoints[i];
-            keypoint.setConfidence(1); // The model does not provide a confidence score for face Keypoints, so we assume that it is always 1.
-            keypoint.setLabel(this.renameFaceKeypoint(i, rawKeypoint.name));
-            keypoint.setPosition(
-                rawKeypoint.x,
-                rawKeypoint.y,
-                rawKeypoint.z
-            );
+            keypoint.copyRawKeypoint(rawFace.keypoints[i]);
+            keypoint.scalePosition(...this.scale);
+            keypoint.translatePosition(...this.globalOffsets);
         }
-    }
-
-    /**
-     * Renames a face Keypoint, if necessary.
-     *
-     * Some calculations require specific points which have generic names. To get around this, we rename
-     * these points to something more specific.
-     *
-     * The array of points is, as far as I can tell, always in the same order. This means that we can
-     * reference the following mesh diagram to find specific points and rename them.
-     *
-     * https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/mesh_map.jpg
-     *
-     * @param index Index of the Keypoint, in the array of raw face Keypoints.
-     * @param name Current name of the Keypoint.
-     *
-     * @returns {string} Keypoint name.
-     */
-    renameFaceKeypoint(index, name) {
-        switch (index) {
-            case 10: {
-                name = "top_edge_face";
-                break;
-            }
-            case 152: {
-                name = "bottom_edge_face";
-                break;
-            }
-            case 164: {
-                name = "midpoint_between_nose_and_mouth";
-                break;
-            }
-            case 234: {
-                name = "right_edge_face";
-                break;
-            }
-            case 454: {
-                name = "left_edge_face";
-                break;
-            }
-        }
-
-        return name;
     }
 
     /**
@@ -162,16 +116,10 @@ export class Mesh {
         }
 
         for (let i = 0 ; i < rawBody.keypoints.length; i++) {
-            const rawKeypoint = rawBody.keypoints[i];
-
             const keypoint = this.bodyKeypoints[i];
-            keypoint.setConfidence(rawKeypoint.score);
-            keypoint.setLabel(rawKeypoint.name);
-            keypoint.setPosition(
-                rawKeypoint.x,
-                rawKeypoint.y,
-                0 // The model does not provide a Z coordinate for body Keypoints, so we assume that it is always 0.
-            );
+            keypoint.copyRawKeypoint(rawBody.keypoints[i]);
+            keypoint.scalePosition(...this.scale);
+            keypoint.translatePosition(...this.globalOffsets);
         }
     }
 
@@ -212,16 +160,10 @@ export class Mesh {
 
         for (const rawHand of rawHands) {
             for (let i = 0; i < rawHand.keypoints.length; i++) {
-                const rawKeypoint = rawHand.keypoints[i];
-
                 const keypoint = this.handKeypoints[i];
-                keypoint.setConfidence(rawHand.score);
-                keypoint.setLabel(`${rawHand.handedness.toLowerCase()}_${rawKeypoint.name}`);
-                keypoint.setPosition(
-                    rawKeypoint.x,
-                    rawKeypoint.y,
-                    0 // The model does not provide a Z coordinate for hand Keypoints, so we assume that it is always 0.
-                );
+                keypoint.copyRawKeypoint(rawHand.keypoints[i]);
+                keypoint.scalePosition(...this.scale);
+                keypoint.translatePosition(...this.globalOffsets);
             }
         }
     }
@@ -450,19 +392,13 @@ export class Mesh {
          * model.
          */
         this.earlobeKeypoints[0].setConfidence(1);
-        this.earlobeKeypoints[0].setPosition(
-            leftEarlobeX + this.leftEarlobeOffsets[0],
-            leftEarlobeY + this.leftEarlobeOffsets[1],
-            leftEar.z + this.leftEarlobeOffsets[2]
-        );
+        this.earlobeKeypoints[0].setPosition(leftEarlobeX, leftEarlobeY, leftEar.z);
+        this.earlobeKeypoints[0].translatePosition(...this.leftEarlobeOffsets);
         this.earlobeKeypoints[0].setColour(Mesh.defaultEarlobeKeypointColour);
 
         this.earlobeKeypoints[1].setConfidence(1);
-        this.earlobeKeypoints[1].setPosition(
-            rightEarlobeX + this.rightEarlobeOffsets[0],
-            rightEarlobeY + this.rightEarlobeOffsets[1],
-            rightEar.z + this.rightEarlobeOffsets[2]
-        );
+        this.earlobeKeypoints[1].setPosition(rightEarlobeX, rightEarlobeY, rightEar.z);
+        this.earlobeKeypoints[1].translatePosition(...this.rightEarlobeOffsets);
         this.earlobeKeypoints[1].setColour(Mesh.defaultEarlobeKeypointColour);
 
         return this.earlobeKeypoints;
@@ -535,6 +471,21 @@ export class Mesh {
     }
 
     /**
+     * Sets the offsets of the global Keypoints.
+     *
+     * @param {number} xOffset Offset to apply to the X coordinate.
+     * @param {number} yOffset Offset to apply to the Y coordinate.
+     * @param {number} zOffset Offset to apply to the Z coordinate.
+     */
+    setGlobalOffsets(xOffset = 0, yOffset = 0, zOffset = 0) {
+        validateNumber(xOffset);
+        validateNumber(yOffset);
+        validateNumber(zOffset);
+
+        this.globalOffsets = [xOffset, yOffset, zOffset];
+    }
+
+    /**
      * Sets the offsets of the left earlobe Keypoint.
      *
      * @param {number} xOffset Offset to apply to the X coordinate.
@@ -577,5 +528,16 @@ export class Mesh {
         validateNumber(zOffset);
 
         this.rightEarlobeOffsets = [xOffset, yOffset, zOffset];
+    }
+
+    /**
+     * Sets the scale of the Keypoints.
+     *
+     * @param {number} scaleX A factor to scale the X coordinate by.
+     * @param {number} scaleY A factor to scale the Y coordinate by.
+     * @param {number} scaleZ A factor to scale the Z coordinate by.
+     */
+    setScale(scaleX = 1, scaleY = 1, scaleZ = 1) {
+        this.scale = [scaleX, scaleY, scaleZ];
     }
 }
