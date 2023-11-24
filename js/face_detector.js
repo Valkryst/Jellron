@@ -103,7 +103,6 @@ export class FaceDetector {
                 break;
             }
             case 164: {
-                console.log("Detected midpoint between nose and mouth.")
                 name = "midpoint_between_nose_and_mouth";
                 break;
             }
