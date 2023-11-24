@@ -104,16 +104,24 @@ export class Camera {
             video = document.createElement("video");
         }
 
+        const computedStyle = window.getComputedStyle(video);
+        const height = parseInt(computedStyle.height);
+        const width = parseInt(computedStyle.width);
+
         video.autoplay = true;
         video.muted = true;
         video.playsinline = true;
         video.srcObject = await this.getVideoInputDevice();
 
+        video.height = height;
+        video.width = width;
+
         return video;
     }
 
     /**
-     * Retrieves the height, in pixels, of the video stream associated with the video input device of this Camera object.
+     * Retrieves the height, in pixels, of the displayed video stream associated with the video input device of this
+     * Camera object.
      *
      * @returns {Promise<number>} A promise that resolves to the height.
      */

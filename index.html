@@ -321,11 +321,28 @@
             try {
                 const camera = await new Camera(deviceSelect.value);
                 const videoElement = await camera.createOrUpdateVideoElement(document.getElementsByTagName("video")[0]);
+                // todo Handle the case where the videoElement is resized after the the following code runs.
+                // todo Forgetting to do this will cause the mesh to be drawn incorrectly.
 
-                videoElement.height = await camera.getHeight();
-                videoElement.width = await camera.getWidth();
+                glContext.setSize(videoElement.clientWidth, videoElement.clientHeight);
 
-                glContext.setSize(await camera.getWidth(), await camera.getHeight());
+                const videoStreamAspectRatio = (await camera.getHeight()) / (await camera.getWidth());
+                console.log(videoStreamAspectRatio);
+
+                const scaleX = (videoElement.clientWidth / (await camera.getWidth()));
+                const scaleY = (videoElement.clientHeight / (await camera.getHeight()));
+                console.log("Scale", scaleX, scaleY);
+                mesh.setScale(scaleX, scaleY, 1);
+
+                const videoStreamHeight = (await camera.getHeight()) * scaleY;
+                const videoStreamWidth = (await camera.getWidth()) * scaleX * videoStreamAspectRatio;
+                console.log("Stream", videoStreamWidth, videoStreamHeight);
+
+                const xOffset = (videoElement.clientWidth - videoStreamWidth) / 2;
+                const yOffset = (videoElement.clientHeight - videoStreamHeight) / 2;
+                console.log(xOffset, yOffset);
+                mesh.setGlobalOffsets(xOffset, yOffset, 0);
+
 
                 await bodyDetector.start(15, videoElement, mesh);
                 await faceDetector.start(30, videoElement, mesh);
