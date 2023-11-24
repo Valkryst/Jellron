@@ -221,9 +221,8 @@ export class MeshRenderer {
                 let distance = this.distanceBetweenKeypoints(earlobeKeypoint, noseKeypoint);
                 distance /= 4; // todo This is a magic number. We should find a better way to calculate this.
 
-               // See https://stackoverflow.com/a/14731922
+                // See https://stackoverflow.com/a/14731922
                 const ratio = Math.min(1, distance / earlobeKeypoint.getWidth(), (distance / 2) / earlobeKeypoint.getHeight());
-                console.log(ratio, distance, earlobeKeypoint.getWidth(), earlobeKeypoint.getHeight())
                 earlobeKeypoint.setHeight(earlobeKeypoint.getHeight() * ratio);
                 earlobeKeypoint.setWidth(earlobeKeypoint.getWidth() * ratio);
 
