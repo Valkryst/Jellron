@@ -141,6 +141,32 @@ export class Keypoint {
     }
 
     /**
+     * Translate the Keypoint's position on all axes.
+     *
+     * @param {number} x Amount to translate the Keypoint's position on the x-axis.
+     * @param {number} y Amount to translate the Keypoint's position on the y-axis.
+     * @param {number} z Amount to translate the Keypoint's position on the z-axis.
+     */
+    translatePosition(x, y, z) {
+        this.setX(this.getX() + x);
+        this.setY(this.getY() + y);
+        this.setZ(this.getZ() + z);
+    }
+
+    /**
+     * Scale the Keypoint's position on all axes.
+     *
+     * @param {number} x Amount to scale the Keypoint's position on the x-axis.
+     * @param {number} y Amount to scale the Keypoint's position on the y-axis.
+     * @param {number} z Amount to scale the Keypoint's position on the z-axis.
+     */
+    scalePosition(x, y, z) {
+        this.setX(this.getX() * x);
+        this.setY(this.getY() * y);
+        this.setZ(this.getZ() * z);
+    }
+
+    /**
      * Set the Keypoint's colour.
      *
      * If the Keypoint is displaying a 2D asset, this will not change the colour of the asset.
