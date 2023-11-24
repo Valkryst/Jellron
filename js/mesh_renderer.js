@@ -184,12 +184,13 @@ export class MeshRenderer {
                     return;
                 }
 
-                const distance = this.distanceBetweenKeypoints(shoulderLeftKeypoint, shoulderRightKeypoint);
-                const aspectRatio = necklaceKeypoint.getWidth() / necklaceKeypoint.getHeight();
+                let distance = this.distanceBetweenKeypoints(shoulderLeftKeypoint, shoulderRightKeypoint);
+                distance /= 2; // todo This is a magic number. We should find a better way to calculate this.
 
-                const scale = 0.5; // todo This is a magic number. We should find a better way to calculate this.
-                necklaceKeypoint.setHeight(distance * scale);
-                necklaceKeypoint.setWidth(distance * aspectRatio * scale);
+                // See https://stackoverflow.com/a/14731922
+                const ratio = Math.min(1, distance / necklaceKeypoint.getWidth(), necklaceKeypoint.getHeight());
+                necklaceKeypoint.setHeight(necklaceKeypoint.getHeight() * ratio);
+                necklaceKeypoint.setWidth(necklaceKeypoint.getWidth() * ratio);
 
                 clearInterval(interval);
             }, 100);
@@ -220,12 +221,11 @@ export class MeshRenderer {
                 let distance = this.distanceBetweenKeypoints(earlobeKeypoint, noseKeypoint);
                 distance /= 4; // todo This is a magic number. We should find a better way to calculate this.
 
-                const aspectRatio = earlobeKeypoint.getWidth() / earlobeKeypoint.getHeight();
-
-                const scale = 0.5; // todo This is a magic number. We should find a better way to calculate this.
-
-                earlobeKeypoint.setHeight(distance * scale);
-                earlobeKeypoint.setWidth(distance * aspectRatio * scale);
+               // See https://stackoverflow.com/a/14731922
+                const ratio = Math.min(1, distance / earlobeKeypoint.getWidth(), (distance / 2) / earlobeKeypoint.getHeight());
+                console.log(ratio, distance, earlobeKeypoint.getWidth(), earlobeKeypoint.getHeight())
+                earlobeKeypoint.setHeight(earlobeKeypoint.getHeight() * ratio);
+                earlobeKeypoint.setWidth(earlobeKeypoint.getWidth() * ratio);
 
                clearInterval(interval);
            }, 100);
