@@ -51,6 +51,10 @@ export class HandDetector {
             const currentTime = performance.now();
 
             const rawHands = await this.detector.estimateHands(videoElement);
+            if (rawHands.length === 0) {
+                return;
+            }
+
             for (const rawHand of rawHands) {
                 for (const rawKeypoint of rawHand.keypoints) {
                     this.relabelKeypoint(rawHand, rawKeypoint);
