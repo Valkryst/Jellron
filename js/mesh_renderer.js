@@ -227,6 +227,17 @@ export class MeshRenderer {
                 earlobeKeypoint.setHeight(earlobeKeypoint.getHeight() * ratio);
                 earlobeKeypoint.setWidth(earlobeKeypoint.getWidth() * ratio);
 
+                mesh.setLeftEarlobeOffsets(
+                    0,
+                    earlobeKeypoint.getHeight() / 2,
+                    0
+                );
+                mesh.setRightEarlobeOffsets(
+                    0,
+                    earlobeKeypoint.getHeight() / 2,
+                    0
+                );
+
                clearInterval(interval);
            }, 100);
         });
