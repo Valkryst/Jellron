@@ -51,6 +51,10 @@ export class BodyDetector {
             const currentTime = performance.now();
 
             const rawBodies = await this.detector.estimatePoses(videoElement);
+            if (rawBodies.length === 0) {
+                return;
+            }
+
             const rawBody = rawBodies[0];
             mesh.updateBodyKeypoints(rawBody);
 
