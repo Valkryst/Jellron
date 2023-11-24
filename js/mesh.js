@@ -449,7 +449,7 @@ export class Mesh {
          * We assume that head rotation is accounted for by the ear Keypoints, as their coordinates are updated by the
          * model.
          */
-        this.earlobeKeypoints[0].setConfidence(isRotatedLeft ? 1 : 0);
+        this.earlobeKeypoints[0].setConfidence(1);
         this.earlobeKeypoints[0].setPosition(
             leftEarlobeX + this.leftEarlobeOffsets[0],
             leftEarlobeY + this.leftEarlobeOffsets[1],
@@ -457,7 +457,7 @@ export class Mesh {
         );
         this.earlobeKeypoints[0].setColour(Mesh.defaultEarlobeKeypointColour);
 
-        this.earlobeKeypoints[1].setConfidence(isRotatedRight ? 1 : 0);
+        this.earlobeKeypoints[1].setConfidence(1);
         this.earlobeKeypoints[1].setPosition(
             rightEarlobeX + this.rightEarlobeOffsets[0],
             rightEarlobeY + this.rightEarlobeOffsets[1],
