@@ -124,7 +124,9 @@ export class Keypoint {
         loader.load(
             url,
             (texture) => {
-                this.mesh.geometry = new PlaneGeometry(texture.image.width, texture.image.height);
+                this.setHeight(texture.image.height);
+                this.setWidth(texture.image.width);
+
                 this.mesh.material = new MeshBasicMaterial({ map: texture, transparent: true });
 
                 if (afterLoadCallback != null) {
