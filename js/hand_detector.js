@@ -1,4 +1,4 @@
-import {validateInstanceOf, validateNumber} from "./validation.js";
+import {validateDefined, validateInstanceOf, validateNumber} from "./validation.js";
 
 /**
  * See the following link for more information about the hand detection model:
@@ -49,7 +49,15 @@ export class HandDetector {
 
         this.intervalId = setInterval(async () => {
             const currentTime = performance.now();
-            mesh.updateHandKeypoints(await this.detector.estimateHands(videoElement));
+
+            const rawHands = await this.detector.estimateHands(videoElement);
+            for (const rawHand of rawHands) {
+                for (const rawKeypoint of rawHand.keypoints) {
+                    this.relabelKeypoint(rawHand, rawKeypoint);
+                }
+            }
+
+            mesh.updateHandKeypoints(rawHands);
             this.lastRuntime = performance.now() - currentTime;
         }, 1000 / updatesPerSecond);
     }
@@ -60,6 +68,27 @@ export class HandDetector {
             clearInterval(this.intervalId);
             this.intervalId = null;
         }
+    }
+
+    /**
+     * Relabels a raw Keypoint object.
+     *
+     * Some calculations require specific points which have generic names. To get around this, we rename
+     * these points to something more specific.
+     *
+     * The array of points is, as far as I can tell, always in the same order. This means that we can
+     * reference the following mesh diagram to find specific points and rename them.
+     *
+     * https://camo.githubusercontent.com/b0f077393b25552492ef5dd7cd9fd13f386e8bb480fa4ed94ce42ede812066a1/68747470733a2f2f6d65646961706970652e6465762f696d616765732f6d6f62696c652f68616e645f6c616e646d61726b732e706e67
+     *
+     * @param {object} rawHand Raw Hand object of the Keypoint to relabel.
+     * @param {object} rawKeypoint Raw Keypoint object to relabel.
+     */
+    relabelKeypoint(rawHand, rawKeypoint) {
+        validateDefined(rawHand);
+        validateDefined(rawKeypoint);
+
+        rawKeypoint.name = `${rawHand.handedness.toLowerCase()}_${rawKeypoint.name}`;
     }
 
     /**
