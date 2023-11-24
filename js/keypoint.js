@@ -1,5 +1,5 @@
 import {Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
-import {validateNonEmptyString, validateNumber, validateString} from "./validation.js";
+import {validateDefined, validateNonEmptyString, validateNumber, validateString} from "./validation.js";
 
 export class Keypoint {
     /** @type {string} Default colour to use when displaying Keypoints. */
@@ -28,6 +28,21 @@ export class Keypoint {
         this.setLabel(label);
         this.setPosition(x, y, z);
         this.setSize(Keypoint.defaultSize);
+    }
+
+    /**
+     * Copies the properties of a raw Keypoint object into this Keypoint.
+     *
+     * @param {object} rawKeypoint Raw Keypoint object to copy.
+     */
+    copyRawKeypoint(rawKeypoint) {
+        validateDefined(rawKeypoint);
+
+        this.setConfidence(rawKeypoint.hasOwnProperty("score") ? rawKeypoint.score : 1);
+        this.setLabel(rawKeypoint.hasOwnProperty("name") ? rawKeypoint.name : "");
+        this.setX(rawKeypoint.hasOwnProperty("x") ? rawKeypoint.x : 0);
+        this.setY(rawKeypoint.hasOwnProperty("y") ? rawKeypoint.y : 0);
+        this.setZ(rawKeypoint.hasOwnProperty("z") ? rawKeypoint.z : 0);
     }
 
     /**
