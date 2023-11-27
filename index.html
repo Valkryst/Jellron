@@ -326,23 +326,26 @@
 
                 glContext.setSize(videoElement.clientWidth, videoElement.clientHeight);
 
-                const videoStreamAspectRatio = (await camera.getHeight()) / (await camera.getWidth());
-                console.log(videoStreamAspectRatio);
+                // Determine the aspect ratio of the video stream.
+                const aspectRatio = (await camera.getWidth()) / (await camera.getHeight());
+                console.log("Aspect Ratio", aspectRatio);
 
-                const scaleX = (videoElement.clientWidth / (await camera.getWidth()));
-                const scaleY = (videoElement.clientHeight / (await camera.getHeight()));
-                console.log("Scale", scaleX, scaleY);
-                mesh.setScale(scaleX, scaleY, 1);
-
-                const videoStreamHeight = (await camera.getHeight()) * scaleY;
-                const videoStreamWidth = (await camera.getWidth()) * scaleX * videoStreamAspectRatio;
+                // Calculate the actual height and width of the stream as it appears in the browser.
+                const videoStreamHeight = videoElement.clientHeight;
+                const videoStreamWidth = videoElement.clientHeight * aspectRatio;
                 console.log("Stream", videoStreamWidth, videoStreamHeight);
 
+                // Calculate the amount of whitespace on either side of the video stream.
                 const xOffset = (videoElement.clientWidth - videoStreamWidth) / 2;
-                const yOffset = (videoElement.clientHeight - videoStreamHeight) / 2;
-                console.log(xOffset, yOffset);
-                mesh.setGlobalOffsets(xOffset, yOffset, 0);
+                console.log("xOffset", xOffset);
 
+                // Calculate the difference between the stream's actual dimensions and its displayed dimensions.
+                const xScale = videoStreamWidth / (await camera.getWidth());
+                const yScale = videoStreamHeight / (await camera.getHeight());
+                console.log("Scale", xScale, yScale);
+
+                mesh.setGlobalOffsets(xOffset, 0, 0);
+                mesh.setScale(xScale, yScale, 1);
 
                 await bodyDetector.start(15, videoElement, mesh);
                 await faceDetector.start(30, videoElement, mesh);
