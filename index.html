@@ -316,23 +316,68 @@
             }
         }, 100);
 
-        const deviceSelect = await Camera.createOrUpdateSelectElement(document.getElementById("video-input-device-select"));
-        deviceSelect.onchange = async () => {
-            try {
+        let resizeTimeout = null;
+        const updateDisplay = async () => {
+            clearTimeout(resizeTimeout);
+
+            resizeTimeout = setTimeout(async () => {
+                /*
+                 * For some reason, the detectors don't work properly when the element sizes are updated. We need to
+                 * restart them to ensure the keypoints are rendered correctly on the canvas.
+                 *
+                 * todo Research this issue and determine if there's a better way to handle it.
+                 */
+                // bodyDetector.stop();
+                // faceDetector.stop();
+                // handDetector.stop();
+
                 const camera = await new Camera(deviceSelect.value);
                 await camera.setVideoElement(document.getElementsByTagName("video")[0]);
 
                 const videoElement = await camera.getVideoElement();
                 glContext.setSize(videoElement.width, videoElement.height);
 
-                await bodyDetector.start(15, videoElement, mesh);
-                await faceDetector.start(30, videoElement, mesh);
-                await handDetector.start(10, videoElement, mesh);
-                meshRenderer.start(60, glContext, mesh);
+                /*
+                 * Calculate the difference in scale, between the MediaStream and the canvas. This is used to scale the
+                 * body keypoints, so they're rendered in the correct position on the canvas.
+                 */
+                const xScale = videoElement.width / (await camera.getMediaStreamWidth());
+                const yScale = videoElement.height / (await camera.getMediaStreamHeight());
+                mesh.setBodyScale(xScale, yScale, 0);
 
+                if (!bodyDetector.isRunning()) {
+                    await bodyDetector.start(15, videoElement, mesh);
+                }
+
+                if (!faceDetector.isRunning()) {
+                    await faceDetector.start(30, videoElement, mesh);
+                }
+
+                if (!handDetector.isRunning()) {
+                    await handDetector.start(10, videoElement, mesh);
+                }
+
+                /*
+                 * If the render is already running and a resize occurs, there is an issue which causes all the points
+                 * to be drawn in the wrong position. To fix this, we stop and then restart the renderer.
+                 *
+                 * todo Investigate this issue and determine if there's a better way to handle it.
+                 */
                 meshRenderer.display2DEarring(mesh, "./assets/earring.png", true);
                 meshRenderer.display2DEarring(mesh, "./assets/earring.png", false);
                 meshRenderer.display2DNecklace(mesh, "./assets/necklace.png");
+
+                meshRenderer.stop();
+                meshRenderer.start(60, glContext, mesh);
+            }, 100);
+        }
+
+        window.onresize = () => updateDisplay();
+
+        const deviceSelect = await Camera.createOrUpdateSelectElement(document.getElementById("video-input-device-select"));
+        deviceSelect.onchange = () => {
+            try {
+                updateDisplay();
             } catch (error) {
                 console.error(error);
 
