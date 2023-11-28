@@ -316,34 +316,63 @@
             }
         }, 100);
 
+        // We're using a timeout because we don't want to repeatedly update the view size while the user is resizing.
+        let resizeTimeout = null;
         const updateViewSize = async () => {
-            const camera = await new Camera(deviceSelect.value);
-            const videoElement = await camera.createOrUpdateVideoElement(document.getElementsByTagName("video")[0]);
-            // todo Handle the case where the videoElement is resized after the the following code runs.
-            // todo Forgetting to do this will cause the mesh to be drawn incorrectly.
+            /*
+             * For some reason, the detectors don't work properly when the element sizes are updated. We need to restart
+             * them to ensure the keypoints are rendered correctly on the canvas.
+             *
+             * todo Research this issue and determine if there's a better way to handle it.
+             */
+            bodyDetector.stop();
+            faceDetector.stop();
+            handDetector.stop();
+            meshRenderer.stop();
 
-            glContext.setSize(videoElement.clientWidth, videoElement.clientHeight);
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(async () => {
+                const camera = await new Camera(deviceSelect.value);
+                const videoElement = await camera.createOrUpdateVideoElement(document.getElementsByTagName("video")[0]);
 
-            // Determine the aspect ratio of the video stream.
-            const aspectRatio = (await camera.getWidth()) / (await camera.getHeight());
-            console.log("Aspect Ratio", aspectRatio);
+                // Determine the aspect ratio of the video stream.
+                const aspectRatio = (await camera.getWidth()) / (await camera.getHeight());
 
-            // Calculate the actual height and width of the stream as it appears in the browser.
-            const videoStreamHeight = videoElement.clientHeight;
-            const videoStreamWidth = videoElement.clientHeight * aspectRatio;
-            console.log("Stream", videoStreamWidth, videoStreamHeight);
+                // Calculate the actual height and width of the stream as it appears in the browser.
+                const videoStreamHeight = videoElement.clientWidth / aspectRatio;
+                const videoStreamWidth = videoElement.clientWidth;
+                glContext.setSize(videoStreamWidth, videoStreamHeight);
 
-            // Calculate the amount of whitespace on either side of the video stream.
-            const xOffset = (videoElement.clientWidth - videoStreamWidth) / 2;
-            console.log("xOffset", xOffset);
+                /*
+                 * Calculate the difference between the stream's actual dimensions and its displayed dimensions.
+                 *
+                 * It seems as though the face and hand models work properly without any scaling, as they're scaling
+                 * the input video using the width/height properties on the video element. However, the body model does
+                 * not work properly without scaling.
+                 */
+                const xScale = videoStreamWidth / (await camera.getWidth());
+                const yScale = videoStreamHeight / (await camera.getHeight());
+                mesh.setBodyScale(xScale, yScale, 1);
 
-            // Calculate the difference between the stream's actual dimensions and its displayed dimensions.
-            const xScale = videoStreamWidth / (await camera.getWidth());
-            const yScale = videoStreamHeight / (await camera.getHeight());
-            console.log("Scale", xScale, yScale);
+                await bodyDetector.start(15, videoElement, mesh);
+                await faceDetector.start(30, videoElement, mesh);
+                await handDetector.start(10, videoElement, mesh);
 
-            mesh.setGlobalOffsets(xOffset, 0, 0);
-            mesh.setScale(xScale, yScale, 1);
+                meshRenderer.display2DEarring(mesh, "./assets/earring.png", true);
+                meshRenderer.display2DEarring(mesh, "./assets/earring.png", false);
+                meshRenderer.display2DNecklace(mesh, "./assets/necklace.png");
+
+                /*
+                 * If we were to start the renderer immediately, the mesh would be drawn before the detectors have
+                 * updated the keypoints. This would result in the mesh being drawn in the wrong location, or for a
+                 * "glitchy" appearance. To avoid this, we wait before starting the renderer.
+                 *
+                 * todo May need to clear this when resizeTimeout is cleared.
+                 */
+                setTimeout(() => {
+                    meshRenderer.start(60, glContext, mesh);
+                }, 500);
+            }, 200);
         };
         window.onresize = async () => await updateViewSize();
 
@@ -351,18 +380,9 @@
         deviceSelect.onchange = async () => {
             try {
                 const camera = await new Camera(deviceSelect.value);
-                const videoElement = await camera.createOrUpdateVideoElement(document.getElementsByTagName("video")[0]);
+                await camera.createOrUpdateVideoElement(document.getElementsByTagName("video")[0]);
 
                 await updateViewSize();
-
-                await bodyDetector.start(15, videoElement, mesh);
-                await faceDetector.start(30, videoElement, mesh);
-                await handDetector.start(10, videoElement, mesh);
-                meshRenderer.start(60, glContext, mesh);
-
-                meshRenderer.display2DEarring(mesh, "./assets/earring.png", true);
-                meshRenderer.display2DEarring(mesh, "./assets/earring.png", false);
-                meshRenderer.display2DNecklace(mesh, "./assets/necklace.png");
             } catch (error) {
                 console.error(error);
 
