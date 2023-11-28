@@ -52,6 +52,7 @@ export class FaceDetector {
 
             const rawFaces = await this.detector.estimateFaces(videoElement);
             if (rawFaces.length === 0) {
+                this.lastRuntime = performance.now() - currentTime;
                 return;
             }
 

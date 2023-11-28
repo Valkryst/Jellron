@@ -52,6 +52,7 @@ export class HandDetector {
 
             const rawHands = await this.detector.estimateHands(videoElement);
             if (rawHands.length === 0) {
+                this.lastRuntime = performance.now() - currentTime;
                 return;
             }
 
