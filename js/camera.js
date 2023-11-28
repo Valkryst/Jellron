@@ -141,7 +141,24 @@ export class Camera {
      * @returns {Promise<number>} A promise that resolves to the aspect ratio.
      */
     async getMediaStreamAspectRatio() {
-        return (await this.getWidth()) / (await this.getHeight());
+        return (await this.getMediaStreamWidth()) / (await this.getHeight());
+    }
+
+    /**
+     * Retrieves the width, in pixels, of the MediaStream stream associated with the video input device of this Camera
+     * object.
+     *
+     * @returns {Promise<number>} A promise that resolves to the width.
+     */
+    async getMediaStreamWidth() {
+        if (this.width == null) {
+            const device = await this.getVideoInputDevice();
+            const videoTracks = device.getVideoTracks();
+            const capabilities = videoTracks[0].getCapabilities();
+            this.width = capabilities.width.max;
+        }
+
+        return this.width;
     }
 
     /**
@@ -171,21 +188,5 @@ export class Camera {
     static async getVideoInputDevices() {
         const devices = await navigator.mediaDevices.enumerateDevices();
         return devices.filter(device => device.kind === "videoinput");
-    }
-
-    /**
-     * Retrieves the width, in pixels, of the video stream associated with the video input device of this Camera object.
-     *
-     * @returns {Promise<number>} A promise that resolves to the width.
-     */
-    async getWidth() {
-        if (this.width == null) {
-            const device = await this.getVideoInputDevice();
-            const videoTracks = device.getVideoTracks();
-            const capabilities = videoTracks[0].getCapabilities();
-            this.width = capabilities.width.max;
-        }
-
-        return this.width;
     }
 }
