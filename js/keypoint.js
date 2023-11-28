@@ -46,6 +46,16 @@ export class Keypoint {
     }
 
     /**
+     * Converts radians to degrees.
+     *
+     * @param {number} radians A radian value.
+     * @returns {number} The equivalent value in degrees.
+     */
+    radiansToDegrees(radians) {
+        return radians * (180 / Math.PI);
+    }
+
+    /**
      * Retrieve the Keypoint's colour.
      *
      * @returns {string} Keypoint's colour.
@@ -244,6 +254,49 @@ export class Keypoint {
         this.setX(x);
         this.setY(y);
         this.setZ(z);
+    }
+
+    /**
+     * Set the Keypoint's rotation on the all axes.
+     *
+     * @param {number} x New rotation of the Keypoint on the x-axis, in degrees.
+     * @param {number} y New rotation of the Keypoint on the y-axis, in degrees.
+     * @param {number} z New rotation of the Keypoint on the z-axis, in degrees.
+     */
+    setRotation(x, y, z) {
+        this.setRotationX(x);
+        this.setRotationY(y);
+        this.setRotationZ(z);
+    }
+
+    /**
+     * Set the Keypoint's rotation on the x-axis.
+     *
+     * @param {number} x New rotation of the Keypoint on the x-axis, in degrees.
+     */
+    setRotationX(x) {
+        validateNumber(x);
+        this.mesh.rotation.x = this.radiansToDegrees(x);
+    }
+
+    /**
+     * Set the Keypoint's rotation on the y-axis.
+     *
+     * @param {number} y New rotation of the Keypoint on the y-axis, in degrees.
+     */
+    setRotationY(y) {
+        validateNumber(y);
+        this.mesh.rotation.y = this.radiansToDegrees(y);
+    }
+
+    /**
+     * Set the Keypoint's rotation on the z-axis.
+     *
+     * @param {number} z New rotation of the Keypoint on the z-axis, in degrees.
+     */
+    setRotationZ(z) {
+        validateNumber(z);
+        this.mesh.rotation.z = this.radiansToDegrees(z);
     }
 
     /**
