@@ -52,6 +52,7 @@ export class BodyDetector {
 
             const rawBodies = await this.detector.estimatePoses(videoElement);
             if (rawBodies.length === 0) {
+                this.lastRuntime = performance.now() - currentTime;
                 return;
             }
 
