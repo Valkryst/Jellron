@@ -120,11 +120,21 @@ export class Camera {
     }
 
     /**
-     * Retrieves the height, in pixels, of the video stream associated with the video input device of this Camera object.
+     * Calculates the aspect ratio of the MediaStream associated with the video element of this Camera object.
+     *
+     * @returns {Promise<number>} A promise that resolves to the aspect ratio.
+     */
+    async getMediaStreamAspectRatio() {
+        return (await this.getMediaStreamWidth()) / (await this.getMediaStreamHeight());
+    }
+
+    /**
+     * Retrieves the height, in pixels, of the MediaStream stream associated with the video input device of this Camera
+     * object.
      *
      * @returns {Promise<number>} A promise that resolves to the height.
      */
-    async getHeight() {
+    async getMediaStreamHeight() {
         if (this.height == null) {
             const device = await this.getVideoInputDevice();
             const videoTracks = device.getVideoTracks();
@@ -133,15 +143,6 @@ export class Camera {
         }
 
         return this.height;
-    }
-
-    /**
-     * Calculates the aspect ratio of the MediaStream associated with the video element of this Camera object.
-     *
-     * @returns {Promise<number>} A promise that resolves to the aspect ratio.
-     */
-    async getMediaStreamAspectRatio() {
-        return (await this.getMediaStreamWidth()) / (await this.getHeight());
     }
 
     /**
