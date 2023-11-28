@@ -32,7 +32,7 @@ export class Mesh {
         this.handKeypoints = [];
         this.necklaceKeypoint = new Keypoint(0, 0, 0, 0, "necklace");
 
-        this.scale = [1, 1, 1];
+        this.bodyScale = [1, 1, 1];
 
         this.chokerOffsets = [0, 0, 0];
         this.leftEarlobeOffsets = [0, 0, 0];
@@ -79,7 +79,6 @@ export class Mesh {
         for (let i = 0 ; i < rawFace.keypoints.length; i++) {
             const keypoint = this.faceKeypoints[i];
             keypoint.copyRawKeypoint(rawFace.keypoints[i]);
-            keypoint.scalePosition(...this.scale);
         }
     }
 
@@ -116,7 +115,7 @@ export class Mesh {
         for (let i = 0 ; i < rawBody.keypoints.length; i++) {
             const keypoint = this.bodyKeypoints[i];
             keypoint.copyRawKeypoint(rawBody.keypoints[i]);
-            keypoint.scalePosition(...this.scale);
+            keypoint.scalePosition(...this.bodyScale);
         }
     }
 
@@ -159,7 +158,6 @@ export class Mesh {
             for (let i = 0; i < rawHand.keypoints.length; i++) {
                 const keypoint = this.handKeypoints[i];
                 keypoint.copyRawKeypoint(rawHand.keypoints[i]);
-                keypoint.scalePosition(...this.scale);
             }
         }
     }
@@ -519,13 +517,13 @@ export class Mesh {
     }
 
     /**
-     * Sets the scale of the Keypoints.
+     * Sets the scale of the body Keypoints.
      *
      * @param {number} scaleX A factor to scale the X coordinate by.
      * @param {number} scaleY A factor to scale the Y coordinate by.
      * @param {number} scaleZ A factor to scale the Z coordinate by.
      */
-    setScale(scaleX = 1, scaleY = 1, scaleZ = 1) {
-        this.scale = [scaleX, scaleY, scaleZ];
+    setBodyScale(scaleX = 1, scaleY = 1, scaleZ = 1) {
+        this.bodyScale = [scaleX, scaleY, scaleZ];
     }
 }
