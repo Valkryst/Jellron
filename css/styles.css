@@ -8,6 +8,10 @@ html {
             & > canvas, & > video {
                 position: absolute;
             }
+
+            & > video {
+                width: 50%;
+            }
         }
     }
 }
