@@ -440,6 +440,10 @@ export class Mesh {
             return this.necklaceKeypoint;
         }
 
+        // todo 200 is a magic number, and may break with different cameras.
+        const scale = Math.abs(leftShoulder.x - rightShoulder.x) / 200;
+        this.necklaceKeypoint.setScale(scale, scale, 1);
+
         const rotationZ = (rightShoulder.y - leftShoulder.y) / 5;
         this.necklaceKeypoint.setRotationZ(rotationZ);
 
