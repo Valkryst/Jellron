@@ -440,6 +440,9 @@ export class Mesh {
             return this.necklaceKeypoint;
         }
 
+        const rotationZ = (rightShoulder.y - leftShoulder.y) / 5;
+        this.necklaceKeypoint.setRotationZ(rotationZ);
+
         let x = (leftShoulder.x + rightShoulder.x) / 2;
         x += this.necklaceOffsets[0];
 
