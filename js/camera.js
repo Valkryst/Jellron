@@ -104,17 +104,15 @@ export class Camera {
             video = document.createElement("video");
         }
 
-        const computedStyle = window.getComputedStyle(video);
-        const height = parseInt(computedStyle.height);
-        const width = parseInt(computedStyle.width);
-
         video.autoplay = true;
         video.muted = true;
         video.playsinline = true;
         video.srcObject = await this.getVideoInputDevice();
 
-        video.height = height;
-        video.width = width;
+        // Some detectors use these properties, so we need to ensure they are set correctly.
+        const aspectRatio = (await this.getWidth()) / (await this.getHeight());
+        video.height = video.clientWidth / aspectRatio
+        video.width = video.clientWidth;
 
         return video;
     }
