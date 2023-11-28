@@ -322,9 +322,6 @@
                 const camera = await new Camera(deviceSelect.value);
                 const videoElement = await camera.createOrUpdateVideoElement(document.getElementsByTagName("video")[0]);
 
-                videoElement.height = await camera.getHeight();
-                videoElement.width = await camera.getWidth();
-
                 glContext.setSize(await camera.getWidth(), await camera.getHeight());
 
                 await bodyDetector.start(15, videoElement, mesh);

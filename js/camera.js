@@ -109,6 +109,13 @@ export class Camera {
         video.playsinline = true;
         video.srcObject = await this.getVideoInputDevice();
 
+        /*
+         * Both FaceDetector and HandDetector use the video element's height and width properties to scale the input
+         * MediaStream before processing it. This is why we need to set them.
+         */
+        video.height = video.clientWidth / (await this.getMediaStreamAspectRatio());
+        video.width = video.clientWidth;
+
         return video;
     }
 
@@ -126,6 +133,15 @@ export class Camera {
         }
 
         return this.height;
+    }
+
+    /**
+     * Calculates the aspect ratio of the MediaStream associated with the video element of this Camera object.
+     *
+     * @returns {Promise<number>} A promise that resolves to the aspect ratio.
+     */
+    async getMediaStreamAspectRatio() {
+        return (await this.getWidth()) / (await this.getHeight());
     }
 
     /**
