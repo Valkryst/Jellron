@@ -46,13 +46,13 @@ export class Keypoint {
     }
 
     /**
-     * Converts radians to degrees.
+     * Converts degrees to radians.
      *
-     * @param {number} radians A radian value.
-     * @returns {number} The equivalent value in degrees.
+     * @param {number} degrees A degree value.
+     * @returns {number} The equivalent value in radians.
      */
-    radiansToDegrees(radians) {
-        return radians * (180 / Math.PI);
+    degreesToRadians(degrees) {
+        return degrees * (Math.PI / 180);
     }
 
     /**
@@ -276,7 +276,7 @@ export class Keypoint {
      */
     setRotationX(x) {
         validateNumber(x);
-        this.mesh.rotation.x = this.radiansToDegrees(x);
+        this.mesh.rotation.x = this.degreesToRadians(x);
     }
 
     /**
@@ -286,7 +286,7 @@ export class Keypoint {
      */
     setRotationY(y) {
         validateNumber(y);
-        this.mesh.rotation.y = this.radiansToDegrees(y);
+        this.mesh.rotation.y = this.degreesToRadians(y);
     }
 
     /**
@@ -296,7 +296,7 @@ export class Keypoint {
      */
     setRotationZ(z) {
         validateNumber(z);
-        this.mesh.rotation.z = this.radiansToDegrees(z);
+        this.mesh.rotation.z = this.degreesToRadians(z);
     }
 
     /**
