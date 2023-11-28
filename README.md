@@ -31,4 +31,20 @@ class provides the following functions to help the user select a device to use a
 `<video>` element:
 
 - `createOrUpdateSelectElement(HTMLSelectElement)` - Creates or updates a select element with the available video input devices.
-- `createOrUpdateVideoElement(HTMLVideoElement)` - Creates or updates a video element with the selected video input device.
+- `getVideoElement()` - Returns the Camera's video element.
+- `setVideoElement(HTMLVideoElement)` - Sets the Camera's video element.
+- `updateVideoElement(HTMLVideoElement)` - Updates the Camera's video element to reflect changes to the MediaStream.
+
+## Browser/Device Support
+
+This library has been tested on the following browsers/devices:
+
+| Device                  | OS           | Browser | Version | Status | Performance Notes                                                                                        |
+|:------------------------|:-------------|:--------|:--------|:-------|:---------------------------------------------------------------------------------------------------------|
+| Personal Computer       | Windows 11   | Chrome  | 119.0   | ✅      | N/A, as performance will likely change depending on GPU. It takes ~10 seconds to start running smoothly. |
+| Personal Computer       | Windows 11   | Edge    | 119.0   | ✅      | N/A, as performance will likely change depending on GPU.                                                 |
+| Personal Computer       | Windows 11   | FireFox | 120.0   | ❌      | See issue #14.                                                                                           |
+| iPad Air                | iOS 12.5.7   | Safari  | 12.1    | ❌      | Potential import issue as JS console outputs an error accessing the `Camera` class.                      |
+| iPhone                  | iOS 17.1.1   | Safari  | 17.1    | ✅      | Body detection ~40ms, Face detection ~145ms, Hand detection ~150ms. See issue #15.                       |
+| Macbook Pro (15", 2019) | macOS 13.5.1 | Safari  | 16.6    | ✅      | Body detection ~45ms, Face detection ~200ms, Hand detection ~610ms. See issue #15.                       |
+| Macbook Pro (15", 2019) | macOS 14.1.1 | Safari  | 17.1    | ✅      | Body detection ~45ms, Face detection ~200ms, ~610ms. See issue #15.                                      |                                                      
