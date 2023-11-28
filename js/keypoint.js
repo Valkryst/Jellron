@@ -300,6 +300,49 @@ export class Keypoint {
     }
 
     /**
+     * Set the Keypoint's scale on all axes.
+     *
+     * @param {number} x New scale of the Keypoint on the x-axis.
+     * @param {number} y New scale of the Keypoint on the y-axis.
+     * @param {number} z New scale of the Keypoint on the z-axis.
+     */
+    setScale(x, y, z) {
+        this.setScaleX(x);
+        this.setScaleY(y);
+        this.setScaleZ(z);
+    }
+
+    /**
+     * Set the Keypoint's scale on the x-axis.
+     *
+     * @param {number} x New scale of the Keypoint on the x-axis.
+     */
+    setScaleX(x) {
+        validateNumber(x);
+        this.mesh.scale.x = x;
+    }
+
+    /**
+     * Set the Keypoint's scale on the y-axis.
+     *
+     * @param {number} y New scale of the Keypoint on the y-axis.
+     */
+    setScaleY(y) {
+        validateNumber(y);
+        this.mesh.scale.y = y;
+    }
+
+    /**
+     * Set the Keypoint's scale on the z-axis.
+     *
+     * @param {number} z New scale of the Keypoint on the z-axis.
+     */
+    setScaleZ(z) {
+        validateNumber(z);
+        this.mesh.scale.z = z;
+    }
+
+    /**
      * Set the Keypoint's width and height.
      *
      * @param size New width and height of the Keypoint.
