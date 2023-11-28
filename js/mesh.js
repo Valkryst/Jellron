@@ -35,7 +35,6 @@ export class Mesh {
         this.scale = [1, 1, 1];
 
         this.chokerOffsets = [0, 0, 0];
-        this.globalOffsets = [0, 0, 0];
         this.leftEarlobeOffsets = [0, 0, 0];
         this.necklaceOffsets = [0, 0, 0];
         this.rightEarlobeOffsets = [0, 0, 0];
@@ -81,7 +80,6 @@ export class Mesh {
             const keypoint = this.faceKeypoints[i];
             keypoint.copyRawKeypoint(rawFace.keypoints[i]);
             keypoint.scalePosition(...this.scale);
-            keypoint.translatePosition(...this.globalOffsets);
         }
     }
 
@@ -119,7 +117,6 @@ export class Mesh {
             const keypoint = this.bodyKeypoints[i];
             keypoint.copyRawKeypoint(rawBody.keypoints[i]);
             keypoint.scalePosition(...this.scale);
-            keypoint.translatePosition(...this.globalOffsets);
         }
     }
 
@@ -163,7 +160,6 @@ export class Mesh {
                 const keypoint = this.handKeypoints[i];
                 keypoint.copyRawKeypoint(rawHand.keypoints[i]);
                 keypoint.scalePosition(...this.scale);
-                keypoint.translatePosition(...this.globalOffsets);
             }
         }
     }
@@ -475,21 +471,6 @@ export class Mesh {
         validateNumber(zOffset);
 
         this.chokerOffsets = [xOffset, yOffset, zOffset];
-    }
-
-    /**
-     * Sets the offsets of the global Keypoints.
-     *
-     * @param {number} xOffset Offset to apply to the X coordinate.
-     * @param {number} yOffset Offset to apply to the Y coordinate.
-     * @param {number} zOffset Offset to apply to the Z coordinate.
-     */
-    setGlobalOffsets(xOffset = 0, yOffset = 0, zOffset = 0) {
-        validateNumber(xOffset);
-        validateNumber(yOffset);
-        validateNumber(zOffset);
-
-        this.globalOffsets = [xOffset, yOffset, zOffset];
     }
 
     /**
