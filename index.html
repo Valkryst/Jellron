@@ -326,15 +326,9 @@
             clearTimeout(resizeTimeout);
 
             resizeTimeout = setTimeout(async () => {
-                /*
-                 * For some reason, the detectors don't work properly when the element sizes are updated. We need to
-                 * restart them to ensure the keypoints are rendered correctly on the canvas.
-                 *
-                 * todo Research this issue and determine if there's a better way to handle it.
-                 */
-                // bodyDetector.stop();
-                // faceDetector.stop();
-                // handDetector.stop();
+                if (deviceSelect.value === "") {
+                    return;
+                }
 
                 const camera = await new Camera(deviceSelect.value);
                 await camera.setVideoElement(document.getElementsByTagName("video")[0]);
