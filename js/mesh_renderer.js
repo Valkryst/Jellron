@@ -170,31 +170,7 @@ export class MeshRenderer {
         validateInstanceOf(mesh, Mesh);
         validateNonEmptyString(url);
 
-        const necklaceKeypoint = mesh.getNecklaceKeypoint();
-        necklaceKeypoint.display2DAsset(url, () => {
-            // todo Ensure this cannot continue running forever. It should stop and print an error if it runs for too long.
-            const interval = setInterval(() => {
-                const shoulderLeftKeypoint = mesh.getKeypointByLabel('left_shoulder');
-                if (shoulderLeftKeypoint == null) {
-                    return;
-                }
-
-                const shoulderRightKeypoint = mesh.getKeypointByLabel('right_shoulder');
-                if (shoulderRightKeypoint == null) {
-                    return;
-                }
-
-                let distance = this.distanceBetweenKeypoints(shoulderLeftKeypoint, shoulderRightKeypoint);
-                distance /= 2; // todo This is a magic number. We should find a better way to calculate this.
-
-                // See https://stackoverflow.com/a/14731922
-                const ratio = Math.min(1, distance / necklaceKeypoint.getWidth(), necklaceKeypoint.getHeight());
-                necklaceKeypoint.setHeight(necklaceKeypoint.getHeight() * ratio);
-                necklaceKeypoint.setWidth(necklaceKeypoint.getWidth() * ratio);
-
-                clearInterval(interval);
-            }, 100);
-        });
+        mesh.getNecklaceKeypoint().display2DAsset(url, );
     }
 
     /**

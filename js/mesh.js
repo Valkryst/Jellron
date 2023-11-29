@@ -434,20 +434,47 @@ export class Mesh {
             return this.necklaceKeypoint;
         }
 
-        // todo 200 is a magic number, and may break with different cameras.
-        const scale = Math.abs(leftShoulder.x - rightShoulder.x) / 200;
-        this.necklaceKeypoint.setScale(scale, scale, 1);
+        const bottomEdgeFace = this.getKeypointByLabel("bottom_edge_face");
+        if (bottomEdgeFace == null) {
+            return this.necklaceKeypoint;
+        }
 
-        const rotationZ = (rightShoulder.y - leftShoulder.y) / 5;
+        /*
+         * If a necklace asset is being displayed, we need to ensure that it is scaled correctly as the user moves
+         * towards or away from the camera.
+         *
+         * todo The assumption of the necklace being half the width of the distance between the shoulders is probably
+         *      not correct for all assets. We need a better solution, one which may take into account the physical
+         *      size (i.e. milli/centimetres) of the asset.
+         */
+        if (this.necklaceKeypoint.isDisplayingAsset()) {
+            const assetHeight = this.necklaceKeypoint.getAssetHeight();
+            const assetWidth = this.necklaceKeypoint.getAssetWidth();
+
+            const width = Math.abs(leftShoulder.getX() - rightShoulder.getX()) / 2;
+            const height = width / (assetWidth / assetHeight);
+
+            const scaleX = width / assetWidth;
+            const scaleY = height / assetHeight;
+            this.necklaceKeypoint.setScale(scaleX, scaleY, 1);
+        }
+
+        const rotationZ = (rightShoulder.getY() - leftShoulder.getY()) / 5;
         this.necklaceKeypoint.setRotationZ(rotationZ);
 
-        let x = (leftShoulder.x + rightShoulder.x) / 2;
+        let x = (leftShoulder.getX() + rightShoulder.getX()) / 2;
         x += this.necklaceOffsets[0];
 
-        let y = (leftShoulder.y + rightShoulder.y) / 2;
+        /*
+         * todo We add an offset, based on the bottom edge of the user's face, to ensure the demo necklace asset appears
+         *      in a more correct position. However, this will likely break with other assets and it does break if the
+         *      user raises their chin too high. We need a better solution.
+         */
+        let y = (leftShoulder.getY() + rightShoulder.getY()) / 2;
+        y += (bottomEdgeFace.getY() - y) / 3;
         y += this.necklaceOffsets[1];
 
-        let z = (leftShoulder.z + rightShoulder.z) / 2;
+        let z = (leftShoulder.getZ() + rightShoulder.getZ()) / 2;
         z += this.necklaceOffsets[2];
 
         this.necklaceKeypoint.setConfidence(1);

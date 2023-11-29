@@ -177,9 +177,7 @@ export class Keypoint {
 
                 this.mesh.material = new MeshBasicMaterial({ map: texture, transparent: true });
 
-                if (afterLoadCallback != null) {
-                    afterLoadCallback();
-                }
+                afterLoadCallback?.();
             },
             null,
             (error) => {
