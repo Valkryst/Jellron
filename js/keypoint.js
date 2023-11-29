@@ -23,6 +23,8 @@ export class Keypoint {
             new MeshBasicMaterial({ color: Keypoint.defaultColour })
         );
 
+        this.assetHeight = null;
+        this.assetWidth = null;
         this.setColour(Keypoint.defaultColour)
         this.setConfidence(confidence);
         this.setLabel(label);
@@ -53,6 +55,24 @@ export class Keypoint {
      */
     degreesToRadians(degrees) {
         return degrees * (Math.PI / 180);
+    }
+
+    /**
+     * Retrieves the original height, in pixels, of the asset displayed on the Keypoint.
+     *
+     * @returns {number|null} The height, or null if the Keypoint is not displaying an asset.
+     */
+    getAssetHeight() {
+        return this.assetHeight;
+    }
+
+    /**
+     * Retrieves the original width, in pixels, of the asset displayed on the Keypoint.
+     *
+     * @returns {number|null} The width, or null if the Keypoint is not displaying an asset.
+     */
+    getAssetWidth() {
+        return this.assetWidth;
     }
 
     /**
@@ -149,6 +169,9 @@ export class Keypoint {
         loader.load(
             url,
             (texture) => {
+                this.assetHeight = texture.image.height;
+                this.assetWidth = texture.image.width;
+
                 this.setHeight(texture.image.height);
                 this.setWidth(texture.image.width);
 
