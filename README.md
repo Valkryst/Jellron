@@ -2,6 +2,15 @@ Jellron (Jel-lr-on) is a personal experimental playground designed to explore an
 
 [View the live demo](http://valkryst.github.io/Jellron/).
 
+## Table of Contents
+
+* [Features](https://github.com/Valkryst/Jellron#features)
+  * [Keypoint Tracking](https://github.com/Valkryst/Jellron#keypoint-tracking)
+  * [Keypoint Rendering](https://github.com/Valkryst/Jellron#keypoint-rendering)
+  * [Device Management](https://github.com/Valkryst/Jellron#device-management)
+* [Browser Support](https://github.com/Valkryst/Jellron#browser-support)
+* [Device Performance](https://github.com/Valkryst/Jellron#device-performance)
+
 ## Features
 
 ### Keypoint Tracking
@@ -35,16 +44,33 @@ class provides the following functions to help the user select a device to use a
 - `setVideoElement(HTMLVideoElement)` - Sets the Camera's video element.
 - `updateVideoElement(HTMLVideoElement)` - Updates the Camera's video element to reflect changes to the MediaStream.
 
-## Browser/Device Support
+## Browser Support
 
 This library has been tested on the following browsers/devices:
 
-| Device                  | OS           | Browser | Version | Status | Performance Notes                                                                                        |
-|:------------------------|:-------------|:--------|:--------|:-------|:---------------------------------------------------------------------------------------------------------|
-| Personal Computer       | Windows 11   | Chrome  | 119.0   | ✅      | N/A, as performance will likely change depending on GPU. It takes ~10 seconds to start running smoothly. |
-| Personal Computer       | Windows 11   | Edge    | 119.0   | ✅      | N/A, as performance will likely change depending on GPU.                                                 |
-| Personal Computer       | Windows 11   | FireFox | 120.0   | ❌      | See issue #14.                                                                                           |
-| iPad Air                | iOS 12.5.7   | Safari  | 12.1    | ❌      | Potential import issue as JS console outputs an error accessing the `Camera` class.                      |
-| iPhone                  | iOS 17.1.1   | Safari  | 17.1    | ✅      | Body detection ~40ms, Face detection ~145ms, Hand detection ~150ms. See issue #15.                       |
-| Macbook Pro (15", 2019) | macOS 13.5.1 | Safari  | 16.6    | ✅      | Body detection ~45ms, Face detection ~200ms, Hand detection ~610ms. See issue #15.                       |
-| Macbook Pro (15", 2019) | macOS 14.1.1 | Safari  | 17.1    | ✅      | Body detection ~45ms, Face detection ~200ms, ~610ms. See issue #15.                                      |                                                      
+| Device                  | OS           | Browser | Version | Status | Notes                                                                                                 |
+|:------------------------|:-------------|:--------|:--------|:-------|:------------------------------------------------------------------------------------------------------|
+| Personal Computer       | Windows 11   | Chrome  | 119.0   | ✅      | It takes ~10 seconds to start running smoothly.                                                       |
+| Personal Computer       | Windows 11   | Edge    | 119.0   | ✅      |                                                                                                       |
+| Personal Computer       | Windows 11   | FireFox | 120.0   | ❌      | See issue #14.                                                                                        |
+| iPad Air                | iOS 12.5.7   | Safari  | 12.1    | ❌      | Potential import issue as JS console outputs an error accessing the `Camera` class.                   |
+| iPhone                  | iOS 17.1.1   | Safari  | 17.1    | ✅      | See issue #15.                                                                                        |
+| Macbook Pro (15", 2019) | macOS 13.5.1 | Safari  | 16.6    | ✅      | See issue #15.                                                                                        |
+| Macbook Pro (15", 2019) | macOS 14.1.1 | Safari  | 17.1    | ✅      | See issue #15.                                                                                        |                                                      
+
+## Device Performance
+
+Only standardized devices are listed in the table below, as their performance is more likely to be consistent across
+devices.
+
+The values listed in the table represent the number of milliseconds taken for one frame to be processed by a _Detector_
+class.
+
+| Device                  | OS           | Browser | Version | Class        | Min. | Avg. | Max. |
+|:------------------------|:-------------|:--------|:--------|:-------------|:-----|:-----|:-----|
+| iPhone                  | iOS 17.1.1   | Safari  | 17.1    | BodyDetector | -    | -    | -    |
+| iPhone                  | iOS 17.1.1   | Safari  | 17.1    | FaceDetector | -    | -    | -    |
+| iPhone                  | iOS 17.1.1   | Safari  | 17.1    | HandDetector | -    | -    | -    |
+| Macbook Pro (15", 2019) | macOS 14.1.1 | Safari  | 17.1    | BodyDetector | -    | -    | -    |
+| Macbook Pro (15", 2019) | macOS 14.1.1 | Safari  | 17.1    | FaceDetector | -    | -    | -    |
+| Macbook Pro (15", 2019) | macOS 14.1.1 | Safari  | 17.1    | HandDetector | -    | -    | -    |
