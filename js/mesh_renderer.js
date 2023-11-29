@@ -170,7 +170,7 @@ export class MeshRenderer {
         validateInstanceOf(mesh, Mesh);
         validateNonEmptyString(url);
 
-        mesh.getNecklaceKeypoint().display2DAsset(url, );
+        mesh.getNecklaceKeypoint().display2DAsset(url);
     }
 
     /**
@@ -185,37 +185,7 @@ export class MeshRenderer {
         validateNonEmptyString(url);
         validateBoolean(isLeft);
 
-        const earlobeKeypoint = mesh.getEarlobeKeypoints()[isLeft ? 0 : 1];
-        earlobeKeypoint.display2DAsset(url, () => {
-           // todo Ensure this cannot continue running forever. It should stop and print an error if it runs for too long.
-           const interval = setInterval(() => {
-               const noseKeypoint = mesh.getKeypointByLabel('nose');
-                if (noseKeypoint == null) {
-                     return;
-                }
-
-                let distance = this.distanceBetweenKeypoints(earlobeKeypoint, noseKeypoint);
-                distance /= 4; // todo This is a magic number. We should find a better way to calculate this.
-
-                // See https://stackoverflow.com/a/14731922
-                const ratio = Math.min(1, distance / earlobeKeypoint.getWidth(), (distance / 2) / earlobeKeypoint.getHeight());
-                earlobeKeypoint.setHeight(earlobeKeypoint.getHeight() * ratio);
-                earlobeKeypoint.setWidth(earlobeKeypoint.getWidth() * ratio);
-
-                mesh.setLeftEarlobeOffsets(
-                    0,
-                    earlobeKeypoint.getHeight() / 2,
-                    0
-                );
-                mesh.setRightEarlobeOffsets(
-                    0,
-                    earlobeKeypoint.getHeight() / 2,
-                    0
-                );
-
-               clearInterval(interval);
-           }, 100);
-        });
+        mesh.getEarlobeKeypoints()[isLeft ? 0 : 1].display2DAsset(url);
     }
 
     /**

@@ -330,6 +330,42 @@ export class Mesh {
             return this.earlobeKeypoints;
         }
 
+        const leftShoulder = this.getKeypointByLabel("left_shoulder");
+        if (leftShoulder == null) {
+            return this.earlobeKeypoints;
+        }
+
+        const rightShoulder = this.getKeypointByLabel("right_shoulder");
+        if (rightShoulder == null) {
+            return this.earlobeKeypoints;
+        }
+
+        /**
+         * If an earring asset is being displayed on the an earlobe, we need to ensure that it is scaled correctly as
+         * the user moves towards or away from the camera.
+         *
+         * todo The assumption of the necklace being 1/25th the width of the distance between the shoulders is probably
+         *      not correct for all assets. We need a better solution, one which may take into account the physical
+         *      size (i.e. milli/centimetres) of the asset.
+         *      Additionally, because most other points will rapidly change distance with one another, compared to using,
+         *      the soulder points, they are not a good reference point for scaling.
+         */
+        for (const earlobeKeypoint of this.earlobeKeypoints) {
+            if (!earlobeKeypoint.isDisplayingAsset()) {
+                continue;
+            }
+
+            const assetHeight = earlobeKeypoint.getAssetHeight();
+            const assetWidth = earlobeKeypoint.getAssetWidth();
+
+            const width = Math.abs(leftShoulder.getX() - rightShoulder.getX()) / 25;
+            const height = width / (assetWidth / assetHeight);
+
+            const scaleX = width / assetWidth;
+            const scaleY = height / assetHeight;
+            earlobeKeypoint.setScale(scaleX, scaleY, 1);
+        }
+
         /*
          * Determine which algorithm to use, based on head rotation.
          *
@@ -349,11 +385,36 @@ export class Mesh {
          *
          *     The magic numbers, used in the two comparisons, were arbitrarily chosen, but seem to work.
          */
-        const isRotatedLeft = (rightEdgeFace.z - leftEdgeFace.z) > 20;
-        const isRotatedRight = (leftEdgeFace.z - rightEdgeFace.z) > 20;
+        const isRotatedLeft = (rightEdgeFace.z - leftEdgeFace.z) > 40;
+        const isRotatedRight = (leftEdgeFace.z - rightEdgeFace.z) > 40;
 
         const isRotatedUp = topEdgeFace.z > 8;
         const isRotatedDown = bottomEdgeFace.z > 8;
+
+        /*
+         * As the ear Keypoints are not as reliable as Keypoints closer to the middle of the face, we adjust the X-Axis
+         * coordinates of the earlobes to be closer to edges of the face.
+         *
+         * todo The X values are initially set to magic numbers, as we're trying to ensure the earrings are attached
+         *      to the edges of the face. However, this may not work with all assets. Find a better solution.
+         */
+        let leftEarlobeX;
+        if (isRotatedLeft) {
+            leftEarlobeX = leftEar.getX();
+            leftEarlobeX -= this.earlobeKeypoints[0].getWidth() / 2;
+            leftEarlobeX += (Math.abs(leftEar.getX() - leftEdgeFace.getX()) / 2);
+        } else {
+            leftEarlobeX = leftEdgeFace.getX();
+        }
+
+        let rightEarlobeX;
+        if (isRotatedRight) {
+            rightEarlobeX = rightEar.getX();
+            rightEarlobeX -= this.earlobeKeypoints[1].getWidth() / 2;
+            rightEarlobeX += (Math.abs(rightEar.getX() - rightEdgeFace.getX()) / 2);
+        } else {
+            rightEarlobeX = rightEdgeFace.getX();
+        }
 
         /*
          * We assume that the Y-Axis of each earlobe is the same as the midpoint between the nose and mouth.
@@ -371,13 +432,6 @@ export class Mesh {
 
         rightEarlobeY += isRotatedUp ? topEdgeFace.z : 0;
         rightEarlobeY += isRotatedDown ? -bottomEdgeFace.z : 0;
-
-        /*
-         * As the ear Keypoints are not as reliable as Keypoints closer to the middle of the face, we adjust the X-Axis
-         * coordinates of the earlobes to be closer to edges of the face.
-         */
-        const leftEarlobeX = leftEar.x + ((leftEdgeFace.x - leftEar.x) / 3);
-        const rightEarlobeX = rightEar.x - ((rightEar.x - rightEdgeFace.x) / 3);
 
         /*
          * We assume that the X-Axis coordinate of the earlobe is the same as the X-Axis coordinate of the ear.
