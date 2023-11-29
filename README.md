@@ -75,7 +75,7 @@ class.
 | iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Battery      | BodyDetector | 35         |
 | iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Battery      | FaceDetector | 130        |
 | iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Battery      | HandDetector | 120        |
-| iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Charger      | BodyDetector | No change. |
+| iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Charger      | BodyDetector | 35         |
 | iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Charger      | FaceDetector | No change. |
 | iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Charger      | HandDetector | No change. |
 | Macbook Pro (15", 2019)       | macOS 14.1.1 | Safari  | 17.1    | Battery      | BodyDetector | 50         |
