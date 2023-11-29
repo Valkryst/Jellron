@@ -202,6 +202,15 @@ export class Keypoint {
     }
 
     /**
+     * Determines whether the Keypoint is displaying a 2D asset.
+     *
+     * @returns {boolean} Whether the Keypoint is displaying a 2D asset.
+     */
+    isDisplayingAsset() {
+        return this.mesh.material.map != null;
+    }
+
+    /**
      * Scale the Keypoint's position on all axes.
      *
      * @param {number} x Amount to scale the Keypoint's position on the x-axis.
