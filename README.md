@@ -54,7 +54,7 @@ This library has been tested on the following browsers/devices:
 | Personal Computer       | Windows 11   | Edge    | 119.0   | ✅      |                                                                                                       |
 | Personal Computer       | Windows 11   | FireFox | 120.0   | ❌      | See issue #14.                                                                                        |
 | iPad Air                | iOS 12.5.7   | Safari  | 12.1    | ❌      | Potential import issue as JS console outputs an error accessing the `Camera` class.                   |
-| iPhone                  | iOS 17.1.1   | Safari  | 17.1    | ✅      | See issue #15.                                                                                        |
+| iPhone 12 Pro           | iOS 17.1.1   | Safari  | 17.1    | ✅      | See issue #15.                                                                                        |
 | Macbook Pro (15", 2019) | macOS 13.5.1 | Safari  | 16.6    | ✅      | See issue #15.                                                                                        |
 | Macbook Pro (15", 2019) | macOS 14.1.1 | Safari  | 17.1    | ✅      | See issue #15.                                                                                        |                                                      
 
@@ -66,11 +66,21 @@ devices.
 The values listed in the table represent the number of milliseconds taken for one frame to be processed by a _Detector_
 class.
 
-| Device                  | OS           | Browser | Version | Class        | Min. | Avg. | Max. |
-|:------------------------|:-------------|:--------|:--------|:-------------|:-----|:-----|:-----|
-| iPhone                  | iOS 17.1.1   | Safari  | 17.1    | BodyDetector | -    | -    | -    |
-| iPhone                  | iOS 17.1.1   | Safari  | 17.1    | FaceDetector | -    | -    | -    |
-| iPhone                  | iOS 17.1.1   | Safari  | 17.1    | HandDetector | -    | -    | -    |
-| Macbook Pro (15", 2019) | macOS 14.1.1 | Safari  | 17.1    | BodyDetector | -    | -    | -    |
-| Macbook Pro (15", 2019) | macOS 14.1.1 | Safari  | 17.1    | FaceDetector | -    | -    | -    |
-| Macbook Pro (15", 2019) | macOS 14.1.1 | Safari  | 17.1    | HandDetector | -    | -    | -    |
+* For values < 100ms, I rounded up to the nearest 5ms.
+* For values between 100ms to 1000ms, I rounded up to the nearest 10ms.
+* For values > 1000ms, I rounded up to the nearest 100ms.
+
+| Device                        | OS           | Browser | Version | Power Supply | Class        | Avg.       |
+|:------------------------------|:-------------|:--------|:--------|:-------------|:-------------|:-----------|
+| iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Battery      | BodyDetector | 35         |
+| iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Battery      | FaceDetector | 130        |
+| iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Battery      | HandDetector | 120        |
+| iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Charger      | BodyDetector | No change. |
+| iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Charger      | FaceDetector | No change. |
+| iPhone 12 Pro                 | iOS 17.1.1   | Safari  | 17.1    | Charger      | HandDetector | No change. |
+| Macbook Pro (15", 2019)       | macOS 14.1.1 | Safari  | 17.1    | Battery      | BodyDetector | 50         |
+| Macbook Pro (15", 2019)       | macOS 14.1.1 | Safari  | 17.1    | Battery      | FaceDetector | 390        |
+| Macbook Pro (15", 2019)       | macOS 14.1.1 | Safari  | 17.1    | Battery      | HandDetector | 1100       |
+| Macbook Pro (15", 2019)       | macOS 14.1.1 | Safari  | 17.1    | Charger      | BodyDetector | 45         |
+| Macbook Pro (15", 2019)       | macOS 14.1.1 | Safari  | 17.1    | Charger      | FaceDetector | 220        |
+| Macbook Pro (15", 2019)       | macOS 14.1.1 | Safari  | 17.1    | Charger      | HandDetector | 620        |
