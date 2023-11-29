@@ -394,9 +394,6 @@ export class Mesh {
         /*
          * As the ear Keypoints are not as reliable as Keypoints closer to the middle of the face, we adjust the X-Axis
          * coordinates of the earlobes to be closer to edges of the face.
-         *
-         * todo The X values are initially set to magic numbers, as we're trying to ensure the earrings are attached
-         *      to the edges of the face. However, this may not work with all assets. Find a better solution.
          */
         let leftEarlobeX;
         if (isRotatedLeft) {
