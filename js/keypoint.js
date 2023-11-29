@@ -94,12 +94,12 @@ export class Keypoint {
     }
 
     /**
-     * Retrieve the Keypoint's height.
+     * Retrieve the Keypoint's height with scaling applied, in pixels.
      *
      * @returns {number} Keypoint's height.
      */
     getHeight() {
-        return this.height;
+        return this.height * this.mesh.scale.y;
     }
 
     /**
@@ -121,12 +121,12 @@ export class Keypoint {
     }
 
     /**
-     * Retrieve the Keypoint's height.
+     * Retrieve the Keypoint's height with scaling applied, in pixels.
      *
      * @returns {number} Keypoint's height.
      */
     getWidth() {
-        return this.width;
+        return this.width * this.mesh.scale.x;
     }
 
     /**
