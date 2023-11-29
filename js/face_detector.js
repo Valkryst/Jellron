@@ -50,7 +50,16 @@ export class FaceDetector {
         this.intervalId = setInterval(async () => {
             const currentTime = performance.now();
 
-            const rawFaces = await this.detector.estimateFaces(videoElement);
+            let rawFaces = [];
+            try {
+                rawFaces = await this.detector.estimateFaces(videoElement);
+            } catch (e) {
+                /*
+                 * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
+                 * invalid." error. It doesn't seem to cause any issues, so we ignore it.
+                 */
+            }
+
             if (rawFaces.length === 0) {
                 this.lastRuntime = performance.now() - currentTime;
                 return;

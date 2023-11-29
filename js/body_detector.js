@@ -50,7 +50,16 @@ export class BodyDetector {
         this.intervalId = setInterval(async () => {
             const currentTime = performance.now();
 
-            const rawBodies = await this.detector.estimatePoses(videoElement);
+            let rawBodies = [];
+            try {
+                rawBodies = await this.detector.estimatePoses(videoElement);
+            } catch (e) {
+                /*
+                 * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
+                 * invalid." error. It doesn't seem to cause any issues, so we ignore it.
+                 */
+            }
+
             if (rawBodies.length === 0) {
                 this.lastRuntime = performance.now() - currentTime;
                 return;

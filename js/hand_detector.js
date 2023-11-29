@@ -50,7 +50,16 @@ export class HandDetector {
         this.intervalId = setInterval(async () => {
             const currentTime = performance.now();
 
-            const rawHands = await this.detector.estimateHands(videoElement);
+            let rawHands = [];
+            try {
+                rawHands = await this.detector.estimateHands(videoElement);
+            } catch (e) {
+                /*
+                 * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
+                 * invalid." error. It doesn't seem to cause any issues, so we ignore it.
+                 */
+            }
+
             if (rawHands.length === 0) {
                 this.lastRuntime = performance.now() - currentTime;
                 return;
