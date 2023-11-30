@@ -24,13 +24,7 @@ export class BodyDetector extends Detector {
         ).then(detector => this.detector = detector);
     }
 
-    /**
-     * Starts the detector.
-     *
-     * @param updatesPerSecond Desired number of updates per second.
-     * @param videoElement Video element to use for detection.
-     * @param mesh Mesh to update with the detected body.
-     */
+    /** @type Detector['start'] */
     async start(updatesPerSecond, videoElement, mesh) {
         validateNumber(updatesPerSecond);
         validateInstanceOf(videoElement, HTMLVideoElement);

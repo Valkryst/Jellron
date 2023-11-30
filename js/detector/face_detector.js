@@ -23,13 +23,7 @@ export class FaceDetector extends Detector {
         ).then(detector => this.detector = detector);
     }
 
-    /**
-     * Starts the detector.
-     *
-     * @param updatesPerSecond Desired number of updates per second.
-     * @param videoElement Video element to use for detection.
-     * @param mesh Mesh to update with the detected face.
-     */
+    /** @type Detector['start'] */
     async start(updatesPerSecond, videoElement, mesh) {
         validateNumber(updatesPerSecond);
         validateInstanceOf(videoElement, HTMLVideoElement)
@@ -72,18 +66,9 @@ export class FaceDetector extends Detector {
     }
 
     /**
-     * Relabels a raw Keypoint object, if necessary.
+     * @type Detector['relabelKeypoint']
      *
-     * Some calculations require specific points which have generic names. To get around this, we rename
-     * these points to something more specific.
-     *
-     * The array of points is, as far as I can tell, always in the same order. This means that we can
-     * reference the following mesh diagram to find specific points and rename them.
-     *
-     * https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/mesh_map.jpg
-     *
-     * @param {number} index Index of the Keypoint in the array of Keypoints.
-     * @param {object} rawKeypoint Raw Keypoint object to relabel.
+     * See the following link for a diagram of the face keypoints: https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/mesh_map.jpg
      */
     relabelKeypoint(index, rawKeypoint) {
         validateDefined(rawKeypoint);

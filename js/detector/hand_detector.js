@@ -22,13 +22,7 @@ export class HandDetector extends Detector {
         ).then(detector => this.detector = detector);
     }
 
-    /**
-     * Starts the detector.
-     *
-     * @param updatesPerSecond Desired number of updates per second.
-     * @param videoElement Video element to use for detection.
-     * @param mesh Mesh to update with the detected body.
-     */
+    /** @type Detector['start'] */
     async start(updatesPerSecond, videoElement, mesh) {
         validateNumber(updatesPerSecond);
         validateInstanceOf(videoElement, HTMLVideoElement);
@@ -71,18 +65,9 @@ export class HandDetector extends Detector {
     }
 
     /**
-     * Relabels a raw Keypoint object.
+     * @type Detector['relabelKeypoint']
      *
-     * Some calculations require specific points which have generic names. To get around this, we rename
-     * these points to something more specific.
-     *
-     * The array of points is, as far as I can tell, always in the same order. This means that we can
-     * reference the following mesh diagram to find specific points and rename them.
-     *
-     * https://camo.githubusercontent.com/b0f077393b25552492ef5dd7cd9fd13f386e8bb480fa4ed94ce42ede812066a1/68747470733a2f2f6d65646961706970652e6465762f696d616765732f6d6f62696c652f68616e645f6c616e646d61726b732e706e67
-     *
-     * @param {object} rawHand Raw Hand object of the Keypoint to relabel.
-     * @param {object} rawKeypoint Raw Keypoint object to relabel.
+     * See the following link for a diagram of the hand keypoints: https://camo.githubusercontent.com/b0f077393b25552492ef5dd7cd9fd13f386e8bb480fa4ed94ce42ede812066a1/68747470733a2f2f6d65646961706970652e6465762f696d616765732f6d6f62696c652f68616e645f6c616e646d61726b732e706e67
      */
     relabelKeypoint(rawHand, rawKeypoint) {
         validateDefined(rawHand);

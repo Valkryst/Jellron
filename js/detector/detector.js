@@ -9,9 +9,9 @@ export class Detector {
     /**
      * Starts the detector.
      *
-     * @param updatesPerSecond Desired number of updates per second.
-     * @param videoElement Video element to use for detection.
-     * @param mesh Mesh to update with the detected body.
+     * @param {number} updatesPerSecond Desired number of updates per second.
+     * @param {HTMLVideoElement} videoElement Video element to use for detection.
+     * @param {Mesh} mesh Mesh to update with the detected body.
      */
     async start(updatesPerSecond, videoElement, mesh) {
         throw new Error("Not implemented.");
@@ -23,6 +23,16 @@ export class Detector {
             clearInterval(this.intervalId);
             this.intervalId = null;
         }
+    }
+
+    /**
+     * Relabels a raw Keypoint object.
+     *
+     * @param {object} rawObject A raw object, from the detector, that contains all the keypoints.
+     * @param {object} rawKeypoint Raw Keypoint object to relabel.
+     */
+    relabelKeypoint(rawObject, rawKeypoint) {
+        throw new Error("Not implemented.");
     }
 
     /**
