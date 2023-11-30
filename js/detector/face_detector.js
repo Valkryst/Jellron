@@ -24,7 +24,7 @@ export class FaceDetector extends Detector {
     }
 
     /** @type Detector['start'] */
-    async start(updatesPerSecond, videoElement, mesh) {
+    start(updatesPerSecond, videoElement, mesh) {
         validateNumber(updatesPerSecond);
         validateInstanceOf(videoElement, HTMLVideoElement)
 

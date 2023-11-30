@@ -13,7 +13,7 @@ export class Detector {
      * @param {HTMLVideoElement} videoElement Video element to use for detection.
      * @param {Mesh} mesh Mesh to update with the detected body.
      */
-    async start(updatesPerSecond, videoElement, mesh) {
+    start(updatesPerSecond, videoElement, mesh) {
         throw new Error("Not implemented.");
     }
 

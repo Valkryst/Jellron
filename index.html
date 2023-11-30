@@ -346,15 +346,15 @@
                 mesh.setBodyScale(xScale, yScale, 0);
 
                 if (!bodyDetector.isRunning()) {
-                    await bodyDetector.start(15, videoElement, mesh);
+                    bodyDetector.start(15, videoElement, mesh);
                 }
 
                 if (!faceDetector.isRunning()) {
-                    await faceDetector.start(30, videoElement, mesh);
+                    faceDetector.start(30, videoElement, mesh);
                 }
 
                 if (!handDetector.isRunning()) {
-                    await handDetector.start(10, videoElement, mesh);
+                    handDetector.start(10, videoElement, mesh);
                 }
 
                 /*
