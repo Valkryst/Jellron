@@ -37,7 +37,7 @@
 
                         <label>
                             Select a Video Input Device:
-                            <select disabled name="video-input-devices" id="video-input-device-select"></select>
+                            <div id="video-input-device-select-container"></div>
                         </label>
                         <label>
                             Body Detector Ready:
@@ -374,8 +374,7 @@
 
         window.onresize = () => updateDisplay();
 
-        const deviceSelect = await Camera.createOrUpdateSelectElement(document.getElementById("video-input-device-select"));
-        deviceSelect.onchange = () => {
+        const deviceSelect = await Camera.getSelectElement(() => {
             try {
                 updateDisplay();
             } catch (error) {
@@ -386,7 +385,8 @@
                 handDetector.stop();
                 meshRenderer.stop();
             }
-        };
+        });
+        document.getElementById("video-input-device-select-container").appendChild(deviceSelect);
 
 
 

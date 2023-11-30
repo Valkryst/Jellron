@@ -1,6 +1,8 @@
 import {validateInstanceOf, validateNonEmptyString, validateString} from "./validation.js";
 
 export class Camera {
+    static selectElement = null;
+
     /**
      * Creates a new Camera object.
      *
@@ -13,61 +15,29 @@ export class Camera {
     }
 
     /**
-     * Creates or updates a select element, so that it lists available video input devices.
+     * Retrieves the select element associated with this Camera object, creating it if necessary.
      *
-     * The select element will be configured to automatically update as the set of available devices changes and when
-     * the camera permissions are changed.
+     * The select element is configured to automatically update as the set of available devices changes, and when the
+     * camera permissions are changed.
      *
-     * @param {HTMLSelectElement|null} select The select element to populate. If unspecified, a new select element will be created.
+     * @param {function} onChange Function to call when the value of the select element changes. This will replace the existing onChange function.
      *
      * @returns {Promise<HTMLSelectElement>} A promise that resolves to a select element.
      */
-    static async createOrUpdateSelectElement(select) {
-        try {
-            validateInstanceOf(select, HTMLSelectElement);
-        } catch(e) {
-            select = document.createElement("select");
+    static async getSelectElement(onChange = null) {
+        if (Camera.selectElement) {
+            Camera.selectElement.onchange = () => onChange?.();
+            await Camera.updateSelectElement();
+            return Camera.selectElement;
         }
 
-        select.innerHTML = "";
-        select.appendChild(Camera.createOptionElement("Select a Device", ""));
+        const select = document.createElement("select");
+        select.disabled = true;
+        select.id = "video-input-device-select";
+        select.onchange = () => onChange?.();
+        Camera.selectElement = select;
 
-        // Prompt the user for permission to use the webcam.
-        await navigator.mediaDevices.getUserMedia({ video: true });
-
-        // Populate the select element with available video input devices.
-        for (const device of (await Camera.getVideoInputDevices())) {
-            if (device.label === "") {
-                continue;
-            }
-
-            if (Array.from(select.options).some(option => option.value === device.deviceId)) {
-                continue;
-            }
-
-            select.appendChild(Camera.createOptionElement(device.label, device.deviceId));
-        }
-
-        // Automatically update the select element when the camera permissions are changed.
-        const cameraPermissionStatus = await navigator.permissions.query({ name: "camera" });
-        cameraPermissionStatus.onchange = async () => await Camera.createOrUpdateSelectElement(select);
-
-        // Automatically update the select element when the set of available devices changes.
-        // todo Test this.
-        navigator.mediaDevices.ondevicechange = async () => {
-            const originalValue = select.value;
-            const originalOnChange = select.onchange;
-
-            select.onchange = null;
-            await Camera.createOrUpdateSelectElement(select);
-
-            if (Array.from(select.options).some(option => option.value === originalValue)) {
-                select.value = originalValue;
-            }
-
-            select.onchange = originalOnChange;
-        };
-
+        await Camera.updateSelectElement();
         return select;
     }
 
@@ -87,6 +57,56 @@ export class Camera {
         option.text = text;
         option.value = value;
         return option;
+    }
+
+    /**
+     * Updates the select element.
+     *
+     * @returns {Promise<void>} A promise that resolves when the select element has been updated.
+     */
+    static async updateSelectElement() {
+        if (Camera.selectElement == null) {
+            return;
+        }
+
+        Camera.selectElement.innerHTML = "";
+        Camera.selectElement.appendChild(Camera.createOptionElement("Select a Device", ""));
+
+        // Prompt the user for permission to use the webcam.
+        await navigator.mediaDevices.getUserMedia({ video: true });
+
+        // Populate the select element with available video input devices.
+        for (const device of (await Camera.getVideoInputDevices())) {
+            if (device.label === "") {
+                continue;
+            }
+
+            if (Array.from(Camera.selectElement.options).some(option => option.value === device.deviceId)) {
+                continue;
+            }
+
+            Camera.selectElement.appendChild(Camera.createOptionElement(device.label, device.deviceId));
+        }
+
+        // Automatically update the select element when the camera permissions are changed.
+        const cameraPermissionStatus = await navigator.permissions.query({ name: "camera" });
+        cameraPermissionStatus.onchange = async () => await Camera.updateSelectElement();
+
+        // Automatically update the select element when the set of available devices changes.
+        // todo Test this.
+        navigator.mediaDevices.ondevicechange = async () => {
+            const originalValue = Camera.selectElement.value;
+            const originalOnChange = Camera.selectElement.onchange;
+
+            Camera.selectElement.onchange = null;
+            await Camera.updateSelectElement();
+
+            if (Array.from(Camera.selectElement.options).some(option => option.value === originalValue)) {
+                Camera.selectElement.value = originalValue;
+            }
+
+            Camera.selectElement.onchange = originalOnChange?.();
+        };
     }
 
     /**
@@ -160,7 +180,7 @@ export class Camera {
      * @returns {Promise<HTMLVideoElement>} A promise that resolves to a video element.
      */
     async getVideoElement() {
-        if (this.videoElement != null) {
+        if (this.videoElement) {
             await this.updateVideoElement();
             return this.videoElement;
         }
