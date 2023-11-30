@@ -1,31 +1,25 @@
-import {validateDefined, validateInstanceOf, validateNumber} from "./validation.js";
+import {Detector} from "./detector.js";
+import {validateDefined, validateInstanceOf, validateNumber} from "../validation.js";
 
 /**
  * See the following link for more information about the hand detection model:
  * https://github.com/tensorflow/tfjs-models/tree/master/hand-pose-detection/src/tfjs
  */
-export class HandDetector {
+export class HandDetector extends Detector {
     static instance;
 
-    /**
-     * Creates a new HandDetector object, or returns the existing one if it already exists.
-     *
-     * @returns {Promise<HandDetector>} A promise that resolves with the HandDetector object.
-     */
+    /** Creates a new HandDetector object, or returns the existing one if it already exists. */
     constructor() {
         if (HandDetector.instance) {
             return HandDetector.instance;
         }
+        super();
+        HandDetector.instance = this;
 
         handPoseDetection.createDetector(
             handPoseDetection.SupportedModels.MediaPipeHands,
             {runtime: "tfjs"}
         ).then(detector => this.detector = detector);
-
-        this.intervalId = null;
-        this.lastRuntime = 0;
-
-        HandDetector.instance = this;
     }
 
     /**
@@ -76,14 +70,6 @@ export class HandDetector {
         }, 1000 / updatesPerSecond);
     }
 
-    /** Stops the detector. */
-    stop() {
-        if (this.intervalId != null) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
-    }
-
     /**
      * Relabels a raw Keypoint object.
      *
@@ -103,32 +89,5 @@ export class HandDetector {
         validateDefined(rawKeypoint);
 
         rawKeypoint.name = `${rawHand.handedness.toLowerCase()}_${rawKeypoint.name}`;
-    }
-
-    /**
-     * Determines whether the detector is ready to be used.
-     *
-     * @returns {boolean} Whether the detector is ready to be used.
-     */
-    isReady() {
-        return this.detector != null;
-    }
-
-    /**
-     * Determines whether the detector is currently running.
-     *
-     * @returns {boolean} Whether the detector is currently running.
-     */
-    isRunning() {
-        return this.intervalId != null;
-    }
-
-    /**
-     * Retrieves the most recent runtime of the detector, in milliseconds.
-     *
-     * @returns {number} Most recent runtime of the detector, in milliseconds.
-     */
-    getLastRuntime() {
-        return this.lastRuntime;
     }
 }

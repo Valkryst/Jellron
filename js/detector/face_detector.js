@@ -1,31 +1,26 @@
-import {validateDefined, validateInstanceOf, validateNumber} from "./validation.js";
+import {Detector} from "./detector.js";
+import {validateDefined, validateInstanceOf, validateNumber} from "../validation.js";
 
 /*
  * See the following link for more information about the face landmarks detection model:
  * https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/README.md
  */
-export class FaceDetector {
+export class FaceDetector extends Detector {
     static instance;
 
-    /**
-     * Creates a new FaceDetector object, or returns the existing one if it already exists.
-     *
-     * @returns {Promise<FaceDetector>} A promise that resolves with the FaceDetector object.
-     */
+    /** Creates a new FaceDetector object, or returns the existing one if it already exists. */
     constructor() {
         if (FaceDetector.instance) {
             return FaceDetector.instance;
         }
 
+        super();
+        FaceDetector.instance = this;
+
         faceLandmarksDetection.createDetector(
             faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
             { runtime: "tfjs" }
         ).then(detector => this.detector = detector);
-
-        this.intervalId = null;
-        this.lastRuntime = 0;
-
-        FaceDetector.instance = this;
     }
 
     /**
@@ -76,14 +71,6 @@ export class FaceDetector {
         }, 1000 / updatesPerSecond);
     }
 
-    /** Stops the detector. */
-    stop() {
-        if (this.intervalId != null) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
-    }
-
     /**
      * Relabels a raw Keypoint object, if necessary.
      *
@@ -127,32 +114,5 @@ export class FaceDetector {
         }
 
         rawKeypoint.name = name;
-    }
-
-    /**
-     * Determines whether the detector is ready to be used.
-     *
-     * @returns {boolean} Whether the detector is ready to be used.
-     */
-    isReady() {
-        return this.detector != null;
-    }
-
-    /**
-     * Determines whether the detector is currently running.
-     *
-     * @returns {boolean} Whether the detector is currently running.
-     */
-    isRunning() {
-        return this.intervalId != null;
-    }
-
-    /**
-     * Retrieves the most recent runtime of the detector, in milliseconds.
-     *
-     * @returns {number} Most recent runtime of the detector, in milliseconds.
-     */
-    getLastRuntime() {
-        return this.lastRuntime;
     }
 }

@@ -1,31 +1,27 @@
-import {validateInstanceOf, validateNumber} from "./validation.js";
+import {Detector} from "./detector.js";
+import {validateInstanceOf, validateNumber} from "../validation.js";
+
 
 /**
  * See the following link for more information about the body landmarks detection model:
  * https://github.com/tensorflow/tfjs-models/tree/master/pose-detection
  */
-export class BodyDetector {
+export class BodyDetector extends Detector {
     static instance;
 
-    /**
-     * Creates a new BodyDetector object, or returns the existing one if it already exists.
-     *
-     * @returns {Promise<BodyDetector>} A promise that resolves with the BodyDetector object.
-     */
+    /** Creates a new BodyDetector object, or returns the existing one if it already exists. */
     constructor() {
         if (BodyDetector.instance) {
             return BodyDetector.instance;
         }
 
+        super();
+        BodyDetector.instance = this;
+
         poseDetection.createDetector(
             poseDetection.SupportedModels.MoveNet,
             { runtime: "tfjs"}
         ).then(detector => this.detector = detector);
-
-        this.intervalId = null;
-        this.lastRuntime = 0;
-
-        BodyDetector.instance = this;
     }
 
     /**
@@ -70,40 +66,5 @@ export class BodyDetector {
 
             this.lastRuntime = performance.now() - currentTime;
         }, 1000 / updatesPerSecond);
-    }
-
-    /** Stops the detector. */
-    stop() {
-        if (this.intervalId != null) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
-    }
-
-    /**
-     * Determines whether the detector is ready to be used.
-     *
-     * @returns {boolean} Whether the detector is ready to be used.
-     */
-    isReady() {
-        return this.detector != null;
-    }
-
-    /**
-     * Determines whether the detector is currently running.
-     *
-     * @returns {boolean} Whether the detector is currently running.
-     */
-    isRunning() {
-        return this.intervalId != null;
-    }
-
-    /**
-     * Retrieves the most recent runtime of the detector, in milliseconds.
-     *
-     * @returns {number} Most recent runtime of the detector, in milliseconds.
-     */
-    getLastRuntime() {
-        return this.lastRuntime;
     }
 }
