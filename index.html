@@ -336,15 +336,6 @@
                 const videoElement = await camera.getVideoElement();
                 glContext.setSize(videoElement.width, videoElement.height, false);
 
-                /*
-                 * Calculate the difference in scale, between the MediaStream and the canvas. This is used to scale the
-                 * body keypoints, so they're rendered in the correct position on the canvas.
-                 */
-                const devicePixelRatio = window.devicePixelRatio || 1;
-                const xScale = (videoElement.width * devicePixelRatio) / (await camera.getMediaStreamWidth());
-                const yScale = (videoElement.height * devicePixelRatio) / (await camera.getMediaStreamHeight());
-                mesh.setBodyScale(xScale, yScale, 0);
-
                 if (!bodyDetector.isRunning()) {
                     bodyDetector.start(15, videoElement, mesh);
                 }
