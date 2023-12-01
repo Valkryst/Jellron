@@ -271,6 +271,8 @@
             canvas: canvas
         });
         glContext.autoClear = true;
+        console.log("Initialising WebGLRenderer...")
+        console.log("\tCanvas Element Size:", canvas.offsetWidth, canvas.offsetHeight);
 
         const mesh = new Mesh();
         const faceDetector = new FaceDetector();
@@ -330,10 +332,14 @@
                     return;
                 }
 
+                console.log("Updating Display...");
                 const camera = await new Camera(deviceSelect.value);
                 await camera.setVideoElement(document.getElementsByTagName("video")[0]);
+                console.log("\tCamera MediaStream Size:", (await camera.getMediaStreamWidth()), (await camera.getMediaStreamHeight()));
+                console.log("\tCamera MediaStream Aspect Ratio:", (await camera.getMediaStreamAspectRatio()));
 
                 const videoElement = await camera.getVideoElement();
+                console.log("\tVideo Element Size:", videoElement.width, videoElement.height);
                 glContext.setSize(videoElement.width, videoElement.height, false);
 
                 /*
@@ -341,8 +347,11 @@
                  * body keypoints, so they're rendered in the correct position on the canvas.
                  */
                 const devicePixelRatio = window.devicePixelRatio || 1;
+                console.log("\tDevice Pixel Ratio:", devicePixelRatio);
                 const xScale = (videoElement.width * devicePixelRatio) / (await camera.getMediaStreamWidth());
+                console.log("\txScale:", xScale);
                 const yScale = (videoElement.height * devicePixelRatio) / (await camera.getMediaStreamHeight());
+                console.log("\tyScale:", yScale);
                 mesh.setBodyScale(xScale, yScale, 0);
 
                 if (!bodyDetector.isRunning()) {
