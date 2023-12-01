@@ -40,20 +40,21 @@ export class BodyDetector extends Detector {
         this.intervalId = setInterval(async () => {
             const currentTime = performance.now();
 
-            let frame = tf.browser.fromPixels(videoElement);
-            frame = tf.image.resizeBilinear(frame, [videoElement.height, videoElement.width]);
-
+            let frame = null;
             let rawBodies = [];
             try {
+                frame = tf.browser.fromPixels(videoElement);
+                frame = tf.image.resizeBilinear(frame, [videoElement.height, videoElement.width]);
+
                 rawBodies = await this.detector.estimatePoses(frame);
             } catch (e) {
                 /*
                  * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
                  * invalid." error. It doesn't seem to cause any issues, so we ignore it.
                  */
+            } finally {
+                frame?.dispose();
             }
-
-            frame.dispose();
 
             if (rawBodies.length === 0) {
                 this.lastRuntime = performance.now() - currentTime;
