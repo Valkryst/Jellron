@@ -8,6 +8,8 @@ Jellron (Jel-lr-on) is a personal experimental playground designed to explore an
   * [Keypoint Tracking](https://github.com/Valkryst/Jellron#keypoint-tracking)
   * [Keypoint Rendering](https://github.com/Valkryst/Jellron#keypoint-rendering)
   * [Device Management](https://github.com/Valkryst/Jellron#device-management)
+* [Usage](https://github.com/Valkryst/Jellron#usage)
+  * [Styling](https://github.com/Valkryst/Jellron#styling) 
 * [Browser Support](https://github.com/Valkryst/Jellron#browser-support)
 * [Device Performance](https://github.com/Valkryst/Jellron#device-performance)
 
@@ -26,6 +28,24 @@ Additionally, the [Mesh](https://github.com/Valkryst/Jellron/blob/master/js/mesh
 - `getChokerPosition()` - Returns the position of the choker.
 - `getEarlobePosition()` - Returns the position of the earlobes.
 - `getNecklacePosition()` - Returns the position of the necklace.
+
+## Usage
+
+### Styling
+
+When styling the `video` element VIA CSS, it is assumed that the displayed video must take up the entire allotted
+width. Internal code relies on this assumption and the element's height is calculated based on it's width. This is done
+to maintain the camera's (MediaStream's) aspect ratio.
+
+_Do not specify anything for the element's height. Not even `height: auto`._
+
+```css
+video {
+    width: 100%; /* Set this to your desired value. */
+  
+    object-fit: cover;
+}
+```
 
 ### Keypoint Rendering
 

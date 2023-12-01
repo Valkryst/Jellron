@@ -334,7 +334,7 @@
                 await camera.setVideoElement(document.getElementsByTagName("video")[0]);
 
                 const videoElement = await camera.getVideoElement();
-                glContext.setSize(videoElement.width, videoElement.height, false);
+                glContext.setSize(videoElement.scrollWidth, videoElement.scrollHeight, false);
 
                 if (!bodyDetector.isRunning()) {
                     bodyDetector.start(15, videoElement, mesh);
