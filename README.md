@@ -43,7 +43,7 @@ _Do not specify anything for the element's height. Not even `height: auto`._
 video {
     width: 100%; /* Set this to your desired value. */
   
-    object-fit: cover;
+    object-fit: fill;
 }
 ```
 
