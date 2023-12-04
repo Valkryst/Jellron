@@ -73,7 +73,12 @@ export class Camera {
         Camera.selectElement.appendChild(Camera.createOptionElement("Select a Device", ""));
 
         // Prompt the user for permission to use the webcam.
-        await navigator.mediaDevices.getUserMedia({ video: true });
+        await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: 640,
+                height: 480
+            }
+        });
 
         // Populate the select element with available video input devices.
         for (const device of (await Camera.getVideoInputDevices())) {
@@ -125,8 +130,8 @@ export class Camera {
          * Both FaceDetector and HandDetector use the video element's height and width properties to scale the input
          * MediaStream before processing it. This is why we need to set them.
          */
-        this.videoElement.height = this.videoElement.clientWidth / (await this.getMediaStreamAspectRatio());
-        this.videoElement.width = this.videoElement.clientWidth;
+        this.videoElement.height = await this.getMediaStreamHeight();
+        this.videoElement.width = await this.getMediaStreamWidth();
     }
 
     /**
