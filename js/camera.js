@@ -125,8 +125,8 @@ export class Camera {
          * Both FaceDetector and HandDetector use the video element's height and width properties to scale the input
          * MediaStream before processing it. This is why we need to set them.
          */
-        this.videoElement.height = this.videoElement.clientWidth / (await this.getMediaStreamAspectRatio());
-        this.videoElement.width = this.videoElement.clientWidth;
+        this.videoElement.height = this.videoElement.parentElement.scrollHeight;
+        this.videoElement.width = this.videoElement.parentElement.scrollHeight * (await this.getMediaStreamAspectRatio());
     }
 
     /**
