@@ -1,5 +1,6 @@
 import {Detector} from "./detector.js";
-import {validateInstanceOf, validateNumber} from "../validation.js";
+import {Mesh} from "../mesh.js";
+import {validateInstanceOf} from "../validation.js";
 
 
 /**
@@ -24,47 +25,31 @@ export class BodyDetector extends Detector {
         ).then(detector => this.detector = detector);
     }
 
-    /** @type Detector['start'] */
-    start(updatesPerSecond, videoElement, mesh) {
-        validateNumber(updatesPerSecond);
-        validateInstanceOf(videoElement, HTMLVideoElement);
+    /** @type Detector['detectAndUpdate'] */
+    async detectAndUpdate(frame, mesh) {
+        validateInstanceOf(frame, tf.Tensor);
+        validateInstanceOf(mesh, Mesh);
 
         if (this.detector == null) {
             throw new Error("Detector not initialized.");
         }
 
-        if (this.intervalId != null) {
-            this.stop();
+        const currentTime = performance.now();
+
+        let rawBodies = [];
+        try {
+            rawBodies = await this.detector.estimatePoses(frame);
+        } catch (e) {
+            /*
+             * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
+             * invalid." error. It doesn't seem to cause any issues, so we ignore it.
+             */
         }
 
-        this.intervalId = setInterval(async () => {
-            const currentTime = performance.now();
+        if (rawBodies.length > 0) {
+            mesh.updateBodyKeypoints(rawBodies[0]);
+        }
 
-            let frame = null;
-            let rawBodies = [];
-            try {
-                frame = tf.browser.fromPixels(videoElement);
-                frame = tf.image.resizeBilinear(frame, [videoElement.height, videoElement.width]);
-
-                rawBodies = await this.detector.estimatePoses(frame);
-            } catch (e) {
-                /*
-                 * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
-                 * invalid." error. It doesn't seem to cause any issues, so we ignore it.
-                 */
-            } finally {
-                frame?.dispose();
-            }
-
-            if (rawBodies.length === 0) {
-                this.lastRuntime = performance.now() - currentTime;
-                return;
-            }
-
-            const rawBody = rawBodies[0];
-            mesh.updateBodyKeypoints(rawBody);
-
-            this.lastRuntime = performance.now() - currentTime;
-        }, 1000 / updatesPerSecond);
+        this.lastRuntime = performance.now() - currentTime;
     }
 }

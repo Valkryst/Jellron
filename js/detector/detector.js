@@ -2,27 +2,19 @@ export class Detector {
     /** Creates a new Detector object. */
     constructor() {
         this.detector = null;
-        this.intervalId = null;
         this.lastRuntime = 0;
     }
 
     /**
-     * Starts the detector.
+     * Detects keypoints in the specified frame and updates the specified mesh.
      *
-     * @param {number} updatesPerSecond Desired number of updates per second.
-     * @param {HTMLVideoElement} videoElement Video element to use for detection.
-     * @param {Mesh} mesh Mesh to update with the detected body.
+     * @param {tf.Tensor} frame Frame to detect keypoints in.
+     * @param {Mesh} mesh Mesh to update.
+     *
+     * @returns {Promise<void>} A promise that resolves when the function has completed.
      */
-    start(updatesPerSecond, videoElement, mesh) {
+    async detectAndUpdate(frame, mesh) {
         throw new Error("Not implemented.");
-    }
-
-    /** Stops the detector. */
-    stop() {
-        if (this.intervalId != null) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
     }
 
     /**
@@ -42,15 +34,6 @@ export class Detector {
      */
     isReady() {
         return this.detector != null;
-    }
-
-    /**
-     * Determines whether the detector is currently running.
-     *
-     * @returns {boolean} Whether the detector is currently running.
-     */
-    isRunning() {
-        return this.intervalId != null;
     }
 
     /**

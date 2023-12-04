@@ -1,5 +1,6 @@
 import {Detector} from "./detector.js";
-import {validateDefined, validateInstanceOf, validateNumber} from "../validation.js";
+import {Mesh} from "../mesh.js";
+import {validateDefined, validateInstanceOf} from "../validation.js";
 
 /**
  * See the following link for more information about the hand detection model:
@@ -22,37 +23,28 @@ export class HandDetector extends Detector {
         ).then(detector => this.detector = detector);
     }
 
-    /** @type Detector['start'] */
-    start(updatesPerSecond, videoElement, mesh) {
-        validateNumber(updatesPerSecond);
-        validateInstanceOf(videoElement, HTMLVideoElement);
+    /** @type Detector['detectAndUpdate'] */
+    async detectAndUpdate(frame, mesh) {
+        validateInstanceOf(frame, tf.Tensor);
+        validateInstanceOf(mesh, Mesh);
 
         if (this.detector == null) {
             throw new Error("Detector not initialized.");
         }
 
-        if (this.intervalId != null) {
-            this.stop();
+        const currentTime = performance.now();
+
+        let rawHands = [];
+        try {
+            rawHands = await this.detector.estimateHands(frame);
+        } catch (e) {
+            /*
+             * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
+             * invalid." error. It doesn't seem to cause any issues, so we ignore it.
+             */
         }
 
-        this.intervalId = setInterval(async () => {
-            const currentTime = performance.now();
-
-            let rawHands = [];
-            try {
-                rawHands = await this.detector.estimateHands(videoElement);
-            } catch (e) {
-                /*
-                 * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
-                 * invalid." error. It doesn't seem to cause any issues, so we ignore it.
-                 */
-            }
-
-            if (rawHands.length === 0) {
-                this.lastRuntime = performance.now() - currentTime;
-                return;
-            }
-
+        if (rawHands.length > 0) {
             for (const rawHand of rawHands) {
                 for (const rawKeypoint of rawHand.keypoints) {
                     this.relabelKeypoint(rawHand, rawKeypoint);
@@ -60,8 +52,9 @@ export class HandDetector extends Detector {
             }
 
             mesh.updateHandKeypoints(rawHands);
-            this.lastRuntime = performance.now() - currentTime;
-        }, 1000 / updatesPerSecond);
+        }
+
+        this.lastRuntime = performance.now() - currentTime;
     }
 
     /**

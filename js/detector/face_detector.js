@@ -1,5 +1,6 @@
 import {Detector} from "./detector.js";
-import {validateDefined, validateInstanceOf, validateNumber} from "../validation.js";
+import {Mesh} from "../mesh.js";
+import {validateDefined, validateInstanceOf} from "../validation.js";
 
 /*
  * See the following link for more information about the face landmarks detection model:
@@ -23,46 +24,37 @@ export class FaceDetector extends Detector {
         ).then(detector => this.detector = detector);
     }
 
-    /** @type Detector['start'] */
-    start(updatesPerSecond, videoElement, mesh) {
-        validateNumber(updatesPerSecond);
-        validateInstanceOf(videoElement, HTMLVideoElement)
+    /** @type Detector['detectAndUpdate'] */
+    async detectAndUpdate(frame, mesh) {
+        validateInstanceOf(frame, tf.Tensor);
+        validateInstanceOf(mesh, Mesh);
 
         if (this.detector == null) {
             throw new Error("Detector not initialized.");
         }
 
-        if (this.intervalId != null) {
-            this.stop();
+        const currentTime = performance.now();
+
+        let rawFaces = [];
+        try {
+            rawFaces = await this.detector.estimateFaces(frame);
+        } catch (e) {
+            /*
+             * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
+             * invalid." error. It doesn't seem to cause any issues, so we ignore it.
+             */
         }
 
-        this.intervalId = setInterval(async () => {
-            const currentTime = performance.now();
-
-            let rawFaces = [];
-            try {
-                rawFaces = await this.detector.estimateFaces(videoElement);
-            } catch (e) {
-                /*
-                 * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
-                 * invalid." error. It doesn't seem to cause any issues, so we ignore it.
-                 */
-            }
-
-            if (rawFaces.length === 0) {
-                this.lastRuntime = performance.now() - currentTime;
-                return;
-            }
-
+        if (rawFaces.length > 0) {
             const rawFace = rawFaces[0];
             for (let i = 0 ; i < rawFace.keypoints.length ; i++) {
                 this.relabelKeypoint(i, rawFace.keypoints[i]);
             }
 
             mesh.updateFaceKeypoints(rawFace);
+        }
 
-            this.lastRuntime = performance.now() - currentTime;
-        }, 1000 / updatesPerSecond);
+        this.lastRuntime = performance.now() - currentTime;
     }
 
     /**

@@ -284,10 +284,6 @@
         const meshRendererStats = new StatRecorder(30);
 
         setInterval(() => {
-            if (!bodyDetector.isRunning() && !faceDetector.isRunning() && !handDetector.isRunning()) {
-                return;
-            }
-
             faceDetectorStats.record(faceDetector.getLastRuntime());
             bodyDetectorStats.record(bodyDetector.getLastRuntime());
             handDetectorStats.record(handDetector.getLastRuntime());
@@ -321,6 +317,23 @@
             }
         }, 100);
 
+        const detectAndUpdateInterval = setInterval(() => {
+            let frame;
+            try {
+                const videoElement = document.getElementsByTagName("video")[0];
+                frame = tf.browser.fromPixels(videoElement);
+                frame = tf.image.resizeBilinear(frame, [videoElement.height, videoElement.width]);
+
+                bodyDetector.detectAndUpdate(frame, mesh);
+                faceDetector.detectAndUpdate(frame, mesh);
+                // handDetector.detectAndUpdate(frame, mesh);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                frame?.dispose();
+            }
+        }, 100);
+
         let resizeTimeout = null;
         const updateDisplay = async () => {
             clearTimeout(resizeTimeout);
@@ -335,18 +348,6 @@
 
                 const videoElement = await camera.getVideoElement();
                 glContext.setSize(videoElement.scrollWidth, videoElement.scrollHeight, false);
-
-                if (!bodyDetector.isRunning()) {
-                    bodyDetector.start(15, videoElement, mesh);
-                }
-
-                if (!faceDetector.isRunning()) {
-                    faceDetector.start(30, videoElement, mesh);
-                }
-
-                if (!handDetector.isRunning()) {
-                    handDetector.start(10, videoElement, mesh);
-                }
 
                 /*
                  * If the render is already running and a resize occurs, there is an issue which causes all the points
@@ -370,11 +371,6 @@
                 updateDisplay();
             } catch (error) {
                 console.error(error);
-
-                bodyDetector.stop();
-                faceDetector.stop();
-                handDetector.stop();
-                meshRenderer.stop();
             }
         });
         document.getElementById("video-input-device-select-container").appendChild(deviceSelect);
