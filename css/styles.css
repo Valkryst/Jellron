@@ -10,9 +10,8 @@ html {
             }
 
             & > video {
-                width: 50%;
-
-                object-fit: fill;
+                height: 480px;
+                width: 640px;
             }
         }
     }

@@ -33,17 +33,13 @@ Additionally, the [Mesh](https://github.com/Valkryst/Jellron/blob/master/js/mesh
 
 ### Styling
 
-When styling the `video` element VIA CSS, it is assumed that the displayed video must take up the entire allotted
-width. Internal code relies on this assumption and the element's height is calculated based on it's width. This is done
-to maintain the camera's (MediaStream's) aspect ratio.
-
-_Do not specify anything for the element's height. Not even `height: auto`._
+You _must_ specify a fixed size for the `video` element VIA CSS. There are a number of issues in implementing dynamic
+sizing, in a way that works across many browsers, so it is currently unsupported.
 
 ```css
 video {
-    width: 100%; /* Set this to your desired value. */
-  
-    object-fit: fill;
+    height: 480px;
+    width: 640px;
 }
 ```
 
