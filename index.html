@@ -161,20 +161,19 @@
             }
         }, 100);
 
+        let camera = null;
         let resizeTimeout = null;
         const updateDisplay = async () => {
             clearTimeout(resizeTimeout);
 
             resizeTimeout = setTimeout(async () => {
-                if (deviceSelect.value === "") {
+                if (camera == null) {
                     return;
                 }
 
-                const camera = await new Camera(deviceSelect.value);
-
                 const videoElement = await camera.getVideoElement();
-                keypointRenderer.setSize(videoElement.parentElement.scrollWidth, videoElement.parentElement.scrollHeight);
-                videoRenderer.setSize(videoElement.parentElement.scrollWidth, videoElement.parentElement.scrollHeight);
+                keypointRenderer.setSize(videoElement.scrollWidth, videoElement.scrollHeight);
+                videoRenderer.setSize(videoElement.scrollWidth, videoElement.scrollHeight);
 
                 if (!bodyDetector.isRunning()) {
                     bodyDetector.start();
@@ -207,21 +206,16 @@
         }
 
         window.onresize = () => updateDisplay();
-
-        deviceSelect.onchange = () => {
+        deviceSelect.onchange = async () => {
             try {
-                updateDisplay();
+                camera = await new Camera(deviceSelect.value);
+                await updateDisplay();
             } catch (error) {
                 console.error(error);
             }
         };
 
         const bodyDetectorStats = new StatRecorder(30);
-        const faceDetectorStats = new StatRecorder(30);
-        const handDetectorStats = new StatRecorder(30);
-        const videoRendererStats = new StatRecorder(30);
-        const keypointRendererStats = new StatRecorder(30);
-
         bodyDetector.addEventListener("updated", e => {
             bodyDetectorStats.record(e.detail.runtime);
             document.getElementById("body-detection-time-min").innerText = bodyDetectorStats.getMinimum().toFixed(2).toString();
@@ -229,6 +223,7 @@
             document.getElementById("body-detection-time-max").innerText = bodyDetectorStats.getMaximum().toFixed(2).toString();
         });
 
+        const faceDetectorStats = new StatRecorder(30);
         faceDetector.addEventListener("updated", e => {
             faceDetectorStats.record(e.detail.runtime);
             document.getElementById("face-mesh-detection-time-min").innerText = faceDetectorStats.getMinimum().toFixed(2).toString();
@@ -236,6 +231,7 @@
             document.getElementById("face-mesh-detection-time-max").innerText = faceDetectorStats.getMaximum().toFixed(2).toString();
         });
 
+        const handDetectorStats = new StatRecorder(30);
         handDetector.addEventListener("updated", e => {
             handDetectorStats.record(e.detail.runtime);
             document.getElementById("hand-detection-time-min").innerText = handDetectorStats.getMinimum().toFixed(2).toString();
@@ -243,6 +239,7 @@
             document.getElementById("hand-detection-time-max").innerText = handDetectorStats.getMaximum().toFixed(2).toString();
         });
 
+        const videoRendererStats = new StatRecorder(30);
         videoRenderer.addEventListener("updated", e => {
             keypointRendererStats.record(e.detail.runtime);
             document.getElementById("video-draw-time-min").innerText = videoRendererStats.getMinimum().toFixed(2).toString();
@@ -250,6 +247,7 @@
             document.getElementById("video-draw-time-max").innerText = videoRendererStats.getMaximum().toFixed(2).toString();
         });
 
+        const keypointRendererStats = new StatRecorder(30);
         keypointRenderer.addEventListener("updated", e => {
             keypointRendererStats.record(e.detail.runtime);
             document.getElementById("keypoint-draw-time-min").innerText = keypointRendererStats.getMinimum().toFixed(2).toString();
