@@ -11,6 +11,7 @@ export class Camera {
     constructor(deviceId) {
         this.deviceId = deviceId;
 
+        this.jellronDisplay = document.getElementById("jellron-display");
         this.videoElement = null;
     }
 
@@ -120,13 +121,8 @@ export class Camera {
         }
 
         this.videoElement.srcObject = await this.getVideoInputDevice();
-
-        /*
-         * Both FaceDetector and HandDetector use the video element's height and width properties to scale the input
-         * MediaStream before processing it. This is why we need to set them.
-         */
-        this.videoElement.height = this.videoElement.parentElement.scrollHeight;
-        this.videoElement.width = this.videoElement.parentElement.scrollWidth;
+        this.videoElement.height = this.jellronDisplay.scrollHeight;
+        this.videoElement.width = this.jellronDisplay.scrollWidth;
     }
 
     /**
