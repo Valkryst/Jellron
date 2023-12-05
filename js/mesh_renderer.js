@@ -1,15 +1,29 @@
 import {Keypoint} from "./keypoint.js";
 import {Mesh} from "./mesh.js";
-import {FrontSide, MeshBasicMaterial, OrthographicCamera, PlaneGeometry, Scene, SRGBColorSpace, VideoTexture, WebGLRenderer} from "three";
-import {Mesh as ThreeMesh} from "three";
+import {Renderer} from "./renderer/renderer.js";
+import {Scene} from "three";
 import {
     validateBoolean,
     validateInstanceOf, validateNonEmptyString,
-    validateNumber
+    validatePositiveNumber
 } from "./validation.js";
 
-export class MeshRenderer {
-    constructor() {
+export class MeshRenderer extends Renderer {
+    /** Desired number of frames per second. */
+    static fps = 60;
+
+    /**
+     * Constructs a new MeshRenderer.
+     *
+     * @param {Mesh} mesh Mesh to render.
+     */
+    constructor(mesh) {
+        super(document.getElementById("jellron-keypoint-canvas"));
+
+        validateInstanceOf(mesh, Mesh);
+
+        this.mesh = mesh;
+
         this.displayBody = true;
         this.displayChoker = true;
         this.displayEarlobes = true;
@@ -23,30 +37,18 @@ export class MeshRenderer {
         this.minimumConfidence = 0.5;
     }
 
-    /**
-     * Starts the renderer.
-     *
-     * @param {number} drawsPerSecond Desired number of draws per second.
-     * @param {WebGLRenderer} glContext Canvas context to draw on.
-     * @param {Mesh} mesh Mesh to draw.
-     */
-    start(drawsPerSecond, glContext, mesh) {
-        validateNumber(drawsPerSecond);
-        validateInstanceOf(glContext, WebGLRenderer);
-        validateInstanceOf(mesh, Mesh);
-
+    /** @type RunnableInterval["start"] */
+    start() {
         if (this.intervalId != null) {
-            this.stop();
+            throw new Error("Already running.");
         }
 
-        const camera = this.createCamera(glContext);
         const scene = new Scene();
-        scene.add(this.createVideoMesh());
 
         this.intervalId = setInterval(async () => {
             const currentTime = performance.now();
 
-            for (const keypoint of mesh.getBodyKeypoints()) {
+            for (const keypoint of this.mesh.getBodyKeypoints()) {
                 if (keypoint == null) {
                     continue;
                 }
@@ -58,7 +60,7 @@ export class MeshRenderer {
                 }
             }
 
-            for (const keypoint of mesh.getFaceKeypoints()) {
+            for (const keypoint of this.mesh.getFaceKeypoints()) {
                 if (keypoint == null) {
                     continue;
                 }
@@ -70,7 +72,7 @@ export class MeshRenderer {
                 }
             }
 
-            for (const keypoint of mesh.getHandKeypoints()) {
+            for (const keypoint of this.mesh.getHandKeypoints()) {
                 if (keypoint == null) {
                     continue;
                 }
@@ -82,7 +84,7 @@ export class MeshRenderer {
                 }
             }
 
-            const chokerKeyPoint = mesh.getChokerKeypoint();
+            const chokerKeyPoint = this.mesh.getChokerKeypoint();
             if (chokerKeyPoint != null) {
                 if (this.displayChoker) {
                     this.placePoint(scene, chokerKeyPoint);
@@ -91,7 +93,7 @@ export class MeshRenderer {
                 }
             }
 
-            const necklaceKeypoint = mesh.getNecklaceKeypoint();
+            const necklaceKeypoint = this.mesh.getNecklaceKeypoint();
             if (necklaceKeypoint != null) {
                 if (this.displayNecklace) {
                     this.placePoint(scene, necklaceKeypoint);
@@ -100,7 +102,7 @@ export class MeshRenderer {
                 }
             }
 
-            for (const keypoint of mesh.getEarlobeKeypoints()) {
+            for (const keypoint of this.mesh.getEarlobeKeypoints()) {
                 if (keypoint == null) {
                     continue;
                 }
@@ -112,10 +114,10 @@ export class MeshRenderer {
                 }
             }
 
-            glContext.render(scene, camera);
+            this.glContext.render(scene, this.getCamera());
 
             this.lastRuntime = performance.now() - currentTime;
-        }, 1000 / drawsPerSecond);
+        }, 1000 / MeshRenderer.fps);
     }
 
     /** Stops the renderer. */
@@ -127,94 +129,27 @@ export class MeshRenderer {
     }
 
     /**
-     * Constructs a camera to use when rendering a Scene.
-     *
-     * @param {WebGLRenderer} glContext Context to draw on.
-     *
-     * @returns {OrthographicCamera} The constructed camera.
-     */
-    createCamera(glContext) {
-        const canvas = glContext.domElement;
-
-        const halfCanvasWidth = canvas.width / 2;
-        const halfCanvasHeight = canvas.height / 2;
-
-        const camera = new OrthographicCamera(
-            -halfCanvasWidth,
-            halfCanvasWidth,
-            halfCanvasHeight,
-            -halfCanvasHeight,
-            1,
-            1000
-        );
-
-        /*
-         * As the camera's origin is in the bottom-right corner of the canvas, and all the Keypoints' origins are in
-         * the top-left corner of the canvas, we need to offset the camera's position to render the Keypoints in the
-         * correct location.
-         */
-        camera.position.x += halfCanvasWidth;
-        camera.position.y -= halfCanvasHeight;
-
-        // Move the camera backwards, so that all the Keypoints are visible.
-        camera.position.z += 100;
-
-        return camera;
-    }
-
-    // todo Cleanup & Document, also pass in params.
-    createVideoMesh() {
-        const canvasElement = document.getElementsByTagName("canvas")[0];
-        const videoElement = document.getElementsByTagName("video")[0];
-
-        const videoTexture = new VideoTexture(videoElement);
-        videoTexture.colorSpace = SRGBColorSpace;
-        videoTexture.needsUpdate = true;
-
-        const videoMaterial = new MeshBasicMaterial({
-            map: videoTexture,
-            side: FrontSide,
-            toneMapped: false
-        });
-        videoMaterial.needsUpdate = true;
-
-        const videoMesh = new ThreeMesh(
-            new PlaneGeometry(canvasElement.scrollWidth, canvasElement.scrollHeight),
-            videoMaterial
-        );
-        videoMesh.position.x += canvasElement.scrollWidth / 2;
-        videoMesh.position.y -= canvasElement.scrollHeight / 2;
-        videoMesh.position.z -= 100;
-
-        return videoMesh;
-    }
-
-    /**
      * Displays a 2D necklace on the necklace Keypoint.
      *
-     * @param {Mesh} mesh Mesh to display the necklace on.
      * @param {string} url URL of the necklace image to display.
      */
-    display2DNecklace(mesh, url) {
-        validateInstanceOf(mesh, Mesh);
+    display2DNecklace( url) {
         validateNonEmptyString(url);
 
-        mesh.getNecklaceKeypoint().display2DAsset(url);
+        this.mesh.getNecklaceKeypoint().display2DAsset(url);
     }
 
     /**
      * Displays a 2D earring on an earlobe Keypoint.
      *
-     * @param mesh Mesh to display the earring on.
      * @param url URL of the earring image to display.
      * @param isLeft Whether the earring is for the left ear. If false, it is for the right ear.
      */
-    display2DEarring(mesh, url, isLeft) {
-        validateInstanceOf(mesh, Mesh);
+    display2DEarring(url, isLeft) {
         validateNonEmptyString(url);
         validateBoolean(isLeft);
 
-        mesh.getEarlobeKeypoints()[isLeft ? 0 : 1].display2DAsset(url);
+        this.mesh.getEarlobeKeypoints()[isLeft ? 0 : 1].display2DAsset(url);
     }
 
     /**
@@ -301,5 +236,17 @@ export class MeshRenderer {
     setDisplayNecklace(displayNecklace) {
         validateBoolean(displayNecklace)
         this.displayNecklace = displayNecklace;
+    }
+
+    /**
+     * Updates the size of the canvas.
+     *
+     * @param {number} width New width of the canvas.
+     * @param {number} height New height of the canvas.
+     */
+    setSize(width, height) {
+        validatePositiveNumber(width);
+        validatePositiveNumber(height);
+        this.glContext.setSize(width, height, false);
     }
 }

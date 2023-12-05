@@ -176,10 +176,10 @@ export class Camera {
             return this.videoElement;
         }
 
-        const video = document.createElement("video");
-        video.autoplay = true;
-        video.muted = true;
-        video.playsinline = true;
+        const video = document.getElementById("jellron-video");
+        video.setAttribute("autoplay", "")
+        video.setAttribute("muted", "")
+        video.setAttribute("playsinline", "");
         this.videoElement = video;
 
         await this.updateVideoElement();
@@ -213,16 +213,5 @@ export class Camera {
     static async getVideoInputDevices() {
         const devices = await navigator.mediaDevices.enumerateDevices();
         return devices.filter(device => device.kind === "videoinput");
-    }
-
-    /**
-     * Sets the video element associated with this Camera object.
-     *
-     * @param {HTMLVideoElement} videoElement The new video element to use.
-     */
-    async setVideoElement(videoElement) {
-        validateInstanceOf(videoElement, HTMLVideoElement);
-        this.videoElement = videoElement;
-        await this.updateVideoElement();
     }
 }
