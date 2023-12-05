@@ -101,8 +101,9 @@
             </form>
 
             <div id="jellron-display">
-                <canvas></canvas>
-                <video autoplay playsinline>
+                <canvas id="jellron-video-canvas"></canvas>
+                <canvas id="jellron-keypoint-canvas"></canvas>
+                <video id="jellron-video">
                     This page requires a browser that supports the <em>video</em> element.
                 </video>
             </div>
@@ -132,23 +133,83 @@
         import {Mesh} from "./js/mesh.js";
         import {MeshRenderer} from "./js/mesh_renderer.js";
         import {StatRecorder} from "./js/stat_recorder.js";
-        import {WebGLRenderer} from "three";
-
-        const canvas = document.getElementsByTagName("canvas")[0];
-        const glContext = new WebGLRenderer({
-            alpha: true,
-            canvas: canvas
-        });
-        glContext.autoClear = true;
+        import {VideoRenderer} from "./js/renderer/video_renderer.js";
 
         const deviceSelect = await Camera.getSelectElement();
         document.getElementById("video-input-device-select-container").appendChild(deviceSelect);
 
         const mesh = new Mesh();
-        const faceDetector = new FaceDetector();
-        const bodyDetector = new BodyDetector();
-        const handDetector = new HandDetector();
-        const meshRenderer = new MeshRenderer();
+        const faceDetector = new FaceDetector(mesh);
+        const bodyDetector = new BodyDetector(mesh);
+        const handDetector = new HandDetector(mesh);
+        const meshRenderer = new MeshRenderer(mesh);
+        const videoRenderer = new VideoRenderer();
+
+        const warmupInterval = setInterval(async () => {
+            if (bodyDetector.isReady() && faceDetector.isReady() && handDetector.isReady()) {
+                clearInterval(warmupInterval);
+
+                document.getElementById("body-detector-ready").innerText = "True";
+                document.getElementById("face-detector-ready").innerText = "True";
+                document.getElementById("hand-detector-ready").innerText = "True";
+                (await Camera.getSelectElement()).disabled = false;
+            }
+        }, 100);
+
+        let resizeTimeout = null;
+        const updateDisplay = async () => {
+            clearTimeout(resizeTimeout);
+
+            resizeTimeout = setTimeout(async () => {
+                if (deviceSelect.value === "") {
+                    return;
+                }
+
+                const camera = await new Camera(deviceSelect.value);
+
+                const videoElement = await camera.getVideoElement();
+                meshRenderer.setSize(videoElement.width, videoElement.height);
+                videoRenderer.setSize(videoElement.width, videoElement.height);
+
+                if (!bodyDetector.isRunning()) {
+                    bodyDetector.start();
+                }
+
+                if (!faceDetector.isRunning()) {
+                    faceDetector.start();
+                }
+
+                if (!handDetector.isRunning()) {
+                    handDetector.start();
+                }
+
+                /*
+                 * If the render is already running and a resize occurs, there is an issue which causes all the points
+                 * to be drawn in the wrong position. To fix this, we stop and then restart the renderer.
+                 *
+                 * todo Investigate this issue and determine if there's a better way to handle it.
+                 */
+                meshRenderer.display2DEarring("./assets/earring.png", true);
+                meshRenderer.display2DEarring("./assets/earring.png", false);
+                meshRenderer.display2DNecklace("./assets/necklace.png");
+
+                meshRenderer.stop();
+                meshRenderer.start();
+
+                videoRenderer.stop();
+                videoRenderer.start();
+            }, 100);
+        }
+
+        window.onresize = () => updateDisplay();
+
+        deviceSelect.onchange = () => {
+            try {
+                updateDisplay();
+            } catch (error) {
+                console.error(error);
+            }
+        };
 
         const faceDetectorStats = new StatRecorder(30);
         const bodyDetectorStats = new StatRecorder(30);
@@ -181,68 +242,5 @@
             document.getElementById("mesh-draw-time-avg").innerText = meshRendererStats.getAverage().toFixed(2).toString();
             document.getElementById("mesh-draw-time-max").innerText = meshRendererStats.getMaximum().toFixed(2).toString();
         }, 100);
-
-        const warmupInterval = setInterval(async () => {
-            if (bodyDetector.isReady() && faceDetector.isReady() && handDetector.isReady()) {
-                clearInterval(warmupInterval);
-
-                document.getElementById("body-detector-ready").innerText = "True";
-                document.getElementById("face-detector-ready").innerText = "True";
-                document.getElementById("hand-detector-ready").innerText = "True";
-                (await Camera.getSelectElement()).disabled = false;
-            }
-        }, 100);
-
-        let resizeTimeout = null;
-        const updateDisplay = async () => {
-            clearTimeout(resizeTimeout);
-
-            resizeTimeout = setTimeout(async () => {
-                if (deviceSelect.value === "") {
-                    return;
-                }
-
-                const camera = await new Camera(deviceSelect.value);
-                await camera.setVideoElement(document.getElementsByTagName("video")[0]);
-
-                const videoElement = await camera.getVideoElement();
-                glContext.setSize(videoElement.width, videoElement.height, false);
-
-                if (!bodyDetector.isRunning()) {
-                    bodyDetector.start(15, videoElement, mesh);
-                }
-
-                if (!faceDetector.isRunning()) {
-                    faceDetector.start(30, videoElement, mesh);
-                }
-
-                if (!handDetector.isRunning()) {
-                    handDetector.start(10, videoElement, mesh);
-                }
-
-                /*
-                 * If the render is already running and a resize occurs, there is an issue which causes all the points
-                 * to be drawn in the wrong position. To fix this, we stop and then restart the renderer.
-                 *
-                 * todo Investigate this issue and determine if there's a better way to handle it.
-                 */
-                meshRenderer.display2DEarring(mesh, "./assets/earring.png", true);
-                meshRenderer.display2DEarring(mesh, "./assets/earring.png", false);
-                meshRenderer.display2DNecklace(mesh, "./assets/necklace.png");
-
-                meshRenderer.stop();
-                meshRenderer.start(60, glContext, mesh);
-            }, 100);
-        }
-
-        window.onresize = () => updateDisplay();
-
-        deviceSelect.onchange = () => {
-            try {
-                updateDisplay();
-            } catch (error) {
-                console.error(error);
-            }
-        };
     </script>
 </html>

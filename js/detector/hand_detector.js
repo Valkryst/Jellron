@@ -1,4 +1,5 @@
 import {Detector} from "./detector.js";
+import {Mesh} from "../mesh.js";
 import {validateDefined, validateInstanceOf, validateNumber} from "../validation.js";
 
 /**
@@ -6,15 +7,29 @@ import {validateDefined, validateInstanceOf, validateNumber} from "../validation
  * https://github.com/tensorflow/tfjs-models/tree/master/hand-pose-detection/src/tfjs
  */
 export class HandDetector extends Detector {
+    /** Desired number of frames per second. */
+    static fps = 10;
+
+    /** Singleton instance of the HandDetector. */
     static instance;
 
-    /** Creates a new HandDetector object, or returns the existing one if it already exists. */
-    constructor() {
+    /**
+     * Creates a new HandDetector, or returns the existing one if it already exists.
+     *
+     * @param {Mesh} mesh Mesh to update with the detected hand keypoints.
+     */
+    constructor(mesh) {
         if (HandDetector.instance) {
             return HandDetector.instance;
         }
+
+        validateInstanceOf(mesh, Mesh);
+
         super();
         HandDetector.instance = this;
+
+        this.mesh = mesh;
+        this.videoElement = document.getElementById("jellron-video");
 
         handPoseDetection.createDetector(
             handPoseDetection.SupportedModels.MediaPipeHands,
@@ -22,17 +37,14 @@ export class HandDetector extends Detector {
         ).then(detector => this.detector = detector);
     }
 
-    /** @type Detector['start'] */
-    start(updatesPerSecond, videoElement, mesh) {
-        validateNumber(updatesPerSecond);
-        validateInstanceOf(videoElement, HTMLVideoElement);
-
+    /** @type RunnableInterval["start"] */
+    start() {
         if (this.detector == null) {
             throw new Error("Detector not initialized.");
         }
 
         if (this.intervalId != null) {
-            this.stop();
+            throw new Error("Already running.");
         }
 
         this.intervalId = setInterval(async () => {
@@ -40,7 +52,7 @@ export class HandDetector extends Detector {
 
             let rawHands = [];
             try {
-                rawHands = await this.detector.estimateHands(videoElement);
+                rawHands = await this.detector.estimateHands(this.videoElement);
             } catch (e) {
                 /*
                  * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
@@ -59,9 +71,9 @@ export class HandDetector extends Detector {
                 }
             }
 
-            mesh.updateHandKeypoints(rawHands);
+            this.mesh.updateHandKeypoints(rawHands);
             this.lastRuntime = performance.now() - currentTime;
-        }, 1000 / updatesPerSecond);
+        }, 1000 / HandDetector.fps);
     }
 
     /**

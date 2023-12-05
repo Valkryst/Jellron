@@ -1,4 +1,5 @@
 import {Detector} from "./detector.js";
+import {Mesh} from "../mesh.js";
 import {validateDefined, validateInstanceOf, validateNumber} from "../validation.js";
 
 /*
@@ -6,16 +7,29 @@ import {validateDefined, validateInstanceOf, validateNumber} from "../validation
  * https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/README.md
  */
 export class FaceDetector extends Detector {
+    /** Desired number of frames per second. */
+    static fps = 30;
+
+    /** Singleton instance of the HandDetector. */
     static instance;
 
-    /** Creates a new FaceDetector object, or returns the existing one if it already exists. */
-    constructor() {
+    /**
+     * Creates a new FaceDetector, or returns the existing one if it already exists.
+     *
+     * @param {Mesh} mesh Mesh to update with the detected face keypoints.
+     */
+    constructor(mesh) {
         if (FaceDetector.instance) {
             return FaceDetector.instance;
         }
 
+        validateInstanceOf(mesh, Mesh);
+
         super();
         FaceDetector.instance = this;
+
+        this.mesh = mesh;
+        this.videoElement = document.getElementById("jellron-video");
 
         faceLandmarksDetection.createDetector(
             faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
@@ -23,17 +37,14 @@ export class FaceDetector extends Detector {
         ).then(detector => this.detector = detector);
     }
 
-    /** @type Detector['start'] */
-    start(updatesPerSecond, videoElement, mesh) {
-        validateNumber(updatesPerSecond);
-        validateInstanceOf(videoElement, HTMLVideoElement)
-
+    /** @type RunnableInterval["start"] */
+    start() {
         if (this.detector == null) {
             throw new Error("Detector not initialized.");
         }
 
         if (this.intervalId != null) {
-            this.stop();
+            throw new Error("Already running.");
         }
 
         this.intervalId = setInterval(async () => {
@@ -41,7 +52,7 @@ export class FaceDetector extends Detector {
 
             let rawFaces = [];
             try {
-                rawFaces = await this.detector.estimateFaces(videoElement);
+                rawFaces = await this.detector.estimateFaces(this.videoElement);
             } catch (e) {
                 /*
                  * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
@@ -59,10 +70,10 @@ export class FaceDetector extends Detector {
                 this.relabelKeypoint(i, rawFace.keypoints[i]);
             }
 
-            mesh.updateFaceKeypoints(rawFace);
+            this.mesh.updateFaceKeypoints(rawFace);
 
             this.lastRuntime = performance.now() - currentTime;
-        }, 1000 / updatesPerSecond);
+        }, 1000 / FaceDetector.fps);
     }
 
     /**

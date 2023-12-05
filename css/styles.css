@@ -24,11 +24,11 @@ table, th, td {
         position: absolute;
     }
 
-    & > canvas {
-        transform: scaleX(-1);
+    & > #jellron-video {
+        visibility: hidden;
     }
 
-    & > video {
-        visibility: hidden;
+    & > #jellron-keypoint-canvas, & > #jellron-video-canvas {
+        transform: scaleX(-1);
     }
 }

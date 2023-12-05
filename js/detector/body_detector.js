@@ -1,4 +1,5 @@
 import {Detector} from "./detector.js";
+import {Mesh} from "../mesh.js";
 import {validateInstanceOf, validateNumber} from "../validation.js";
 
 
@@ -7,16 +8,29 @@ import {validateInstanceOf, validateNumber} from "../validation.js";
  * https://github.com/tensorflow/tfjs-models/tree/master/pose-detection
  */
 export class BodyDetector extends Detector {
+    /** Desired number of frames per second. */
+    static fps = 30;
+
+    /** Singleton instance of the HandDetector. */
     static instance;
 
-    /** Creates a new BodyDetector object, or returns the existing one if it already exists. */
-    constructor() {
+    /**
+     * Creates a new BodyDetector, or returns the existing one if it already exists.
+     *
+     * @param {Mesh} mesh Mesh to update with the detected body keypoints.
+     */
+    constructor(mesh) {
         if (BodyDetector.instance) {
             return BodyDetector.instance;
         }
 
+        validateInstanceOf(mesh, Mesh);
+
         super();
         BodyDetector.instance = this;
+
+        this.mesh = mesh;
+        this.videoElement = document.getElementById("jellron-video");
 
         poseDetection.createDetector(
             poseDetection.SupportedModels.MoveNet,
@@ -24,17 +38,14 @@ export class BodyDetector extends Detector {
         ).then(detector => this.detector = detector);
     }
 
-    /** @type Detector['start'] */
-    start(updatesPerSecond, videoElement, mesh) {
-        validateNumber(updatesPerSecond);
-        validateInstanceOf(videoElement, HTMLVideoElement);
-
+    /** @type RunnableInterval["start"] */
+    start() {
         if (this.detector == null) {
             throw new Error("Detector not initialized.");
         }
 
         if (this.intervalId != null) {
-            this.stop();
+            throw new Error("Already running.");
         }
 
         this.intervalId = setInterval(async () => {
@@ -42,7 +53,7 @@ export class BodyDetector extends Detector {
 
             let rawBodies = [];
             try {
-                rawBodies = await this.detector.estimatePoses(videoElement);
+                rawBodies = await this.detector.estimatePoses(this.videoElement);
             } catch (e) {
                 /*
                  * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
@@ -56,9 +67,9 @@ export class BodyDetector extends Detector {
             }
 
             const rawBody = rawBodies[0];
-            mesh.updateBodyKeypoints(rawBody);
+            this.mesh.updateBodyKeypoints(rawBody);
 
             this.lastRuntime = performance.now() - currentTime;
-        }, 1000 / updatesPerSecond);
+        }, 1000 / BodyDetector.fps);
     }
 }
