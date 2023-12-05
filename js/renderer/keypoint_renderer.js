@@ -8,12 +8,12 @@ import {
     validatePositiveNumber
 } from "../validation.js";
 
-export class MeshRenderer extends Renderer {
+export class KeypointRenderer extends Renderer {
     /** Desired number of frames per second. */
     static fps = 60;
 
     /**
-     * Constructs a new MeshRenderer.
+     * Constructs a new KeypointRenderer.
      *
      * @param {Mesh} mesh Mesh to render.
      */
@@ -117,7 +117,7 @@ export class MeshRenderer extends Renderer {
             this.glContext.render(scene, this.getCamera());
 
             this.lastRuntime = performance.now() - currentTime;
-        }, 1000 / MeshRenderer.fps);
+        }, 1000 / KeypointRenderer.fps);
     }
 
     /** Stops the renderer. */
