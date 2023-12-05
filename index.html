@@ -168,8 +168,8 @@
                 const camera = await new Camera(deviceSelect.value);
 
                 const videoElement = await camera.getVideoElement();
-                keypointRenderer.setSize(videoElement.width, videoElement.height);
-                videoRenderer.setSize(videoElement.width, videoElement.height);
+                keypointRenderer.setSize(videoElement.parentElement.scrollWidth, videoElement.parentElement.scrollHeight);
+                videoRenderer.setSize(videoElement.parentElement.scrollWidth, videoElement.parentElement.scrollHeight);
 
                 if (!bodyDetector.isRunning()) {
                     bodyDetector.start();

@@ -20,6 +20,11 @@ table, th, td {
 }
 
 #jellron-display {
+    margin: 0 auto;
+
+    height: 600px;
+    width: 800px;
+
     & > canvas, & > video {
         position: absolute;
     }
