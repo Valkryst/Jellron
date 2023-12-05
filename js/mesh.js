@@ -31,13 +31,6 @@ export class Mesh {
         this.faceKeypoints = [];
         this.handKeypoints = [];
         this.necklaceKeypoint = new Keypoint(0, 0, 0, 0, "necklace");
-
-        this.bodyScale = [1, 1, 1];
-
-        this.chokerOffsets = [0, 0, 0];
-        this.leftEarlobeOffsets = [0, 0, 0];
-        this.necklaceOffsets = [0, 0, 0];
-        this.rightEarlobeOffsets = [0, 0, 0];
     }
 
     /**
@@ -115,7 +108,6 @@ export class Mesh {
         for (let i = 0 ; i < rawBody.keypoints.length; i++) {
             const keypoint = this.bodyKeypoints[i];
             keypoint.copyRawKeypoint(rawBody.keypoints[i]);
-            keypoint.scalePosition(...this.bodyScale);
         }
     }
 
@@ -200,38 +192,6 @@ export class Mesh {
     }
 
     /**
-     * Retrieves a list of all Keypoint labels.
-     *
-     * @returns {string[]} List of all Keypoint labels.
-     */
-    getKeypointLabels() {
-        if (this.labels != null && this.labels.length > 0) {
-            return this.labels;
-        }
-
-        const labels = [];
-        labels.push(this.chokerKeypoint.getLabel());
-        labels.push(this.earlobeKeypoints[0].getLabel());
-        labels.push(this.earlobeKeypoints[1].getLabel());
-        labels.push(this.necklaceKeypoint.getLabel());
-
-        for (const keypoint of this.faceKeypoints) {
-            if (keypoint.getLabel() != null) {
-                labels.push(keypoint.getLabel());
-            }
-        }
-
-        for (const keypoint of this.bodyKeypoints) {
-            if (keypoint.getLabel() != null) {
-                labels.push(keypoint.getLabel());
-            }
-        }
-
-        this.labels = labels;
-        return labels;
-    }
-
-    /**
      * Retrieves the body Keypoints.
      *
      * @returns {Keypoint[]} Body Keypoints.
@@ -260,15 +220,12 @@ export class Mesh {
 
         let x = necklaceKeypoint.getX();
         x += ((noseKeypoint.getX() - necklaceKeypoint.getX()) / 3);
-        x += this.chokerOffsets[0];
 
         let y = necklaceKeypoint.getY();
         y += ((noseKeypoint.getY() - necklaceKeypoint.getY()) / 3);
-        y += this.chokerOffsets[1];
 
         let z = necklaceKeypoint.getZ();
         z += (noseKeypoint.getZ() + necklaceKeypoint.getZ()) / 2;
-        z += this.chokerOffsets[2];
 
         this.chokerKeypoint.setConfidence(1);
         this.chokerKeypoint.setPosition(x, y, z);
@@ -438,12 +395,10 @@ export class Mesh {
          */
         this.earlobeKeypoints[0].setConfidence(1);
         this.earlobeKeypoints[0].setPosition(leftEarlobeX, leftEarlobeY, leftEar.z);
-        this.earlobeKeypoints[0].translatePosition(...this.leftEarlobeOffsets);
         this.earlobeKeypoints[0].setColour(Mesh.defaultEarlobeKeypointColour);
 
         this.earlobeKeypoints[1].setConfidence(1);
         this.earlobeKeypoints[1].setPosition(rightEarlobeX, rightEarlobeY, rightEar.z);
-        this.earlobeKeypoints[1].translatePosition(...this.rightEarlobeOffsets);
         this.earlobeKeypoints[1].setColour(Mesh.defaultEarlobeKeypointColour);
 
         return this.earlobeKeypoints;
@@ -514,7 +469,6 @@ export class Mesh {
         this.necklaceKeypoint.setRotationZ(rotationZ);
 
         let x = (leftShoulder.getX() + rightShoulder.getX()) / 2;
-        x += this.necklaceOffsets[0];
 
         /*
          * todo We add an offset, based on the bottom edge of the user's face, to ensure the demo necklace asset appears
@@ -523,85 +477,12 @@ export class Mesh {
          */
         let y = (leftShoulder.getY() + rightShoulder.getY()) / 2;
         y += (bottomEdgeFace.getY() - y) / 3;
-        y += this.necklaceOffsets[1];
 
         let z = (leftShoulder.getZ() + rightShoulder.getZ()) / 2;
-        z += this.necklaceOffsets[2];
 
         this.necklaceKeypoint.setConfidence(1);
         this.necklaceKeypoint.setPosition(x, y, z);
         this.necklaceKeypoint.setColour(Mesh.defaultNecklaceKeypointColour);
         return this.necklaceKeypoint;
-    }
-
-    /**
-     * Sets the offsets of the choker Keypoint.
-     *
-     * @param {number} xOffset Offset to apply to the X coordinate.
-     * @param {number} yOffset Offset to apply to the Y coordinate.
-     * @param {number} zOffset Offset to apply to the Z coordinate.
-     */
-    setChokerOffsets(xOffset = 0, yOffset = 0, zOffset = 0) {
-        validateNumber(xOffset);
-        validateNumber(yOffset);
-        validateNumber(zOffset);
-
-        this.chokerOffsets = [xOffset, yOffset, zOffset];
-    }
-
-    /**
-     * Sets the offsets of the left earlobe Keypoint.
-     *
-     * @param {number} xOffset Offset to apply to the X coordinate.
-     * @param {number} yOffset Offset to apply to the Y coordinate.
-     * @param {number} zOffset Offset to apply to the Z coordinate.
-     */
-    setLeftEarlobeOffsets(xOffset = 0, yOffset = 0, zOffset = 0) {
-        validateNumber(xOffset);
-        validateNumber(yOffset);
-        validateNumber(zOffset);
-
-        this.leftEarlobeOffsets = [xOffset, yOffset, zOffset];
-    }
-
-    /**
-     * Sets the offsets of the necklace Keypoint.
-     *
-     * @param {number} xOffset Offset to apply to the X coordinate.
-     * @param {number} yOffset Offset to apply to the Y coordinate.
-     * @param {number} zOffset Offset to apply to the Z coordinate.
-     */
-    setNecklaceOffsets(xOffset = 0, yOffset = 0, zOffset = 0) {
-        validateNumber(xOffset);
-        validateNumber(yOffset);
-        validateNumber(zOffset);
-
-        this.necklaceOffsets = [xOffset, yOffset, zOffset];
-    }
-
-    /**
-     * Sets the offsets of the right earlobe Keypoint.
-     *
-     * @param {number} xOffset Offset to apply to the X coordinate.
-     * @param {number} yOffset Offset to apply to the Y coordinate.
-     * @param {number} zOffset Offset to apply to the Z coordinate.
-     */
-    setRightEarlobeOffsets(xOffset = 0, yOffset = 0, zOffset = 0) {
-        validateNumber(xOffset);
-        validateNumber(yOffset);
-        validateNumber(zOffset);
-
-        this.rightEarlobeOffsets = [xOffset, yOffset, zOffset];
-    }
-
-    /**
-     * Sets the scale of the body Keypoints.
-     *
-     * @param {number} scaleX A factor to scale the X coordinate by.
-     * @param {number} scaleY A factor to scale the Y coordinate by.
-     * @param {number} scaleZ A factor to scale the Z coordinate by.
-     */
-    setBodyScale(scaleX = 1, scaleY = 1, scaleZ = 1) {
-        this.bodyScale = [scaleX, scaleY, scaleZ];
     }
 }
