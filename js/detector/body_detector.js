@@ -30,7 +30,7 @@ export class BodyDetector extends Detector {
         BodyDetector.instance = this;
 
         this.mesh = mesh;
-        this.videoElement = document.getElementById("jellron-video");
+        this.inputElement = document.getElementById("jellron-video-canvas");
 
         poseDetection.createDetector(
             poseDetection.SupportedModels.MoveNet,
@@ -53,7 +53,7 @@ export class BodyDetector extends Detector {
 
             let rawBodies = [];
             try {
-                rawBodies = await this.detector.estimatePoses(this.videoElement);
+                rawBodies = await this.detector.estimatePoses(this.inputElement);
             } catch (e) {
                 /*
                  * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is
