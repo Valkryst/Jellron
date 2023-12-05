@@ -1,6 +1,5 @@
 import {Renderer} from "./renderer.js";
-import {FrontSide, Mesh, MeshBasicMaterial, PlaneGeometry, Scene, SRGBColorSpace, VideoTexture, WebGLRenderer} from "three";
-import {validatePositiveNumber} from "../validation.js";
+import {FrontSide, Mesh, MeshBasicMaterial, PlaneGeometry, Scene, SRGBColorSpace, VideoTexture} from "three";
 
 export class VideoRenderer extends Renderer {
     /** Desired number of frames per second. */

@@ -1,6 +1,6 @@
 import {Detector} from "./detector.js";
 import {Mesh} from "../mesh.js";
-import {validateDefined, validateInstanceOf, validateNumber} from "../validation.js";
+import {validateDefined, validateInstanceOf} from "../validation.js";
 
 /**
  * See the following link for more information about the hand detection model:
