@@ -1,12 +1,12 @@
-import {Keypoint} from "./keypoint.js";
-import {Mesh} from "./mesh.js";
-import {Renderer} from "./renderer/renderer.js";
+import {Keypoint} from "../keypoint.js";
+import {Mesh} from "../mesh.js";
+import {Renderer} from "./renderer.js";
 import {Scene} from "three";
 import {
     validateBoolean,
     validateInstanceOf, validateNonEmptyString,
     validatePositiveNumber
-} from "./validation.js";
+} from "../validation.js";
 
 export class MeshRenderer extends Renderer {
     /** Desired number of frames per second. */
