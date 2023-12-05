@@ -34,7 +34,10 @@ export class BodyDetector extends Detector {
         poseDetection.createDetector(
             poseDetection.SupportedModels.MoveNet,
             { runtime: "tfjs"}
-        ).then(detector => this.detector = detector);
+        ).then(detector => {
+            this.detector = detector;
+            this.dispatchEvent(new CustomEvent("ready"));
+        });
     }
 
     /** @type RunnableInterval["start"] */
@@ -47,6 +50,7 @@ export class BodyDetector extends Detector {
             throw new Error("Already running.");
         }
 
+        this.dispatchEvent(new CustomEvent("started"));
         this.intervalId = setInterval(async () => {
             const currentTime = performance.now();
 
@@ -69,6 +73,7 @@ export class BodyDetector extends Detector {
             this.mesh.updateBodyKeypoints(rawBody);
 
             this.lastRuntime = performance.now() - currentTime;
+            this.dispatchEvent(new CustomEvent("updated", {detail: {runtime: this.lastRuntime}}));
         }, 1000 / BodyDetector.fps);
     }
 }

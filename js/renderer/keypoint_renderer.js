@@ -41,6 +41,7 @@ export class KeypointRenderer extends Renderer {
 
         const scene = new Scene();
 
+        this.dispatchEvent(new CustomEvent("started"));
         this.intervalId = setInterval(async () => {
             const currentTime = performance.now();
 
@@ -113,6 +114,7 @@ export class KeypointRenderer extends Renderer {
             this.glContext.render(scene, this.getCamera());
 
             this.lastRuntime = performance.now() - currentTime;
+            this.dispatchEvent(new CustomEvent("rendered", {detail: {runtime: this.lastRuntime}}));
         }, 1000 / KeypointRenderer.fps);
     }
 

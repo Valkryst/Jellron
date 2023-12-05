@@ -31,12 +31,14 @@ export class VideoRenderer extends Renderer {
         const scene = new Scene();
         scene.add(this.getMesh());
 
+        this.dispatchEvent(new CustomEvent("started"));
         this.intervalId = setInterval(() => {
             const currentTime = performance.now();
 
             this.glContext.render(scene, this.getCamera());
 
             this.lastRuntime = performance.now() - currentTime;
+            this.dispatchEvent(new CustomEvent("rendered", {detail: {runtime: this.lastRuntime}}));
         }, 1000 / VideoRenderer.fps);
     }
 

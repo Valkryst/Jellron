@@ -1,6 +1,8 @@
-export class RunnableInterval {
+export class RunnableInterval extends EventTarget {
     /** Creates a new RunnableInterval. */
     constructor() {
+        super();
+
         this.intervalId = null;
         this.lastRuntime = 0;
     }
@@ -15,6 +17,8 @@ export class RunnableInterval {
         if (this.intervalId != null) {
             clearInterval(this.intervalId);
             this.intervalId = null;
+
+            this.dispatchEvent(new CustomEvent("stopped"));
         }
     }
 

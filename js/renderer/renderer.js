@@ -79,5 +79,6 @@ export class Renderer extends RunnableInterval {
         validatePositiveNumber(width);
         validatePositiveNumber(height);
         this.glContext.setSize(width, height, false);
+        this.dispatchEvent(new CustomEvent("resized", {detail: {width: width, height: height}}));
     }
 }

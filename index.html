@@ -89,10 +89,16 @@
                                 <td id="hand-detection-time-max"></td>
                             </tr>
                             <tr>
-                                <td>Mesh Draw Time</td>
-                                <td id="mesh-draw-time-min"></td>
-                                <td id="mesh-draw-time-avg"></td>
-                                <td id="mesh-draw-time-max"></td>
+                                <td>Video Draw Time</td>
+                                <td id="video-draw-time-min"></td>
+                                <td id="video-draw-time-avg"></td>
+                                <td id="video-draw-time-max"></td>
+                            </tr>
+                            <tr>
+                                <td>Keypoint Draw Time</td>
+                                <td id="keypoint-draw-time-min"></td>
+                                <td id="keypoint-draw-time-avg"></td>
+                                <td id="keypoint-draw-time-max"></td>
                             </tr>
                             </tbody>
                         </table>
@@ -139,19 +145,27 @@
         document.getElementById("video-input-device-select-container").appendChild(deviceSelect);
 
         const mesh = new Mesh();
-        const faceDetector = new FaceDetector(mesh);
         const bodyDetector = new BodyDetector(mesh);
+        const faceDetector = new FaceDetector(mesh);
         const handDetector = new HandDetector(mesh);
         const keypointRenderer = new KeypointRenderer(mesh);
         const videoRenderer = new VideoRenderer();
 
+        faceDetector.addEventListener("ready", () => {
+            document.getElementById("face-detector-ready").innerText = "True";
+        });
+
+        bodyDetector.addEventListener("ready", () => {
+            document.getElementById("body-detector-ready").innerText = "True";
+        });
+
+        handDetector.addEventListener("ready", () => {
+            document.getElementById("hand-detector-ready").innerText = "True";
+        });
+
         const warmupInterval = setInterval(async () => {
             if (bodyDetector.isReady() && faceDetector.isReady() && handDetector.isReady()) {
                 clearInterval(warmupInterval);
-
-                document.getElementById("body-detector-ready").innerText = "True";
-                document.getElementById("face-detector-ready").innerText = "True";
-                document.getElementById("hand-detector-ready").innerText = "True";
                 (await Camera.getSelectElement()).disabled = false;
             }
         }, 100);
@@ -211,36 +225,45 @@
             }
         };
 
-        const faceDetectorStats = new StatRecorder(30);
         const bodyDetectorStats = new StatRecorder(30);
+        const faceDetectorStats = new StatRecorder(30);
         const handDetectorStats = new StatRecorder(30);
-        const meshRendererStats = new StatRecorder(30);
+        const videoRendererStats = new StatRecorder(30);
+        const keypointRendererStats = new StatRecorder(30);
 
-        setInterval(() => {
-            if (!bodyDetector.isRunning() && !faceDetector.isRunning() && !handDetector.isRunning()) {
-                return;
-            }
-
-            faceDetectorStats.record(faceDetector.getLastRuntime());
-            bodyDetectorStats.record(bodyDetector.getLastRuntime());
-            handDetectorStats.record(handDetector.getLastRuntime());
-            meshRendererStats.record(keypointRenderer.getLastRuntime());
-
+        bodyDetector.addEventListener("updated", e => {
+            bodyDetectorStats.record(e.detail.runtime);
             document.getElementById("body-detection-time-min").innerText = bodyDetectorStats.getMinimum().toFixed(2).toString();
             document.getElementById("body-detection-time-avg").innerText = bodyDetectorStats.getAverage().toFixed(2).toString();
             document.getElementById("body-detection-time-max").innerText = bodyDetectorStats.getMaximum().toFixed(2).toString();
+        });
 
+        faceDetector.addEventListener("updated", e => {
+            faceDetectorStats.record(e.detail.runtime);
             document.getElementById("face-mesh-detection-time-min").innerText = faceDetectorStats.getMinimum().toFixed(2).toString();
             document.getElementById("face-mesh-detection-time-avg").innerText = faceDetectorStats.getAverage().toFixed(2).toString();
             document.getElementById("face-mesh-detection-time-max").innerText = faceDetectorStats.getMaximum().toFixed(2).toString();
+        });
 
+        handDetector.addEventListener("updated", e => {
+            handDetectorStats.record(e.detail.runtime);
             document.getElementById("hand-detection-time-min").innerText = handDetectorStats.getMinimum().toFixed(2).toString();
             document.getElementById("hand-detection-time-avg").innerText = handDetectorStats.getAverage().toFixed(2).toString();
             document.getElementById("hand-detection-time-max").innerText = handDetectorStats.getMaximum().toFixed(2).toString();
+        });
 
-            document.getElementById("mesh-draw-time-min").innerText = meshRendererStats.getMinimum().toFixed(2).toString();
-            document.getElementById("mesh-draw-time-avg").innerText = meshRendererStats.getAverage().toFixed(2).toString();
-            document.getElementById("mesh-draw-time-max").innerText = meshRendererStats.getMaximum().toFixed(2).toString();
-        }, 100);
+        videoRenderer.addEventListener("updated", e => {
+            keypointRendererStats.record(e.detail.runtime);
+            document.getElementById("video-draw-time-min").innerText = videoRendererStats.getMinimum().toFixed(2).toString();
+            document.getElementById("video-draw-time-avg").innerText = videoRendererStats.getAverage().toFixed(2).toString();
+            document.getElementById("video-draw-time-max").innerText = videoRendererStats.getMaximum().toFixed(2).toString();
+        });
+
+        keypointRenderer.addEventListener("updated", e => {
+            keypointRendererStats.record(e.detail.runtime);
+            document.getElementById("keypoint-draw-time-min").innerText = keypointRendererStats.getMinimum().toFixed(2).toString();
+            document.getElementById("keypoint-draw-time-avg").innerText = keypointRendererStats.getAverage().toFixed(2).toString();
+            document.getElementById("keypoint-draw-time-max").innerText = keypointRendererStats.getMaximum().toFixed(2).toString();
+        });
     </script>
 </html>

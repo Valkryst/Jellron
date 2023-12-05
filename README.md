@@ -31,28 +31,28 @@ Additionally, the [Mesh](https://github.com/Valkryst/Jellron/blob/master/js/mesh
 
 ## Usage
 
-### Styling
+### Events
 
-You _must_ specify a fixed size for the `video` element VIA CSS. There are a number of issues in implementing dynamic
-sizing, in a way that works across many browsers, so it is currently unsupported. See [styles.css](https://github.com/Valkryst/Jellron/blob/master/css/styles.css)
-for an example of how to implement various fixed sizes depending on the available width.
+#### Detector Events
 
-### Keypoint Rendering
+The _Detector_ classes emit the following events:
 
-[Keypoints](https://github.com/Valkryst/Jellron/blob/master/js/keypoint.js) are rendered using the
-[Three.js](https://threejs.org/) library VIA the [MeshRenderer](https://github.com/Valkryst/Jellron/blob/master/js/mesh_renderer.js)
-class. Each keypoint represents a point in 3D space and is rendered as a 2D rectangle by default.
+* `ready` - Emitted when the detector's TFJS model has finished loading.
+* `started` - Emitted when the detector starts running.
+* `stopped` - Emitted when the detector stops running.
+* `updated` - Emitted when the detector has _detected and updated_ the position of its keypoints.
+  * The event's `runtime` property contains the number of milliseconds taken to detect and update the keypoints.
 
-### Device Management
+#### Renderer Events
 
-As all the _Detector_ classes require a video input device, this library provides the [Camera](https://github.com/Valkryst/Jellron/blob/master/js/camera.js)
-class provides the following functions to help the user select a device to use and to display its MediaStream in a 
-`<video>` element:
+The _Renderer_ classes emit the following events:
 
-- `createOrUpdateSelectElement(HTMLSelectElement)` - Creates or updates a select element with the available video input devices.
-- `getVideoElement()` - Returns the Camera's video element.
-- `setVideoElement(HTMLVideoElement)` - Sets the Camera's video element.
-- `updateVideoElement(HTMLVideoElement)` - Updates the Camera's video element to reflect changes to the MediaStream.
+* `rendered` - Emitted when the renderer has finished rendering a frame.
+  * The event's `runtime` property contains the number of milliseconds taken to render the frame. 
+* `resized` - Emitted when the renderer's `setSize` function updates the size of its canvas.
+  * The event's `width` and `height` properties contain the new size of the canvas. 
+* `started` - Emitted when the renderer starts running.
+* `stopped` - Emitted when the renderer stops running.
 
 ## Browser Support
 
