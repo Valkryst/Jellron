@@ -2,7 +2,7 @@ import {Keypoint} from "../keypoint.js";
 import {Mesh} from "../mesh.js";
 import {Renderer} from "./renderer.js";
 import {Scene} from "three";
-import {validateBoolean, validateInstanceOf, validateNonEmptyString, validatePositiveNumber} from "../validation.js";
+import {validateBoolean, validateInstanceOf, validateNonEmptyString, validatePositiveNumber} from "../utility/validation.js";
 
 export class KeypointRenderer extends Renderer {
     /** Desired number of frames per second. */

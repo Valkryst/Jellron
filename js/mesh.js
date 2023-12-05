@@ -1,5 +1,5 @@
 import {Keypoint} from "./keypoint.js";
-import {validateNonEmptyString} from "./validation.js";
+import {validateNonEmptyString} from "./utility/validation.js";
 
 export class Mesh {
     /** @type {string} Default colour to use when displaying body Keypoints. */

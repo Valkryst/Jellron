@@ -1,4 +1,4 @@
-import {validateNonEmptyString, validateString} from "./validation.js";
+import {validateNonEmptyString, validateString} from "./utility/validation.js";
 
 export class Camera {
     static selectElement = null;

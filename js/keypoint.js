@@ -1,5 +1,5 @@
 import {Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
-import {validateDefined, validateNonEmptyString, validateNumber, validateString} from "./validation.js";
+import {validateDefined, validateNonEmptyString, validateNumber, validateString} from "./utility/validation.js";
 
 export class Keypoint {
     /** @type {string} Default colour to use when displaying Keypoints. */

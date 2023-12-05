@@ -1,6 +1,6 @@
 import {Detector} from "./detector.js";
 import {Mesh} from "../mesh.js";
-import {validateInstanceOf} from "../validation.js";
+import {validateInstanceOf} from "../utility/validation.js";
 
 /**
  * See the following link for more information about the body landmarks detection model:

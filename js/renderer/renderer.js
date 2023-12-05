@@ -1,6 +1,6 @@
 import {RunnableInterval} from "../runnable_interval.js";
 import {OrthographicCamera, WebGLRenderer} from "three";
-import {validateDefined, validateInstanceOf, validatePositiveNumber} from "../validation.js";
+import {validateDefined, validateInstanceOf, validatePositiveNumber} from "../utility/validation.js";
 
 export class Renderer extends RunnableInterval {
     /**
