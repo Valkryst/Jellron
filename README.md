@@ -34,14 +34,8 @@ Additionally, the [Mesh](https://github.com/Valkryst/Jellron/blob/master/js/mesh
 ### Styling
 
 You _must_ specify a fixed size for the `video` element VIA CSS. There are a number of issues in implementing dynamic
-sizing, in a way that works across many browsers, so it is currently unsupported.
-
-```css
-video {
-    height: 480px;
-    width: 640px;
-}
-```
+sizing, in a way that works across many browsers, so it is currently unsupported. See [styles.css](https://github.com/Valkryst/Jellron/blob/master/css/styles.css)
+for an example of how to implement various fixed sizes depending on the available width.
 
 ### Keypoint Rendering
 
