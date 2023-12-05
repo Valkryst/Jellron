@@ -312,14 +312,14 @@
             document.getElementById("mesh-draw-time-max").innerText = meshRendererStats.getMaximum().toFixed(2).toString();
         }, 100);
 
-        const warmupInterval = setInterval(() => {
+        const warmupInterval = setInterval(async () => {
             if (bodyDetector.isReady() && faceDetector.isReady() && handDetector.isReady()) {
                 clearInterval(warmupInterval);
 
                 document.getElementById("body-detector-ready").innerText = "True";
                 document.getElementById("face-detector-ready").innerText = "True";
                 document.getElementById("hand-detector-ready").innerText = "True";
-                document.getElementById("video-input-device-select").disabled = false;
+                (await Camera.getSelectElement()).disabled = false;
             }
         }, 100);
 

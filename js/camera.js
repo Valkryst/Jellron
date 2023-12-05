@@ -89,8 +89,12 @@ export class Camera {
         }
 
         // Automatically update the select element when the camera permissions are changed.
-        const cameraPermissionStatus = await navigator.permissions.query({ name: "camera" });
-        cameraPermissionStatus.onchange = async () => await Camera.updateSelectElement();
+        try {
+            const cameraPermissionStatus = await navigator.permissions.query({name: "camera"});
+            cameraPermissionStatus.onchange = async () => await Camera.updateSelectElement();
+        } catch (e) {
+            // The browser does not support the Permissions API.
+        }
 
         // Automatically update the select element when the set of available devices changes.
         // todo Test this.
