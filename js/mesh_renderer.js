@@ -1,6 +1,7 @@
 import {Keypoint} from "./keypoint.js";
 import {Mesh} from "./mesh.js";
-import {OrthographicCamera, Scene, WebGLRenderer} from "three";
+import {FrontSide, MeshBasicMaterial, OrthographicCamera, PlaneGeometry, Scene, SRGBColorSpace, VideoTexture, WebGLRenderer} from "three";
+import {Mesh as ThreeMesh} from "three";
 import {
     validateBoolean,
     validateInstanceOf, validateNonEmptyString,
@@ -40,8 +41,9 @@ export class MeshRenderer {
 
         const camera = this.createCamera(glContext);
         const scene = new Scene();
+        scene.add(this.createVideoMesh());
 
-        this.intervalId = setInterval(() => {
+        this.intervalId = setInterval(async () => {
             const currentTime = performance.now();
 
             for (const keypoint of mesh.getBodyKeypoints()) {
@@ -160,6 +162,33 @@ export class MeshRenderer {
         return camera;
     }
 
+    // todo Cleanup & Document, also pass in params.
+    createVideoMesh() {
+        const canvasElement = document.getElementsByTagName("canvas")[0];
+        const videoElement = document.getElementsByTagName("video")[0];
+
+        const videoTexture = new VideoTexture(videoElement);
+        videoTexture.colorSpace = SRGBColorSpace;
+        videoTexture.needsUpdate = true;
+
+        const videoMaterial = new MeshBasicMaterial({
+            map: videoTexture,
+            side: FrontSide,
+            toneMapped: false
+        });
+        videoMaterial.needsUpdate = true;
+
+        const videoMesh = new ThreeMesh(
+            new PlaneGeometry(canvasElement.scrollWidth, canvasElement.scrollHeight),
+            videoMaterial
+        );
+        videoMesh.position.x += canvasElement.scrollWidth / 2;
+        videoMesh.position.y -= canvasElement.scrollHeight / 2;
+        videoMesh.position.z -= 100;
+
+        return videoMesh;
+    }
+
     /**
      * Displays a 2D necklace on the necklace Keypoint.
      *
@@ -186,24 +215,6 @@ export class MeshRenderer {
         validateBoolean(isLeft);
 
         mesh.getEarlobeKeypoints()[isLeft ? 0 : 1].display2DAsset(url);
-    }
-
-    /**
-     * Calculates the distance between two Keypoints.
-     *
-     * @param {Keypoint} keypoint1 First Keypoint.
-     * @param {Keypoint} keypoint2 Second Keypoint.
-     *
-     * @returns {number} Distance between the Keypoints.
-     */
-    distanceBetweenKeypoints(keypoint1, keypoint2) {
-        validateInstanceOf(keypoint1, Keypoint);
-        validateInstanceOf(keypoint2, Keypoint);
-
-        return Math.sqrt(
-            Math.pow(keypoint1.getX() - keypoint2.getX(), 2) +
-            Math.pow(keypoint1.getY() - keypoint2.getY(), 2)
-        );
     }
 
     /**

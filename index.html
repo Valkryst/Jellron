@@ -4,7 +4,7 @@
         <title>Jellron</title>
 
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0, user-scalable=no">
 
         <link rel="stylesheet" href="css/styles.css">
     </head>
@@ -224,11 +224,10 @@
             </form>
 
             <div id="jellron-display">
+                <canvas></canvas>
                 <video autoplay playsinline>
                     This page requires a browser that supports the <em>video</em> element.
                 </video>
-
-                <canvas></canvas>
             </div>
         </main>
     </body>
@@ -273,6 +272,9 @@
             canvas: canvas
         });
         glContext.autoClear = true;
+
+        const deviceSelect = await Camera.getSelectElement();
+        document.getElementById("video-input-device-select-container").appendChild(deviceSelect);
 
         const mesh = new Mesh();
         const faceDetector = new FaceDetector();
@@ -336,7 +338,7 @@
                 await camera.setVideoElement(document.getElementsByTagName("video")[0]);
 
                 const videoElement = await camera.getVideoElement();
-                glContext.setSize(videoElement.scrollWidth, videoElement.scrollHeight, false);
+                glContext.setSize(videoElement.width, videoElement.height, false);
 
                 if (!bodyDetector.isRunning()) {
                     bodyDetector.start(15, videoElement, mesh);
@@ -367,20 +369,13 @@
 
         window.onresize = () => updateDisplay();
 
-        const deviceSelect = await Camera.getSelectElement(() => {
+        deviceSelect.onchange = () => {
             try {
                 updateDisplay();
             } catch (error) {
                 console.error(error);
-
-                bodyDetector.stop();
-                faceDetector.stop();
-                handDetector.stop();
-                meshRenderer.stop();
             }
-        });
-        document.getElementById("video-input-device-select-container").appendChild(deviceSelect);
-
+        };
 
 
         // Register Listeners for Body Settings
