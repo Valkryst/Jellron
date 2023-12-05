@@ -64,14 +64,11 @@ export class HandDetector extends Detector {
                  */
             }
 
-            if (rawHands.length === 0) {
-                this.lastRuntime = performance.now() - currentTime;
-                return;
-            }
-
-            for (const rawHand of rawHands) {
-                for (const rawKeypoint of rawHand.keypoints) {
-                    this.relabelKeypoint(rawHand, rawKeypoint);
+            if (rawHands.length > 0) {
+                for (const rawHand of rawHands) {
+                    for (const rawKeypoint of rawHand.keypoints) {
+                        this.relabelKeypoint(rawHand, rawKeypoint);
+                    }
                 }
             }
 

@@ -64,13 +64,10 @@ export class BodyDetector extends Detector {
                  */
             }
 
-            if (rawBodies.length === 0) {
-                this.lastRuntime = performance.now() - currentTime;
-                return;
+            if (rawBodies.length > 0) {
+                const rawBody = rawBodies[0];
+                this.mesh.updateBodyKeypoints(rawBody);
             }
-
-            const rawBody = rawBodies[0];
-            this.mesh.updateBodyKeypoints(rawBody);
 
             this.lastRuntime = performance.now() - currentTime;
             this.dispatchEvent(new CustomEvent("updated", {detail: {runtime: this.lastRuntime}}));

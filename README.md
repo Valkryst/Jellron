@@ -40,7 +40,7 @@ The _Detector_ classes emit the following events:
 * `ready` - Emitted when the detector's TFJS model has finished loading.
 * `started` - Emitted when the detector starts running.
 * `stopped` - Emitted when the detector stops running.
-* `updated` - Emitted when the detector has _detected and updated_ the position of its keypoints.
+* `updated` - Emitted when the detector has updated the state of its keypoints.
   * The event's `runtime` property contains the number of milliseconds taken to detect and update the keypoints.
 
 #### Renderer Events

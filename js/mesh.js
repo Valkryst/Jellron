@@ -54,8 +54,10 @@ export class Mesh {
      * }]} rawFace Raw face data.
      */
     updateFaceKeypoints(rawFace) {
-        // todo We know the face is not detected if rawFace is null, so we could hide/show jewellery based on this.
-        if (rawFace == null || rawFace.keypoints == null) {
+        if (rawFace == null || rawFace.keypoints == null || rawFace.length === 0 || rawFace.keypoints.length === 0) {
+            for (let i = 0 ; i < this.faceKeypoints.length; i++) {
+                this.faceKeypoints[i].setConfidence(0);
+            }
             return;
         }
 
@@ -91,8 +93,10 @@ export class Mesh {
      * }]} rawBody Raw body data.
      */
     updateBodyKeypoints(rawBody) {
-        // todo We know the body is not detected if rawPost is null, so we could hide/show jewellery based on this.
-        if (rawBody == null || rawBody.keypoints == null) {
+        if (rawBody == null || rawBody.keypoints == null || rawBody.length === 0 || rawBody.keypoints.length === 0) {
+            for (let i = 0 ; i < this.bodyKeypoints.length; i++) {
+                this.bodyKeypoints[i].setConfidence(0);
+            }
             return;
         }
 
@@ -130,8 +134,10 @@ export class Mesh {
      * }]} rawHands
      */
     updateHandKeypoints(rawHands) {
-        // todo Check what happens when one or both hands aren't visible.
         if (rawHands == null || rawHands.length === 0) {
+            for (const keypoint of this.handKeypoints) {
+                keypoint.setConfidence(0);
+            }
             return;
         }
 

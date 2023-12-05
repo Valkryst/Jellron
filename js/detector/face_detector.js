@@ -64,14 +64,12 @@ export class FaceDetector extends Detector {
                  */
             }
 
-            if (rawFaces.length === 0) {
-                this.lastRuntime = performance.now() - currentTime;
-                return;
-            }
-
-            const rawFace = rawFaces[0];
-            for (let i = 0 ; i < rawFace.keypoints.length ; i++) {
-                this.relabelKeypoint(i, rawFace.keypoints[i]);
+            let rawFace = null;
+            if (rawFaces.length > 0) {
+                rawFace = rawFaces[0];
+                for (let i = 0 ; i < rawFace.keypoints.length ; i++) {
+                    this.relabelKeypoint(i, rawFace.keypoints[i]);
+                }
             }
 
             this.mesh.updateFaceKeypoints(rawFace);
