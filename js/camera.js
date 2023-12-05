@@ -20,13 +20,10 @@ export class Camera {
      * The select element is configured to automatically update as the set of available devices changes, and when the
      * camera permissions are changed.
      *
-     * @param {function} onChange Function to call when the value of the select element changes. This will replace the existing onChange function.
-     *
      * @returns {Promise<HTMLSelectElement>} A promise that resolves to a select element.
      */
-    static async getSelectElement(onChange = null) {
+    static async getSelectElement() {
         if (Camera.selectElement) {
-            Camera.selectElement.onchange = () => onChange?.();
             await Camera.updateSelectElement();
             return Camera.selectElement;
         }
@@ -34,7 +31,6 @@ export class Camera {
         const select = document.createElement("select");
         select.disabled = true;
         select.id = "video-input-device-select";
-        select.onchange = () => onChange?.();
         Camera.selectElement = select;
 
         await Camera.updateSelectElement();
@@ -129,8 +125,8 @@ export class Camera {
          * Both FaceDetector and HandDetector use the video element's height and width properties to scale the input
          * MediaStream before processing it. This is why we need to set them.
          */
-        this.videoElement.height = this.videoElement.scrollHeight;
-        this.videoElement.width = this.videoElement.scrollWidth;
+        this.videoElement.height = await this.getMediaStreamHeight();
+        this.videoElement.width = await this.getMediaStreamWidth();
     }
 
     /**
