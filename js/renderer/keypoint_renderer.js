@@ -27,9 +27,6 @@ export class KeypointRenderer extends Renderer {
         this.displayHands = true;
         this.displayNecklace = true;
 
-        this.intervalId = null;
-        this.lastRuntime = 0;
-
         this.minimumConfidence = 0.5;
     }
 

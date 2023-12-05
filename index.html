@@ -240,15 +240,15 @@
         });
 
         const videoRendererStats = new StatRecorder(30);
-        videoRenderer.addEventListener("updated", e => {
-            keypointRendererStats.record(e.detail.runtime);
+        videoRenderer.addEventListener("rendered", e => {
+            videoRendererStats.record(e.detail.runtime);
             document.getElementById("video-draw-time-min").innerText = videoRendererStats.getMinimum().toFixed(2).toString();
             document.getElementById("video-draw-time-avg").innerText = videoRendererStats.getAverage().toFixed(2).toString();
             document.getElementById("video-draw-time-max").innerText = videoRendererStats.getMaximum().toFixed(2).toString();
         });
 
         const keypointRendererStats = new StatRecorder(30);
-        keypointRenderer.addEventListener("updated", e => {
+        keypointRenderer.addEventListener("rendered", e => {
             keypointRendererStats.record(e.detail.runtime);
             document.getElementById("keypoint-draw-time-min").innerText = keypointRendererStats.getMinimum().toFixed(2).toString();
             document.getElementById("keypoint-draw-time-avg").innerText = keypointRendererStats.getAverage().toFixed(2).toString();
