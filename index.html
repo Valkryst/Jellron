@@ -131,7 +131,7 @@
         import {FaceDetector} from "./js/detector/face_detector.js";
         import {HandDetector} from "./js/detector/hand_detector.js";
         import {Mesh} from "./js/mesh.js";
-        import {MeshRenderer} from "./js/renderer/mesh_renderer.js";
+        import {KeypointRenderer} from "./js/renderer/keypoint_renderer.js";
         import {StatRecorder} from "./js/stat_recorder.js";
         import {VideoRenderer} from "./js/renderer/video_renderer.js";
 
@@ -142,7 +142,7 @@
         const faceDetector = new FaceDetector(mesh);
         const bodyDetector = new BodyDetector(mesh);
         const handDetector = new HandDetector(mesh);
-        const meshRenderer = new MeshRenderer(mesh);
+        const keypointRenderer = new KeypointRenderer(mesh);
         const videoRenderer = new VideoRenderer();
 
         const warmupInterval = setInterval(async () => {
@@ -168,7 +168,7 @@
                 const camera = await new Camera(deviceSelect.value);
 
                 const videoElement = await camera.getVideoElement();
-                meshRenderer.setSize(videoElement.width, videoElement.height);
+                keypointRenderer.setSize(videoElement.width, videoElement.height);
                 videoRenderer.setSize(videoElement.width, videoElement.height);
 
                 if (!bodyDetector.isRunning()) {
@@ -189,12 +189,12 @@
                  *
                  * todo Investigate this issue and determine if there's a better way to handle it.
                  */
-                meshRenderer.display2DEarring("./assets/earring.png", true);
-                meshRenderer.display2DEarring("./assets/earring.png", false);
-                meshRenderer.display2DNecklace("./assets/necklace.png");
+                keypointRenderer.display2DEarring("./assets/earring.png", true);
+                keypointRenderer.display2DEarring("./assets/earring.png", false);
+                keypointRenderer.display2DNecklace("./assets/necklace.png");
 
-                meshRenderer.stop();
-                meshRenderer.start();
+                keypointRenderer.stop();
+                keypointRenderer.start();
 
                 videoRenderer.stop();
                 videoRenderer.start();
@@ -224,7 +224,7 @@
             faceDetectorStats.record(faceDetector.getLastRuntime());
             bodyDetectorStats.record(bodyDetector.getLastRuntime());
             handDetectorStats.record(handDetector.getLastRuntime());
-            meshRendererStats.record(meshRenderer.getLastRuntime());
+            meshRendererStats.record(keypointRenderer.getLastRuntime());
 
             document.getElementById("body-detection-time-min").innerText = bodyDetectorStats.getMinimum().toFixed(2).toString();
             document.getElementById("body-detection-time-avg").innerText = bodyDetectorStats.getAverage().toFixed(2).toString();
