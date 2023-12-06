@@ -29,7 +29,6 @@ export class FaceDetector extends Detector {
         FaceDetector.instance = this;
 
         this.mesh = mesh;
-        this.inputElement = document.getElementById("jellron-video-canvas");
 
         faceLandmarksDetection.createDetector(
             faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
@@ -56,7 +55,7 @@ export class FaceDetector extends Detector {
 
             let rawFaces = [];
             try {
-                rawFaces = await this.detector.estimateFaces(this.inputElement);
+                rawFaces = await this.detector.estimateFaces(Detector.getCurrentFrame());
             } catch (e) {
                 /*
                  * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is

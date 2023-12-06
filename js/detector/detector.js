@@ -1,6 +1,10 @@
 import {RunnableInterval} from "../runnable_interval.js";
+import {validateInstanceOf} from "../utility/validation.js";
 
 export class Detector extends RunnableInterval {
+    /** Current frame to be processed. */
+    static currentFrame = null;
+
     /** Creates a new Detector. */
     constructor() {
         super();
@@ -24,5 +28,24 @@ export class Detector extends RunnableInterval {
      */
     isReady() {
         return this.detector != null;
+    }
+
+    /**
+     * Retrieves the current frame.
+     *
+     * @returns {Tensor} Current frame.
+     */
+    static getCurrentFrame() {
+        return Detector.currentFrame;
+    }
+
+    /**
+     * Sets the current frame.
+     *
+     * @param frame New current frame.
+     */
+    static setCurrentFrame(frame) {
+        Detector.currentFrame?.dispose();
+        Detector.currentFrame = frame;
     }
 }

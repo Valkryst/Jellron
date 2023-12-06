@@ -53,6 +53,15 @@ export class Renderer extends RunnableInterval {
     }
 
     /**
+     * Retrieves the canvas to use for rendering.
+     *
+     * @returns {HTMLCanvasElement} Canvas to use for rendering.
+     */
+    getCanvas() {
+        return this.canvas;
+    }
+
+    /**
      * Sets the canvas to use for rendering.
      *
      * @param {HTMLCanvasElement} canvas Canvas to use for rendering.

@@ -29,7 +29,6 @@ export class HandDetector extends Detector {
         HandDetector.instance = this;
 
         this.mesh = mesh;
-        this.inputElement = document.getElementById("jellron-video-canvas");
 
         handPoseDetection.createDetector(
             handPoseDetection.SupportedModels.MediaPipeHands,
@@ -56,7 +55,7 @@ export class HandDetector extends Detector {
 
             let rawHands = [];
             try {
-                rawHands = await this.detector.estimateHands(this.inputElement);
+                rawHands = await this.detector.estimateHands(Detector.getCurrentFrame());
             } catch (e) {
                 /*
                  * Depending on the state of the video element, this can throw a "Requested texture size [0x0] is

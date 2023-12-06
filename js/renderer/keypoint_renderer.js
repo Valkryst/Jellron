@@ -1,3 +1,4 @@
+import {Detector} from "../detector/detector.js";
 import {Keypoint} from "../keypoint.js";
 import {Mesh} from "../mesh.js";
 import {Renderer} from "./renderer.js";
@@ -37,6 +38,7 @@ export class KeypointRenderer extends Renderer {
         }
 
         const scene = new Scene();
+        const videoCanvas = document.getElementById("jellron-video-canvas");
 
         this.dispatchEvent(new CustomEvent("started"));
         this.intervalId = setInterval(async () => {
@@ -109,6 +111,9 @@ export class KeypointRenderer extends Renderer {
             }
 
             this.glContext.render(scene, this.getCamera());
+
+            // We set this here because the KeypointRenderer runs at a lower framerate than VideoRenderer.
+            Detector.setCurrentFrame(tf.browser.fromPixels(videoCanvas));
 
             this.lastRuntime = performance.now() - currentTime;
             this.dispatchEvent(new CustomEvent("rendered", {detail: {runtime: this.lastRuntime}}));
