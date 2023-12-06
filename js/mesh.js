@@ -421,6 +421,16 @@ export class Mesh {
     getNecklaceKeypoint() {
         this.necklaceKeypoint.setConfidence(0);
 
+        const leftEdgeFace = this.getKeypointByLabel("left_edge_face");
+        if (leftEdgeFace == null) {
+            return this.necklaceKeypoint;
+        }
+
+        const rightEdgeFace = this.getKeypointByLabel("right_edge_face");
+        if (rightEdgeFace == null) {
+            return this.necklaceKeypoint;
+        }
+
         const leftShoulder = this.getKeypointByLabel("left_shoulder");
         if (leftShoulder == null) {
             return this.necklaceKeypoint;
@@ -455,6 +465,9 @@ export class Mesh {
             const scaleY = height / assetHeight;
             this.necklaceKeypoint.setScale(scaleX, scaleY, 1);
         }
+
+        const rotationY  = (rightEdgeFace.z - leftEdgeFace.z) / 3;
+        this.necklaceKeypoint.setRotationY(-rotationY);
 
         const rotationZ = (rightShoulder.getY() - leftShoulder.getY()) / 5;
         this.necklaceKeypoint.setRotationZ(rotationZ);
