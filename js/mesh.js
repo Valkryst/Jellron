@@ -354,8 +354,8 @@ export class Mesh {
             earlobeKeypoint.setScale(scaleX, scaleY, 1);
         }
 
-        const isRotatedLeft = (rightEdgeFace.z - leftEdgeFace.z) > 40;
-        const isRotatedRight = (leftEdgeFace.z - rightEdgeFace.z) > 40;
+        const isRotatedLeft = (rightEdgeFace.z - leftEdgeFace.z) > 20;
+        const isRotatedRight = (leftEdgeFace.z - rightEdgeFace.z) > 20;
 
         const isRotatedUp = topEdgeFace.z > 8;
         const isRotatedDown = bottomEdgeFace.z > 8;
@@ -365,12 +365,14 @@ export class Mesh {
         leftEarlobeX += k361.getX() + Math.abs(k401.getX() - k361.getX());
         leftEarlobeX /= 2;
         leftEarlobeX -= this.earlobeKeypoints[0].getWidth() / 2;
+        leftEarlobeX = (leftEarlobeX + leftEar.getX()) / 2; // Position the earring between our estimated earlobe and the ear for a more accurate position.
 
         let rightEarlobeX;
         rightEarlobeX = k132.getX() - Math.abs(k132.getX() - k177.getX());
         rightEarlobeX += k93.getX() - Math.abs(k93.getX() - k137.getX());
         rightEarlobeX /= 2;
         rightEarlobeX += this.earlobeKeypoints[1].getWidth() / 2;
+        rightEarlobeX = (rightEarlobeX + rightEar.getX()) / 2; // Position the earring between our estimated earlobe and the ear for a more accurate position.
 
         let leftEarlobeY = 0;
         leftEarlobeY = k323.getY() + Math.abs(k366.getY() - k323.getY());
