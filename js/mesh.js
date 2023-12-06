@@ -258,21 +258,6 @@ export class Mesh {
             return this.earlobeKeypoints;
         }
 
-        const leftEye = this.getKeypointByLabel("left_eye");
-        if (leftEye == null) {
-            return this.earlobeKeypoints;
-        }
-
-        const rightEye = this.getKeypointByLabel("right_eye");
-        if (rightEye == null) {
-            return this.earlobeKeypoints;
-        }
-
-        const midPointBetweenNoseAndMouth = this.getKeypointByLabel("midpoint_between_nose_and_mouth");
-        if (midPointBetweenNoseAndMouth == null) {
-            return this.earlobeKeypoints;
-        }
-
         const leftEdgeFace = this.getKeypointByLabel("left_edge_face");
         if (leftEdgeFace == null) {
             return this.earlobeKeypoints;
@@ -303,6 +288,46 @@ export class Mesh {
             return this.earlobeKeypoints;
         }
 
+        const k93 = this.faceKeypoints?.[93];
+        if (k93 == null) {
+            return this.earlobeKeypoints;
+        }
+
+        const k132 = this.faceKeypoints?.[132];
+        if (k132 == null) {
+            return this.earlobeKeypoints;
+        }
+
+        const k137 = this.faceKeypoints?.[137];
+        if (k137 == null) {
+            return this.earlobeKeypoints;
+        }
+
+        const k177 = this.faceKeypoints?.[177];
+        if (k177 == null) {
+            return this.earlobeKeypoints;
+        }
+
+        const k323 = this.faceKeypoints?.[323];
+        if (k323 == null) {
+            return this.earlobeKeypoints;
+        }
+
+        const k361 = this.faceKeypoints?.[361];
+        if (k361 == null) {
+            return this.earlobeKeypoints;
+        }
+
+        const k366 = this.faceKeypoints?.[366];
+        if (k366 == null) {
+            return this.earlobeKeypoints;
+        }
+
+        const k401 = this.faceKeypoints?.[401];
+        if (k401 == null) {
+            return this.earlobeKeypoints;
+        }
+
         /**
          * If an earring asset is being displayed on the an earlobe, we need to ensure that it is scaled correctly as
          * the user moves towards or away from the camera.
@@ -329,81 +354,41 @@ export class Mesh {
             earlobeKeypoint.setScale(scaleX, scaleY, 1);
         }
 
-        /*
-         * Determine which algorithm to use, based on head rotation.
-         *
-         * None
-         *      Use the original algorithm.
-         *
-         *      todo Test whether clamping to the edge of the face produces better results.
-         *
-         * Left/Right
-         *      Use the original algorithm, but hide earlobes depending on head rotation
-         *
-         *      The magic numbers, used in the two comparisons, were arbitrarily chosen, but seem to work.
-         *
-         * Up/Down
-         *     Use the original algorithm, but add an offset to the earlobe Y-Axis coordinates depending on head
-         *     rotation.
-         *
-         *     The magic numbers, used in the two comparisons, were arbitrarily chosen, but seem to work.
-         */
         const isRotatedLeft = (rightEdgeFace.z - leftEdgeFace.z) > 40;
         const isRotatedRight = (leftEdgeFace.z - rightEdgeFace.z) > 40;
 
         const isRotatedUp = topEdgeFace.z > 8;
         const isRotatedDown = bottomEdgeFace.z > 8;
 
-        /*
-         * As the ear Keypoints are not as reliable as Keypoints closer to the middle of the face, we adjust the X-Axis
-         * coordinates of the earlobes to be closer to edges of the face.
-         */
         let leftEarlobeX;
-        if (isRotatedLeft) {
-            leftEarlobeX = leftEar.getX();
-            leftEarlobeX -= this.earlobeKeypoints[0].getWidth() / 2;
-            leftEarlobeX += (Math.abs(leftEar.getX() - leftEdgeFace.getX()) / 2);
-        } else {
-            leftEarlobeX = leftEdgeFace.getX();
-        }
+        leftEarlobeX = k323.getX() + Math.abs(k366.getX() - k323.getX());
+        leftEarlobeX += k361.getX() + Math.abs(k401.getX() - k361.getX());
+        leftEarlobeX /= 2;
+        leftEarlobeX -= this.earlobeKeypoints[0].getWidth() / 2;
 
         let rightEarlobeX;
-        if (isRotatedRight) {
-            rightEarlobeX = rightEar.getX();
-            rightEarlobeX -= this.earlobeKeypoints[1].getWidth() / 2;
-            rightEarlobeX += (Math.abs(rightEar.getX() - rightEdgeFace.getX()) / 2);
-        } else {
-            rightEarlobeX = rightEdgeFace.getX();
-        }
+        rightEarlobeX = k132.getX() - Math.abs(k132.getX() - k177.getX());
+        rightEarlobeX += k93.getX() - Math.abs(k93.getX() - k137.getX());
+        rightEarlobeX /= 2;
+        rightEarlobeX += this.earlobeKeypoints[1].getWidth() / 2;
 
-        /*
-         * We assume that the Y-Axis of each earlobe is the same as the midpoint between the nose and mouth.
-         *
-         * The Y-Axis coordinates are affected by head tilt, which can be determined either by the difference between
-         * the Y-Axis coordinates of the ears or eyes. Generally, Keypoints closer to the middle of the face are more
-         * accurate, so we use the difference between the Y-Axis coordinates of the eyes.
-         */
-        let leftEarlobeY = midPointBetweenNoseAndMouth.y + (leftEye.y - rightEye.y);
-        let rightEarlobeY = midPointBetweenNoseAndMouth.y + (rightEye.y - leftEye.y);
+        let leftEarlobeY = 0;
+        leftEarlobeY = k323.getY() + Math.abs(k366.getY() - k323.getY());
+        leftEarlobeY += k361.getY() + Math.abs(k401.getY() - k361.getY());
+        leftEarlobeY /= 2;
+        leftEarlobeY += this.earlobeKeypoints[0].getHeight() / 2;
 
-        // If the head is tilted up or down, we need to apply an offset to negate the tilt.
-        leftEarlobeY += isRotatedUp ? topEdgeFace.z: 0;
-        leftEarlobeY += isRotatedDown ? -bottomEdgeFace.z : 0;
+        let rightEarlobeY;
+        rightEarlobeY = k132.getY() - Math.abs(k132.getY() - k177.getY());
+        rightEarlobeY += k93.getY() - Math.abs(k93.getY() - k137.getY());
+        rightEarlobeY /= 2;
+        rightEarlobeY += this.earlobeKeypoints[1].getHeight() / 2;
 
-        rightEarlobeY += isRotatedUp ? topEdgeFace.z : 0;
-        rightEarlobeY += isRotatedDown ? -bottomEdgeFace.z : 0;
-
-        /*
-         * We assume that the X-Axis coordinate of the earlobe is the same as the X-Axis coordinate of the ear.
-         *
-         * We assume that head rotation is accounted for by the ear Keypoints, as their coordinates are updated by the
-         * model.
-         */
-        this.earlobeKeypoints[0].setConfidence(1);
+        this.earlobeKeypoints[0].setConfidence(isRotatedRight ? 0 : 1);
         this.earlobeKeypoints[0].setPosition(leftEarlobeX, leftEarlobeY, leftEar.z);
         this.earlobeKeypoints[0].setColour(Mesh.defaultEarlobeKeypointColour);
 
-        this.earlobeKeypoints[1].setConfidence(1);
+        this.earlobeKeypoints[1].setConfidence(isRotatedLeft ? 0 : 1);
         this.earlobeKeypoints[1].setPosition(rightEarlobeX, rightEarlobeY, rightEar.z);
         this.earlobeKeypoints[1].setColour(Mesh.defaultEarlobeKeypointColour);
 
