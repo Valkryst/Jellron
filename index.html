@@ -32,7 +32,9 @@
 
                         <label>
                             Select a Video Input Device:
-                            <span id="video-input-device-select-container"></span>
+                            <select id="video-select" disabled>
+                                <option value="" selected>Select a Device</option>
+                            </select>
                         </label>
                         <label>
                             Body Detector Ready:
@@ -133,7 +135,7 @@
         import {VideoRenderer} from "./js/renderer/video_renderer.js";
 
         const deviceSelect = await Camera.getSelectElement();
-        document.getElementById("video-input-device-select-container").appendChild(deviceSelect);
+        document.getElementById("video-select").replaceWith(deviceSelect);
 
         const mesh = new Mesh();
         const bodyDetector = new BodyDetector(mesh);
