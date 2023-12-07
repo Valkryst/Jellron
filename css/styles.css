@@ -22,8 +22,8 @@ table, th, td {
 #jellron-display {
     margin: 0 auto;
 
-    height: 600px;
-    width: 800px;
+    height: 800px;
+    width: 50%;
 
     & > canvas, & > video {
         position: absolute;

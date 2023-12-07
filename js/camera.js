@@ -121,7 +121,11 @@ export class Camera {
         }
 
         this.videoElement.srcObject = await this.getVideoInputDevice();
-        this.videoElement.height = this.jellronDisplay.scrollHeight;
+
+        const aspectRatio = await this.getMediaStreamWidth() / await this.getMediaStreamHeight();
+        this.videoElement.parentElement.style.aspectRatio = aspectRatio;
+        this.videoElement.style.aspectRatio = aspectRatio;
+
         this.videoElement.width = this.jellronDisplay.scrollWidth;
     }
 
