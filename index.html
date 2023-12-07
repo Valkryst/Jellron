@@ -154,13 +154,6 @@
             document.getElementById("hand-detector-ready").innerText = "True";
         });
 
-        const warmupInterval = setInterval(async () => {
-            if (bodyDetector.isReady() && faceDetector.isReady() && handDetector.isReady()) {
-                clearInterval(warmupInterval);
-                (await Camera.getSelectElement()).disabled = false;
-            }
-        }, 100);
-
         let camera = null;
         let resizeTimeout = null;
         const updateDisplay = async () => {
@@ -214,6 +207,18 @@
                 console.error(error);
             }
         };
+
+        const warmupInterval = setInterval(async () => {
+            if (bodyDetector.isReady() && faceDetector.isReady() && handDetector.isReady()) {
+                clearInterval(warmupInterval);
+
+                deviceSelect.removeAttribute("disabled");
+                if (deviceSelect.length > 1) {
+                    deviceSelect.options[1].setAttribute("selected", "");
+                    deviceSelect.onchange();
+                }
+            }
+        }, 100);
 
         const bodyDetectorStats = new StatRecorder(30);
         bodyDetector.addEventListener("updated", e => {
