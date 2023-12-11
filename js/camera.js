@@ -197,7 +197,12 @@ export class Camera {
      */
      async getVideoInputDevice() {
          if (this.device == null) {
-             this.device = await navigator.mediaDevices.getUserMedia({video: {deviceId: {exact: this.deviceId}}});
+             this.device = await navigator.mediaDevices.getUserMedia({
+                 video: {
+                     aspectRatio: 4 / 3,
+                     deviceId: {exact: this.deviceId}
+                 }
+             });
          }
 
          return this.device;
