@@ -70,7 +70,18 @@ export class Camera {
         Camera.selectElement.appendChild(Camera.createOptionElement("Select a Device", ""));
 
         // Prompt the user for permission to use the webcam.
-        await navigator.mediaDevices.getUserMedia({ video: true });
+        try {
+            await navigator.mediaDevices.getUserMedia({video: true});
+        } catch (error) {
+            if (error.name === "NotReadableError") {
+                /*
+                 * This occurs when the camera is already in-use by another application. For example, if OBS is open
+                 * and using it before the browser page is opened. After some testing, it appears as though we can
+                 * swallow this error and the dropdown will still be populated with the available devices and they
+                 * can be selected and used.
+                 */
+            }
+        }
 
         // Populate the select element with available video input devices.
         for (const device of (await Camera.getVideoInputDevices())) {
