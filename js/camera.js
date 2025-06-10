@@ -96,6 +96,10 @@ export class Camera {
             Camera.selectElement.appendChild(Camera.createOptionElement(device.label, device.deviceId));
         }
 
+        if (Camera.selectElement.options.length === 1) {
+            document.getElementById("warning").innerHTML = 'No video input devices found. Please connect one and <a href="">refresh</a>, or check that you have <a href="https://support.google.com/chrome/answer/2693767?hl=en&co=GENIE.Platform%3DDesktop" target="_blank">granted permission</a> to use the camera.';
+        }
+
         // Automatically update the select element when the camera permissions are changed.
         try {
             const cameraPermissionStatus = await navigator.permissions.query({name: "camera"});

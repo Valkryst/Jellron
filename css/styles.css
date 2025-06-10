@@ -11,6 +11,15 @@ table, th, td {
     border: 1px solid;
 }
 
+#warning {
+    grid-column: 1 / -1;
+
+    border: 2px;
+    border-style: solid;
+    border-color: red;
+    background-color: #FDD;
+}
+
 #webcam-settings, #keypoint-settings {
     grid-template-columns: 1fr 1fr;
 }
